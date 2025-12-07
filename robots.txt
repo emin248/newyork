@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://baki-sumqayit.site/sitemap.xml
