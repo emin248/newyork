@@ -23,235 +23,253 @@
     <!-- Monetag Vignette Ad -->
     <script>(function (s) { s.dataset.zone = '10313116', s.src = 'https://gizokraijaw.net/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </head>
-/* 2048 Game Specific Styles */
-.game-area-2048 {
-font-family: "Poppins", sans-serif;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
-border-radius: 20px;
-padding: 20px;
-width: 100%;
-max-width: 500px;
-/* Limit width */
-box-sizing: border-box;
-position: relative;
-}
+<style>
+    /* 2048 Game Specific Styles by User */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
 
-.game-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-width: 100%;
-margin-bottom: 20px;
-max-width: 320px;
-}
+    .game-area-2048 {
+        background: linear-gradient(135deg, #8EC5FC 0%, #E0C3FC 100%);
+        color: #776e65;
+        font-family: "Poppins", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+        padding: 20px;
+        width: 100%;
+        max-width: 500px;
+        box-sizing: border-box;
+        position: relative;
+        /* height removed to fit content */
+        margin: 0 auto;
+    }
 
-.game-title {
-font-size: 40px;
-font-weight: bold;
-color: white;
-text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-margin: 0;
-}
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: 320px;
+        margin-bottom: 20px;
+    }
 
-.score-box {
-background: #bbada0;
-padding: 5px 15px;
-border-radius: 6px;
-color: white;
-text-align: center;
-min-width: 70px;
-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+    .title {
+        font-size: 48px;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        margin: 0;
+    }
 
-.score-label {
-font-size: 10px;
-text-transform: uppercase;
-display: block;
-}
+    .score-box {
+        background: #bbada0;
+        padding: 5px 20px;
+        border-radius: 6px;
+        color: white;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
 
-.score-value {
-font-size: 20px;
-font-weight: bold;
-display: block;
-}
+    .score-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        display: block;
+        letter-spacing: 1px;
+    }
 
-.grid-container {
-width: 320px;
-height: 320px;
-background-color: rgba(255, 255, 255, 0.4);
-backdrop-filter: blur(10px);
-border-radius: 10px;
-padding: 10px;
-position: relative;
-display: grid;
-grid-template-columns: repeat(4, 1fr);
-grid-template-rows: repeat(4, 1fr);
-gap: 10px;
-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-margin: 0 auto;
-}
+    .score-val {
+        font-size: 22px;
+        font-weight: bold;
+        display: block;
+    }
 
-.tile {
-width: 100%;
-height: 100%;
-background-color: rgba(238, 228, 218, 0.35);
-border-radius: 5px;
-display: flex;
-justify-content: center;
-align-items: center;
-font-size: 30px;
-font-weight: bold;
-color: #776e65;
-transition: all 0.15s ease;
-animation: pop 0.2s ease-in;
-}
+    .game-container {
+        width: 320px;
+        height: 320px;
+        background-color: #bbada0;
+        border-radius: 10px;
+        padding: 10px;
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        gap: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
 
-@keyframes pop {
-0% {
-transform: scale(0);
-opacity: 0;
-}
+    .tile {
+        width: 100%;
+        height: 100%;
+        background-color: rgba(238, 228, 218, 0.35);
+        border-radius: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 32px;
+        font-weight: bold;
+        color: #776e65;
+        transition: transform 0.1s ease-in-out;
+    }
 
-80% {
-transform: scale(1.1);
-}
+    /* Animations */
+    @keyframes appear {
+        0% {
+            opacity: 0;
+            transform: scale(0);
+        }
 
-100% {
-transform: scale(1);
-opacity: 1;
-}
-}
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
 
-/* Tile Colors */
-.x2 {
-background-color: #eee4da;
-color: #776e65;
-}
+    .new-tile {
+        animation: appear 0.2s ease-in-out backwards;
+    }
 
-.x4 {
-background-color: #ede0c8;
-color: #776e65;
-}
+    @keyframes pop {
+        0% {
+            transform: scale(1);
+        }
 
-.x8 {
-background-color: #f2b179;
-color: #f9f6f2;
-}
+        50% {
+            transform: scale(1.25);
+            filter: brightness(1.2);
+        }
 
-.x16 {
-background-color: #f59563;
-color: #f9f6f2;
-}
+        100% {
+            transform: scale(1);
+        }
+    }
 
-.x32 {
-background-color: #f67c5f;
-color: #f9f6f2;
-}
+    .pop-anim {
+        animation: pop 0.2s ease-in-out;
+        z-index: 10;
+    }
 
-.x64 {
-background-color: #f65e3b;
-color: #f9f6f2;
-}
+    /* Colors */
+    .x2 {
+        background-color: #eee4da;
+        color: #776e65;
+    }
 
-.x128 {
-background-color: #edcf72;
-color: #f9f6f2;
-font-size: 25px;
-box-shadow: 0 0 10px #edcf72;
-}
+    .x4 {
+        background-color: #ede0c8;
+        color: #776e65;
+    }
 
-.x256 {
-background-color: #edcc61;
-color: #f9f6f2;
-font-size: 25px;
-box-shadow: 0 0 15px #edcc61;
-}
+    .x8 {
+        background-color: #f2b179;
+        color: #f9f6f2;
+    }
 
-.x512 {
-background-color: #edc850;
-color: #f9f6f2;
-font-size: 25px;
-box-shadow: 0 0 20px #edc850;
-}
+    .x16 {
+        background-color: #f59563;
+        color: #f9f6f2;
+    }
 
-.x1024 {
-background-color: #edc53f;
-color: #f9f6f2;
-font-size: 20px;
-}
+    .x32 {
+        background-color: #f67c5f;
+        color: #f9f6f2;
+    }
 
-.x2048 {
-background-color: #edc22e;
-color: #f9f6f2;
-font-size: 20px;
-box-shadow: 0 0 30px #edc22e;
-}
+    .x64 {
+        background-color: #f65e3b;
+        color: #f9f6f2;
+    }
 
-.game-over-overlay {
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.7);
-z-index: 10;
-display: none;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-border-radius: 10px;
-animation: fadein 0.5s;
-}
+    .x128 {
+        background-color: #edcf72;
+        color: #f9f6f2;
+        font-size: 28px;
+        box-shadow: 0 0 10px #edcf72;
+    }
 
-@keyframes fadein {
-from {
-opacity: 0;
-}
+    .x256 {
+        background-color: #edcc61;
+        color: #f9f6f2;
+        font-size: 28px;
+        box-shadow: 0 0 15px #edcc61;
+    }
 
-to {
-opacity: 1;
-}
-}
+    .x512 {
+        background-color: #edc850;
+        color: #f9f6f2;
+        font-size: 28px;
+        box-shadow: 0 0 20px #edc850;
+    }
 
-.game-over-overlay h2 {
-color: white;
-font-size: 40px;
-margin: 0 0 20px 0;
-}
+    .x1024 {
+        background-color: #edc53f;
+        color: #f9f6f2;
+        font-size: 22px;
+    }
 
-.restart-btn {
-background-color: #8f7a66;
-color: white;
-border: none;
-padding: 10px 20px;
-font-size: 18px;
-border-radius: 5px;
-cursor: pointer;
-font-family: inherit;
-}
+    .x2048 {
+        background-color: #edc22e;
+        color: #f9f6f2;
+        font-size: 22px;
+        box-shadow: 0 0 30px #edc22e;
+    }
 
-.restart-btn:hover {
-background-color: #9f8b77;
-}
+    .game-over {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(5px);
+        z-index: 20;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        animation: fadein 0.5s;
+    }
 
-.instructions {
-margin-top: 20px;
-color: white;
-/* Changed to white for visibility on gradient */
-font-size: 14px;
-text-align: center;
-}
+    @keyframes fadein {
+        from {
+            opacity: 0;
+        }
 
-.instructions span {
-background: rgba(0, 0, 0, 0.2);
-padding: 2px 6px;
-border-radius: 4px;
-margin: 0 2px;
-}
+        to {
+            opacity: 1;
+        }
+    }
+
+    .game-over h2 {
+        color: #776e65;
+        font-size: 40px;
+        margin: 0 0 20px 0;
+    }
+
+    .btn-restart {
+        background-color: #8f7a66;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        font-size: 18px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: transform 0.1s;
+    }
+
+    .btn-restart:active {
+        transform: scale(0.95);
+    }
+
+    .instructions {
+        margin-top: 25px;
+        color: white;
+        font-size: 14px;
+        text-align: center;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
 </style>
 </head>
 
@@ -272,27 +290,25 @@ margin: 0 2px;
             style="padding: 0; border: none; background: transparent; box-shadow: none;">
 
             <div class="game-area-2048">
-                <div class="game-header">
-                    <h1 class="game-title">2048</h1>
+                <div class="header">
+                    <h1 class="title">2048</h1>
                     <div class="score-box">
-                        <span class="score-label">Xal</span>
-                        <span class="score-value" id="score">0</span>
+                        <span class="score-title">Xal</span>
+                        <span class="score-val" id="score">0</span>
                     </div>
                 </div>
 
-                <div class="grid-container" id="grid">
-                    <!-- Kareler JS ile oluşturulacak -->
+                <div class="game-container" id="grid">
+                    <!-- JS ile doldurulacak -->
                 </div>
 
                 <div class="instructions">
-                    PC: <span>←</span> <span>↑</span> <span>↓</span> <span>→</span> <br>
-                    Mobil: Barmağını sürüşdür
+                    PC: Ox Düymələri <br> Mobil: Barmağını sürüşdür
                 </div>
 
-                <!-- Game Over Ekranı -->
-                <div class="game-over-overlay" id="game-message">
+                <div class="game-over" id="game-message">
                     <h2>Oyun Bitdi!</h2>
-                    <button class="restart-btn" onclick="startGame()">Yenidən Oyna</button>
+                    <button class="btn-restart" onclick="startGame()">Yenidən Oyna</button>
                 </div>
             </div>
 
@@ -482,7 +498,6 @@ margin: 0 2px;
         let squares = [];
         let score = 0;
 
-        // Oyunu Başlat
         function startGame() {
             gridDisplay.innerHTML = '';
             squares = [];
@@ -490,7 +505,6 @@ margin: 0 2px;
             scoreDisplay.innerHTML = 0;
             messageDisplay.style.display = 'none';
 
-            // 16 kare oluştur
             for (let i = 0; i < width * width; i++) {
                 const square = document.createElement('div');
                 square.innerHTML = '';
@@ -502,31 +516,36 @@ margin: 0 2px;
             generate();
         }
 
-        // Rastgele sayı oluştur (2)
         function generate() {
-            let random = Math.floor(Math.random() * squares.length);
-            if (squares[random].innerHTML == '') {
-                squares[random].innerHTML = 2;
-                squares[random].className = 'tile x2';
-                checkForGameOver();
-            } else {
-                // Boş yer yoksa tekrar dene (basit recursive)
-                let emptySpots = squares.filter(sq => sq.innerHTML == '').length;
-                if (emptySpots > 0) generate();
-            }
+            let emptySpots = squares.filter(sq => sq.innerHTML == '');
+            if (emptySpots.length === 0) return;
+
+            let randomSquare = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+            randomSquare.innerHTML = 2;
+            randomSquare.className = 'tile x2 new-tile'; // new-tile class'ı açılış animasyonu yapar
+            checkForGameOver();
         }
 
-        // --- HAREKET MANTIĞI ---
+        // --- HAREKET VE ANİMASYON FONKSİYONLARI ---
+
+        // Bu fonksiyon birleşme olduğunda "POP" animasyonunu tetikler
+        function triggerPopAnim(index) {
+            // Animasyonu sıfırla (üst üste olursa çalışsın diye)
+            squares[index].style.animation = 'none';
+            squares[index].offsetHeight; /* trigger reflow */
+            squares[index].style.animation = 'pop 0.2s ease-in-out';
+        }
 
         function moveRight() {
             let moved = false;
             for (let i = 0; i < 16; i++) {
                 if (i % 4 === 0) {
-                    let totalOne = squares[i].innerHTML;
-                    let totalTwo = squares[i + 1].innerHTML;
-                    let totalThree = squares[i + 2].innerHTML;
-                    let totalFour = squares[i + 3].innerHTML;
-                    let row = [parseInt(totalOne) || 0, parseInt(totalTwo) || 0, parseInt(totalThree) || 0, parseInt(totalFour) || 0];
+                    let row = [
+                        parseInt(squares[i].innerHTML) || 0,
+                        parseInt(squares[i + 1].innerHTML) || 0,
+                        parseInt(squares[i + 2].innerHTML) || 0,
+                        parseInt(squares[i + 3].innerHTML) || 0
+                    ];
 
                     let filteredRow = row.filter(num => num);
                     let missing = 4 - filteredRow.length;
@@ -539,21 +558,22 @@ margin: 0 2px;
                     squares[i + 1].innerHTML = newRow[1] || '';
                     squares[i + 2].innerHTML = newRow[2] || '';
                     squares[i + 3].innerHTML = newRow[3] || '';
-                    updateColors();
                 }
             }
-            if (moved) return true;
+            updateColors();
+            return moved;
         }
 
         function moveLeft() {
             let moved = false;
             for (let i = 0; i < 16; i++) {
                 if (i % 4 === 0) {
-                    let totalOne = squares[i].innerHTML;
-                    let totalTwo = squares[i + 1].innerHTML;
-                    let totalThree = squares[i + 2].innerHTML;
-                    let totalFour = squares[i + 3].innerHTML;
-                    let row = [parseInt(totalOne) || 0, parseInt(totalTwo) || 0, parseInt(totalThree) || 0, parseInt(totalFour) || 0];
+                    let row = [
+                        parseInt(squares[i].innerHTML) || 0,
+                        parseInt(squares[i + 1].innerHTML) || 0,
+                        parseInt(squares[i + 2].innerHTML) || 0,
+                        parseInt(squares[i + 3].innerHTML) || 0
+                    ];
 
                     let filteredRow = row.filter(num => num);
                     let missing = 4 - filteredRow.length;
@@ -566,20 +586,21 @@ margin: 0 2px;
                     squares[i + 1].innerHTML = newRow[1] || '';
                     squares[i + 2].innerHTML = newRow[2] || '';
                     squares[i + 3].innerHTML = newRow[3] || '';
-                    updateColors();
                 }
             }
-            if (moved) return true;
+            updateColors();
+            return moved;
         }
 
         function moveDown() {
             let moved = false;
             for (let i = 0; i < 4; i++) {
-                let totalOne = squares[i].innerHTML;
-                let totalTwo = squares[i + width].innerHTML;
-                let totalThree = squares[i + (width * 2)].innerHTML;
-                let totalFour = squares[i + (width * 3)].innerHTML;
-                let column = [parseInt(totalOne) || 0, parseInt(totalTwo) || 0, parseInt(totalThree) || 0, parseInt(totalFour) || 0];
+                let column = [
+                    parseInt(squares[i].innerHTML) || 0,
+                    parseInt(squares[i + width].innerHTML) || 0,
+                    parseInt(squares[i + width * 2].innerHTML) || 0,
+                    parseInt(squares[i + width * 3].innerHTML) || 0
+                ];
 
                 let filteredColumn = column.filter(num => num);
                 let missing = 4 - filteredColumn.length;
@@ -590,21 +611,22 @@ margin: 0 2px;
 
                 squares[i].innerHTML = newColumn[0] || '';
                 squares[i + width].innerHTML = newColumn[1] || '';
-                squares[i + (width * 2)].innerHTML = newColumn[2] || '';
-                squares[i + (width * 3)].innerHTML = newColumn[3] || '';
-                updateColors();
+                squares[i + width * 2].innerHTML = newColumn[2] || '';
+                squares[i + width * 3].innerHTML = newColumn[3] || '';
             }
-            if (moved) return true;
+            updateColors();
+            return moved;
         }
 
         function moveUp() {
             let moved = false;
             for (let i = 0; i < 4; i++) {
-                let totalOne = squares[i].innerHTML;
-                let totalTwo = squares[i + width].innerHTML;
-                let totalThree = squares[i + (width * 2)].innerHTML;
-                let totalFour = squares[i + (width * 3)].innerHTML;
-                let column = [parseInt(totalOne) || 0, parseInt(totalTwo) || 0, parseInt(totalThree) || 0, parseInt(totalFour) || 0];
+                let column = [
+                    parseInt(squares[i].innerHTML) || 0,
+                    parseInt(squares[i + width].innerHTML) || 0,
+                    parseInt(squares[i + width * 2].innerHTML) || 0,
+                    parseInt(squares[i + width * 3].innerHTML) || 0
+                ];
 
                 let filteredColumn = column.filter(num => num);
                 let missing = 4 - filteredColumn.length;
@@ -615,31 +637,34 @@ margin: 0 2px;
 
                 squares[i].innerHTML = newColumn[0] || '';
                 squares[i + width].innerHTML = newColumn[1] || '';
-                squares[i + (width * 2)].innerHTML = newColumn[2] || '';
-                squares[i + (width * 3)].innerHTML = newColumn[3] || '';
-                updateColors();
+                squares[i + width * 2].innerHTML = newColumn[2] || '';
+                squares[i + width * 3].innerHTML = newColumn[3] || '';
             }
-            if (moved) return true;
+            updateColors();
+            return moved;
         }
 
-        // --- BİRLEŞTİRME MANTIĞI ---
+        // --- BİRLEŞTİRME VE ANİMASYON MANTIĞI ---
 
         function combineRow() {
             let combined = false;
             for (let i = 0; i < 15; i++) {
-                // Sadece aynı satırda olanları birleştir (Örn: 3 ve 4 birleşemez çünkü 3 satır sonu)
                 if ((i + 1) % 4 === 0) continue;
 
                 if (squares[i].innerHTML === squares[i + 1].innerHTML && squares[i].innerHTML !== '') {
-                    let combinedTotal = parseInt(squares[i].innerHTML) + parseInt(squares[i + 1].innerHTML);
-                    squares[i].innerHTML = combinedTotal;
+                    let total = parseInt(squares[i].innerHTML) + parseInt(squares[i + 1].innerHTML);
+                    squares[i].innerHTML = total;
                     squares[i + 1].innerHTML = '';
-                    score += combinedTotal;
+
+                    score += total;
                     scoreDisplay.innerHTML = score;
                     combined = true;
+
+                    // ANİMASYON TETİKLEME
+                    updateColors(); // Önce rengi güncelle
+                    triggerPopAnim(i); // Sonra patlat
                 }
             }
-            updateColors();
             return combined;
         }
 
@@ -647,30 +672,34 @@ margin: 0 2px;
             let combined = false;
             for (let i = 0; i < 12; i++) {
                 if (squares[i].innerHTML === squares[i + width].innerHTML && squares[i].innerHTML !== '') {
-                    let combinedTotal = parseInt(squares[i].innerHTML) + parseInt(squares[i + width].innerHTML);
-                    squares[i].innerHTML = combinedTotal;
+                    let total = parseInt(squares[i].innerHTML) + parseInt(squares[i + width].innerHTML);
+                    squares[i].innerHTML = total;
                     squares[i + width].innerHTML = '';
-                    score += combinedTotal;
+
+                    score += total;
                     scoreDisplay.innerHTML = score;
                     combined = true;
+
+                    // ANİMASYON TETİKLEME
+                    updateColors();
+                    triggerPopAnim(i);
                 }
             }
-            updateColors();
             return combined;
         }
 
-        // Renkleri güncelle
         function updateColors() {
             for (let i = 0; i < squares.length; i++) {
-                squares[i].className = 'tile'; // Sıfırla
                 let val = squares[i].innerHTML;
+                // Mevcut classları temizle ama inline style (animasyon) kalsın
+                squares[i].className = 'tile';
                 if (val !== '') {
                     squares[i].classList.add('x' + val);
                 }
             }
         }
 
-        // --- KONTROLLER (PC & MOBİL) ---
+        // --- KONTROLLER ---
 
         function control(e) {
             if (e.keyCode === 39) keyRight();
@@ -679,9 +708,7 @@ margin: 0 2px;
             else if (e.keyCode === 40) keyDown();
         }
 
-        // PC Tuşlarını Dinle
         document.addEventListener('keydown', (e) => {
-            // Sadece yön tuşları basıldığında sayfanın kaymasını engelle
             if ([37, 38, 39, 40].indexOf(e.keyCode) > -1) {
                 e.preventDefault();
                 control(e);
@@ -689,34 +716,34 @@ margin: 0 2px;
         });
 
         function keyRight() {
-            let m = moveRight();
+            let m1 = moveRight();
             let c = combineRow();
             let m2 = moveRight();
-            if (m || c || m2) generate();
+            if (m1 || c || m2) generate();
         }
 
         function keyLeft() {
-            let m = moveLeft();
+            let m1 = moveLeft();
             let c = combineRow();
             let m2 = moveLeft();
-            if (m || c || m2) generate();
+            if (m1 || c || m2) generate();
         }
 
         function keyUp() {
-            let m = moveUp();
+            let m1 = moveUp();
             let c = combineColumn();
             let m2 = moveUp();
-            if (m || c || m2) generate();
+            if (m1 || c || m2) generate();
         }
 
         function keyDown() {
-            let m = moveDown();
+            let m1 = moveDown();
             let c = combineColumn();
             let m2 = moveDown();
-            if (m || c || m2) generate();
+            if (m1 || c || m2) generate();
         }
 
-        // Mobil Dokunmatik (Swipe)
+        // Mobil Kontroller
         let touchStartX = 0;
         let touchStartY = 0;
 
@@ -726,13 +753,10 @@ margin: 0 2px;
         }, { passive: false });
 
         document.addEventListener('touchend', (e) => {
-            let touchEndX = e.changedTouches[0].clientX;
-            let touchEndY = e.changedTouches[0].clientY;
+            let dx = e.changedTouches[0].clientX - touchStartX;
+            let dy = e.changedTouches[0].clientY - touchStartY;
 
-            let dx = touchEndX - touchStartX;
-            let dy = touchEndY - touchStartY;
-
-            // Kaydırma mesafesi çok kısaysa (tıklama gibi) işlem yapma
+            // Hassasiyet eşiği
             if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
 
             if (Math.abs(dx) > Math.abs(dy)) {
@@ -745,32 +769,25 @@ margin: 0 2px;
             e.preventDefault();
         }, { passive: false });
 
-        // Oyun Bitti Kontrolü
         function checkForGameOver() {
             let zeros = 0;
             for (let i = 0; i < squares.length; i++) {
                 if (squares[i].innerHTML == '') zeros++;
             }
-            // Boş yer varsa oyun bitmez
             if (zeros > 0) return;
 
-            // Boş yer yok, birleşme ihtimali var mı?
-            // Yatay kontrol
             for (let i = 0; i < 15; i++) {
                 if ((i + 1) % 4 !== 0) {
                     if (squares[i].innerHTML === squares[i + 1].innerHTML) return;
                 }
             }
-            // Dikey kontrol
             for (let i = 0; i < 12; i++) {
                 if (squares[i].innerHTML === squares[i + width].innerHTML) return;
             }
 
-            // Buraya geldiyse oyun bitmiştir
             messageDisplay.style.display = 'flex';
         }
 
-        // Başlat
         startGame();
     </script>
 </body>
