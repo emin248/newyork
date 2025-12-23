@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rəngləri Tut - Baki-Sumqayit.site</title>
+    <meta name="description" content="Refleks oyunu ilə diqqətinizi və sürətinizi ölçün.">
+    <link rel="stylesheet" href="game-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header class="sticky-header">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Ana Səhifə</span></a>
+        <div class="site-logo">baki-sumqayit.site</div>
+    </header>
+    <div class="main-container">
+        <main class="game-wrapper" id="game-container">
+            <style>
+                .zigzag-wrapper {
+                    font-family: 'Poppins', sans-serif;
+                    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+                    color: white;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                    border-radius: 20px;
+                    width: 100%;
+                    box-sizing: border-box;
+                    min-height: 500px;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .zigzag-game-container {
+                    position: relative;
+                    width: 100%;
+                    height: 500px;
+                    /* Fixed height for the game area */
+                    border-radius: 15px;
+                    overflow: hidden;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                }
+
+                #gameCanvas {
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+                }
+
+                /* UI */
+                .zigzag-score-container {
+                    position: absolute;
+                    top: 10%;
+                    width: 100%;
+                    text-align: center;
+                    pointer-events: none;
+                    z-index: 5;
+                }
+
+                .zigzag-score-val {
+                    font-size: 70px;
+                    font-weight: 800;
+                    color: white;
+                    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+                    margin: 0;
+                    line-height: 1;
+                }
+
+                .zigzag-score-label {
+                    font-size: 14px;
+                    color: rgba(255, 255, 255, 0.7);
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
+                }
+
+                /* Ekranlar */
+                .overlay-zigzag {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.75);
+                    backdrop-filter: blur(5px);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10;
+                }
+
+                .overlay-zigzag h1 {
+                    color: #fff;
+                    font-size: 40px;
+                    margin-bottom: 5px;
+                    text-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+                    text-align: center;
+                }
+
+                .btn-play-zigzag {
+                    background: linear-gradient(to right, #ff416c, #ff4b2b);
+                    color: white;
+                    border: none;
+                    padding: 18px 50px;
+                    font-size: 20px;
+                    font-weight: bold;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    box-shadow: 0 5px 20px rgba(255, 75, 43, 0.4);
+                    transition: transform 0.1s;
+                    margin-top: 20px;
+                }
+
+                .btn-play-zigzag:active {
+                    transform: scale(0.95);
+                }
+
+                .hint {
+                    color: #aaa;
+                    margin-top: 20px;
+                    font-size: 14px;
+                    animation: pulse 2s infinite;
+                }
+
+                @keyframes pulse {
+                    0% {
+                        opacity: 0.6;
+                    }
+
+                    50% {
+                        opacity: 1;
+                    }
+
+                    100% {
+                        opacity: 0.6;
+                    }
+                }
+            </style>
+
+            <div class="zigzag-wrapper">
+                <div class="zigzag-game-container">
+                    <div class="zigzag-score-container">
+                        <div class="zigzag-score-val" id="scoreDisplay">0</div>
+                        <div class="zigzag-score-label">XAL</div>
+                    </div>
+
+                    <canvas id="gameCanvas"></canvas>
+
+                    <div class="overlay-zigzag" id="startScreen">
+                        <h1>ZİQ ZAQ</h1>
+                        <p style="color:#ddd;">Yoldan çıxma!</p>
+                        <button class="btn-play-zigzag" onclick="startGame()">BAŞLA</button>
+                        <div class="hint">👆 İstiqamət üçün toxun</div>
+                    </div>
+
+                    <div class="overlay-zigzag" id="gameOverScreen" style="display: none;">
+                        <h1 style="color: #ff4757;">YANDIN!</h1>
+                        <p style="color:white; font-size:18px;">Xalınız: <span id="finalScore"
+                                style="font-weight:bold;">0</span></p>
+                        <p style="color:#aaa; font-size:14px; margin-top:-10px;">Rekord: <span id="bestScore">0</span>
+                        </p>
+                        <button class="btn-play-zigzag" onclick="startGame()">Yenidən Oyna</button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                const canvas = document.getElementById('gameCanvas');
+                const ctx = canvas.getContext('2d');
+
+                // Elementlər
+                const scoreDisplay = document.getElementById('scoreDisplay');
+                const startScreen = document.getElementById('startScreen');
+                const gameOverScreen = document.getElementById('gameOverScreen');
+                const finalScoreEl = document.getElementById('finalScore');
+                const bestScoreEl = document.getElementById('bestScore');
+
+                // Oyun Ayarları
+                let width, height;
+                const blockSize = 50; // Blok ölçüsü
+                const ballRadius = 10;
+                let speed = 4;
+
+                // Vəziyyət Dəyişənləri
+                let isRunning = false;
+                let score = 0;
+                let highScore = localStorage.getItem('zigZagBest') || 0;
+                let hue = 0; // Rəng dəyişimi üçün
+
+                // Obyektlər
+                // Məntiqi koordinatlar (Grid sistemi)
+                let ball = { x: 0, y: 0, z: 0 };
+                let direction = 'right'; // 'right' (x artır) və ya 'up' (z artır - ekranda yuxarı)
+
+                // Yol massivi (Bloklar)
+                let blocks = [];
+
+                // Kamera ofseti (Topu mərkəzdə saxlamaq üçün)
+                let camOffset = { x: 0, y: 0 };
+
+                function resize() {
+                    // Use container dimensions instead of window
+                    const container = document.querySelector('.zigzag-game-container');
+                    width = container.clientWidth;
+                    height = container.clientHeight;
+                    canvas.width = width;
+                    canvas.height = height;
+                }
+                window.addEventListener('resize', resize);
+                // Call resize initially after a short delay to ensure DOM is ready
+                setTimeout(resize, 100);
+
+                // İZOMETRİK ÇEVİRMƏ (Ən vacib hissə - 2D-ni 3D kimi göstərir)
+                // x: Məntiqi X, z: Məntiqi Z (dərinlik)
+                function toScreen(x, z) {
+                    return {
+                        x: (x - z) * blockSize + width / 2 - camOffset.x,
+                        y: (x + z) * blockSize * 0.55 + height / 2 - camOffset.y // 0.55 perspektiv sıxılması
+                    };
+                }
+
+                function initGame() {
+                    resize(); // Ensure size is correct on start
+                    score = 0;
+                    scoreDisplay.innerText = 0;
+                    speed = 3.5; // Başlanğıc sürəti
+                    hue = 0;
+                    direction = 'right';
+
+                    ball = { x: 0, z: 0 };
+                    camOffset = { x: 0, y: 0 };
+
+                    // İlk düz yol
+                    blocks = [];
+                    for (let i = 0; i < 15; i++) {
+                        blocks.push({ x: i, z: 0 });
+                    }
+
+                    // Qalan yolu yarat
+                    for (let i = 0; i < 30; i++) {
+                        generateBlock();
+                    }
+
+                    // Topu ilk blokun mərkəzinə qoy
+                    // Vizual olaraq hamarlansın deyə 0,0-dan başlayırıq
+                }
+
+                function generateBlock() {
+                    let lastBlock = blocks[blocks.length - 1];
+                    let newX = lastBlock.x;
+                    let newZ = lastBlock.z;
+
+                    // 50% ehtimal ilə ya sağa, ya yuxarı (z)
+                    if (Math.random() < 0.5) {
+                        newX++;
+                    } else {
+                        newZ++; // Z artır (məntiqi olaraq irəli)
+                    }
+
+                    blocks.push({ x: newX, z: newZ });
+                }
+
+                function startGame() {
+                    startScreen.style.display = 'none';
+                    gameOverScreen.style.display = 'none';
+                    initGame();
+                    isRunning = true;
+                    loop();
+                }
+
+                function changeDirection() {
+                    if (!isRunning) return;
+                    direction = (direction === 'right') ? 'up' : 'right';
+                    score++;
+                    scoreDisplay.innerText = score;
+
+                    // Hər 20 xalda rəng dəyişsin
+                    hue += 5;
+
+                    // Hər 50 xalda sürətlən
+                    if (score % 50 === 0) speed += 0.5;
+
+                    generateBlock(); // Sonsuz yol üçün yeni blok əlavə et
+                }
+
+                function update() {
+                    if (!isRunning) return;
+
+                    // Topu hərəkət etdir (Pixel deyil, məntiqi vahidlərlə - sürəti blockSize-a bölürük)
+                    // Sürət faktoru
+                    let moveStep = speed / blockSize;
+
+                    if (direction === 'right') {
+                        ball.x += moveStep;
+                    } else {
+                        ball.z += moveStep;
+                    }
+
+                    // Kamera topu izləsin
+                    let screenPos = toScreen(ball.x, ball.z);
+                    // Hədəf: Top ekranın mərkəzindən bir az aşağıda olsun
+                    let targetX = (ball.x - ball.z) * blockSize;
+                    let targetY = (ball.x + ball.z) * blockSize * 0.55;
+
+                    // Kameranı "yumşaq" şəkildə sürüşdür (Smooth follow)
+                    camOffset.x += (targetX - camOffset.x) * 0.1;
+                    camOffset.y += (targetY - camOffset.y) * 0.1;
+
+                    // TOQQUŞMA YOXLANIŞI (COLLISION)
+                    // Topun olduğu məntiqi grid koordinatını tap
+                    let currentGridX = Math.round(ball.x);
+                    let currentGridZ = Math.round(ball.z);
+
+                    // Bu koordinatda blok varmı?
+                    let onBlock = false;
+
+                    // Son 50 blokun içində axtar (performans üçün hamısına baxma)
+                    // Arrayin sonundan əvvələ baxmaq daha sürətli ola bilər
+                    for (let i = Math.max(0, blocks.length - 50); i < blocks.length; i++) {
+                        if (blocks[i].x === currentGridX && blocks[i].z === currentGridZ) {
+                            onBlock = true;
+                            break;
+                        }
+                    }
+
+                    if (!onBlock) {
+                        gameOver();
+                    }
+
+                    // Köhnə blokları sil (yaddaş üçün)
+                    if (blocks.length > 100) {
+                        blocks.shift();
+                    }
+                }
+
+                function draw() {
+                    // Arxa planı təmizlə
+                    ctx.fillStyle = '#1e3c72';
+                    ctx.fillRect(0, 0, width, height);
+
+                    // Arxa plan qradiyent
+                    let grd = ctx.createLinearGradient(0, 0, 0, height);
+                    grd.addColorStop(0, "#1e3c72");
+                    grd.addColorStop(1, "#2a5298");
+                    ctx.fillStyle = grd;
+                    ctx.fillRect(0, 0, width, height);
+
+                    // Blokları Çək
+                    for (let i = 0; i < blocks.length; i++) {
+                        let b = blocks[i];
+                        let pos = toScreen(b.x, b.z);
+
+                        // Ekranda görünməyənləri çəkmə (Optimizasiya)
+                        if (pos.x < -100 || pos.x > width + 100 || pos.y < -100 || pos.y > height + 100) continue;
+
+                        // Blokun üstü (Romb)
+                        ctx.beginPath();
+                        ctx.moveTo(pos.x, pos.y - blockSize * 0.25); // Top
+                        ctx.lineTo(pos.x + blockSize, pos.y); // Right
+                        ctx.lineTo(pos.x, pos.y + blockSize * 0.25); // Bottom
+                        ctx.lineTo(pos.x - blockSize, pos.y); // Left
+                        ctx.closePath();
+
+                        // Rəngli keçid
+                        ctx.fillStyle = `hsl(${(hue + i * 2) % 360}, 70%, 60%)`;
+                        ctx.fill();
+
+                        // Blokun Yan tərəfləri (3D effekti)
+                        // Sol yan
+                        ctx.fillStyle = `hsl(${(hue + i * 2) % 360}, 70%, 40%)`;
+                        ctx.beginPath();
+                        ctx.moveTo(pos.x - blockSize, pos.y);
+                        ctx.lineTo(pos.x, pos.y + blockSize * 0.25);
+                        ctx.lineTo(pos.x, pos.y + blockSize * 0.25 + 15); // Hündürlük
+                        ctx.lineTo(pos.x - blockSize, pos.y + 15);
+                        ctx.closePath();
+                        ctx.fill();
+
+                        // Sağ yan
+                        ctx.fillStyle = `hsl(${(hue + i * 2) % 360}, 70%, 30%)`;
+                        ctx.beginPath();
+                        ctx.moveTo(pos.x, pos.y + blockSize * 0.25);
+                        ctx.lineTo(pos.x + blockSize, pos.y);
+                        ctx.lineTo(pos.x + blockSize, pos.y + 15);
+                        ctx.lineTo(pos.x, pos.y + blockSize * 0.25 + 15);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+
+                    // Topu Çək
+                    // Topun ekran kordinatı
+                    // Hündürlük effekti üçün Y-dən biraz çıxırıq
+                    let ballScreen = toScreen(ball.x, ball.z);
+                    let ballY = ballScreen.y - 15; // Blokun üstündə dursun
+
+                    // Kölgə
+                    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                    ctx.beginPath();
+                    ctx.ellipse(ballScreen.x, ballScreen.y, 8, 4, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Top
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.arc(ballScreen.x, ballY, ballRadius, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Top Parıltısı
+                    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                    ctx.shadowColor = '#fff';
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    ctx.arc(ballScreen.x, ballY, ballRadius - 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+
+                function loop() {
+                    if (isRunning) {
+                        update();
+                        draw();
+                        requestAnimationFrame(loop);
+                    }
+                }
+
+                function gameOver() {
+                    isRunning = false;
+
+                    // Düşmə effekti (Top aşağı düşür)
+                    let dropY = 0;
+                    let dropInterval = setInterval(() => {
+                        ctx.clearRect(0, 0, width, height);
+                        draw(); // Arxa planı yenidən çək
+
+                        // Topu düşmüş halda çək
+                        let ballScreen = toScreen(ball.x, ball.z);
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(ballScreen.x, ballScreen.y + dropY, ballRadius, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        dropY += 5;
+                        if (dropY > height) clearInterval(dropInterval);
+                    }, 16);
+
+                    if (score > highScore) {
+                        highScore = score;
+                        localStorage.setItem('zigZagBest', highScore);
+                    }
+
+                    finalScoreEl.innerText = score;
+                    bestScoreEl.innerText = highScore;
+                    setTimeout(() => {
+                        gameOverScreen.style.display = 'flex';
+                    }, 500);
+                }
+
+                // KONTROLLER
+                // Ekrana toxunma
+                const zigzagContainer = document.querySelector('.zigzag-game-container');
+
+                zigzagContainer.addEventListener('touchstart', (e) => {
+                    if (startScreen.style.display !== 'none' || gameOverScreen.style.display !== 'none') return;
+                    e.preventDefault();
+                    changeDirection();
+                }, { passive: false });
+
+                // Mouse klik
+                zigzagContainer.addEventListener('mousedown', (e) => {
+                    if (startScreen.style.display !== 'none' || gameOverScreen.style.display !== 'none') return;
+                    changeDirection();
+                });
+
+                // Space düyməsi
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') {
+                        if (startScreen.style.display !== 'none') startGame();
+                        else if (gameOverScreen.style.display !== 'none') startGame();
+                        else changeDirection();
+                    }
+                });
+
+            </script>
+        </main>
+        <!-- Other Games Panel -->
+        <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
+                <i class="fa-solid fa-gamepad text-purple-600 mr-3"></i>
+                Digər Oyunlar
+            </h2>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                <!-- 2048 -->
+                <a href="game-2048.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-layer-group text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-yellow-700 text-sm">2048</span>
+                </a>
+
+                <!-- 15 Puzzle -->
+                <a href="game-15puzzle.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-border-all text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-blue-700 text-sm">15 Puzzle</span>
+                </a>
+
+                <!-- Flappy -->
+                <a href="game-flappy.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-dove text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-sky-700 text-sm">Uçan Top</span>
+                </a>
+
+                <!-- Snake -->
+                <a href="game-snake.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-staff-snake text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-green-700 text-sm">İlan</span>
+                </a>
+
+                <!-- TicTacToe -->
+                <a href="game-tictactoe.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-xmarks-lines text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-red-700 text-sm">X-O</span>
+                </a>
+
+                <!-- Tetris -->
+                <a href="game-tetris.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-shapes text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-indigo-700 text-sm">Tetris</span>
+                </a>
+
+                <!-- Memory -->
+                <a href="game-memory.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-teal-400/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-brain text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-teal-700 text-sm">Yaddaş</span>
+                </a>
+
+                <!-- Math -->
+                <a href="game-math.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-calculator text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-orange-700 text-sm">Riyaziyyat</span>
+                </a>
+
+                <!-- Reflex (ZigZag) -->
+                <a href="game-reflex.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-fuchsia-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-bolt text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-fuchsia-700 text-sm">Ziq Zaq</span>
+                </a>
+
+                <!-- Arkanoid -->
+                <a href="game-arkanoid.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-cubes text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-rose-700 text-sm">Kərpic</span>
+                </a>
+
+            </div>
+        </section>
+        <article class="seo-content">
+            <h1>Rəngləri Tut - Göz və Əl Koordinasiyası</h1>
+            <h2>Necə Oynanılır?</h2>
+            <p>Bu oyunda məqsəd rəng uyğunluğunu tez bir zamanda tapmaqdır. Doğru uyğunluğu ən qısa zamanda seçmək
+                lazımdır.</p>
+            <h3>Yüksək Xal Taktikaları:</h3>
+            <ul>
+                <li><strong>Sözə Yox, Rəngə Baxın:</strong> Yazılan sözü oxumamağa, sadəcə rənginə baxmağa çalışın.</li>
+                <li><strong>Barmaqlarınızı Hazır Tutun:</strong> Cavab düymələrinin üzərində barmaqlarınızı hazır
+                    saxlayın.</li>
+            </ul>
+            <h2>Qatar Gözləyərkən Niyə Oynanmalı?</h2>
+            <p>Reflekslərinizi və diqqətinizi yoxlamaq üçün əla vasitədir.</p>
+        </article>
+    </div>
+    <footer>
+        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
+    </footer>
+</body>
+
+</html>

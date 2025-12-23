@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2048 Oyunu - Baki-Sumqayit.site</title>
+    <meta name="description" content="Bakı-Sumqayıt qatarını gözləyərkən 2048 oynayaraq beyninizi məşq etdirin.">
+    <link rel="stylesheet" href="game-style.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* 2048 Game Specific Styles */
+        .game-area-2048 {
+            font-family: "Poppins", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            /* Limit width */
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+            max-width: 320px;
+        }
+
+        .game-title {
+            font-size: 40px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin: 0;
+        }
+
+        .score-box {
+            background: #bbada0;
+            padding: 5px 15px;
+            border-radius: 6px;
+            color: white;
+            text-align: center;
+            min-width: 70px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            display: block;
+        }
+
+        .score-value {
+            font-size: 20px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .grid-container {
+            width: 320px;
+            height: 320px;
+            background-color: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 10px;
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            margin: 0 auto;
+        }
+
+        .tile {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(238, 228, 218, 0.35);
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            font-weight: bold;
+            color: #776e65;
+            transition: all 0.15s ease;
+            animation: pop 0.2s ease-in;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            80% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Tile Colors */
+        .x2 {
+            background-color: #eee4da;
+            color: #776e65;
+        }
+
+        .x4 {
+            background-color: #ede0c8;
+            color: #776e65;
+        }
+
+        .x8 {
+            background-color: #f2b179;
+            color: #f9f6f2;
+        }
+
+        .x16 {
+            background-color: #f59563;
+            color: #f9f6f2;
+        }
+
+        .x32 {
+            background-color: #f67c5f;
+            color: #f9f6f2;
+        }
+
+        .x64 {
+            background-color: #f65e3b;
+            color: #f9f6f2;
+        }
+
+        .x128 {
+            background-color: #edcf72;
+            color: #f9f6f2;
+            font-size: 25px;
+            box-shadow: 0 0 10px #edcf72;
+        }
+
+        .x256 {
+            background-color: #edcc61;
+            color: #f9f6f2;
+            font-size: 25px;
+            box-shadow: 0 0 15px #edcc61;
+        }
+
+        .x512 {
+            background-color: #edc850;
+            color: #f9f6f2;
+            font-size: 25px;
+            box-shadow: 0 0 20px #edc850;
+        }
+
+        .x1024 {
+            background-color: #edc53f;
+            color: #f9f6f2;
+            font-size: 20px;
+        }
+
+        .x2048 {
+            background-color: #edc22e;
+            color: #f9f6f2;
+            font-size: 20px;
+            box-shadow: 0 0 30px #edc22e;
+        }
+
+        .game-over-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            animation: fadein 0.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .game-over-overlay h2 {
+            color: white;
+            font-size: 40px;
+            margin: 0 0 20px 0;
+        }
+
+        .restart-btn {
+            background-color: #8f7a66;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .restart-btn:hover {
+            background-color: #9f8b77;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            color: white;
+            /* Changed to white for visibility on gradient */
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .instructions span {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin: 0 2px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="sticky-header">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Ana Səhifə</span>
+        </a>
+        <div class="site-logo">baki-sumqayit.site</div>
+    </header>
+
+    <div class="main-container">
+
+        <!-- Game Wrapper -->
+        <main class="game-wrapper" id="game-container"
+            style="padding: 0; border: none; background: transparent; box-shadow: none;">
+
+            <div class="game-area-2048">
+                <div class="game-header">
+                    <h1 class="game-title">2048</h1>
+                    <div class="score-box">
+                        <span class="score-label">Xal</span>
+                        <span class="score-value" id="score">0</span>
+                    </div>
+                </div>
+
+                <div class="grid-container" id="grid">
+                    <!-- Kareler JS ile oluşturulacak -->
+                </div>
+
+                <div class="instructions">
+                    PC: <span>←</span> <span>↑</span> <span>↓</span> <span>→</span> <br>
+                    Mobil: Barmağını sürüşdür
+                </div>
+
+                <!-- Game Over Ekranı -->
+                <div class="game-over-overlay" id="game-message">
+                    <h2>Oyun Bitdi!</h2>
+                    <button class="restart-btn" onclick="startGame()">Yenidən Oyna</button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Other Games Panel -->
+        <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
+                <i class="fa-solid fa-gamepad text-purple-600 mr-3"></i>
+                Digər Oyunlar
+            </h2>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                <!-- 2048 -->
+                <a href="game-2048.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-layer-group text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-yellow-700 text-sm">2048</span>
+                </a>
+
+                <!-- 15 Puzzle -->
+                <a href="game-15puzzle.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-border-all text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-blue-700 text-sm">15 Puzzle</span>
+                </a>
+
+                <!-- Flappy -->
+                <a href="game-flappy.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-dove text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-sky-700 text-sm">Uçan Top</span>
+                </a>
+
+                <!-- Snake -->
+                <a href="game-snake.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-staff-snake text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-green-700 text-sm">İlan</span>
+                </a>
+
+                <!-- TicTacToe -->
+                <a href="game-tictactoe.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-xmarks-lines text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-red-700 text-sm">X-O</span>
+                </a>
+
+                <!-- Tetris -->
+                <a href="game-tetris.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-shapes text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-indigo-700 text-sm">Tetris</span>
+                </a>
+
+                <!-- Memory -->
+                <a href="game-memory.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-teal-400/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-brain text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-teal-700 text-sm">Yaddaş</span>
+                </a>
+
+                <!-- Math -->
+                <a href="game-math.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-calculator text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-orange-700 text-sm">Riyaziyyat</span>
+                </a>
+
+                <!-- Reflex (ZigZag) -->
+                <a href="game-reflex.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-fuchsia-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-bolt text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-fuchsia-700 text-sm">Ziq Zaq</span>
+                </a>
+
+                <!-- Arkanoid -->
+                <a href="game-arkanoid.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-cubes text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-rose-700 text-sm">Kərpic</span>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- SEO Content -->
+        <article class="seo-content">
+            <h1>2048 Oyunu - Rəqəmlərin Sehrli Dünyası</h1>
+            <h2>Necə Oynanılır?</h2>
+            <p>
+                2048 sadə görünən amma dərin strategiya tələb edən bir tapmaca oyunudur. Ekranı (və ya klaviaturanın ox
+                düymələrini) istifadə edərək xanaları sağa, sola, yuxarı və ya aşağı sürüşdürün. Eyni rəqəmə sahib iki
+                xana toqquşduqda birləşərək dəyərləri toplanır (məsələn: 2+2=4, 4+4=8). Məqsədiniz: Xanalardan birində
+                <strong>2048</strong> rəqəminə çatmaqdır! Əgər bütün xanalar dolarsa və heç bir gediş qalmazsa, oyun
+                bitər.
+            </p>
+
+            <h3>Yüksək Xal Taktikaları</h3>
+            <ul>
+                <li><strong>Künc Strategiyası:</strong> Ən böyük rəqəmi həmişə bir küncdə (məsələn, sağ alt küncdə)
+                    saxlamağa çalışın.</li>
+                <li><strong>Sıra İlə Düzün:</strong> Rəqəmləri böyükdən kiçiyə doğru bir sırada yığmağa çalışın.</li>
+                <li><strong>Yuxarı Gedişdən Qaçın:</strong> Əgər sağ alt küncü hədəfləmisinizsə, yuxarı düyməsini basmaq
+                    nizamı poza bilər.</li>
+            </ul>
+
+            <h2>Qatar Gözləyərkən Niyə Oynanmalı?</h2>
+            <p>
+                Bakı-Sumqayıt qatarını gözləyərkən 2048 oynamaq beyninizi riyazi hesablamalarla məşğul edərək zamanın
+                necə keçdiyini hiss etdirmir. Bu oyun diqqətinizi cəmləməyə kömək edir və zehni yorğunluğu aradan
+                qaldırır.
+            </p>
+        </article>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
+    </footer>
+
+    <script>
+        const gridDisplay = document.getElementById('grid');
+        const scoreDisplay = document.getElementById('score');
+        const messageDisplay = document.getElementById('game-message');
+        const width = 4;
+        let squares = [];
+        let score = 0;
+
+        // Oyunu Başlat
+        function startGame() {
+            gridDisplay.innerHTML = '';
+            squares = [];
+            score = 0;
+            scoreDisplay.innerHTML = 0;
+            messageDisplay.style.display = 'none';
+
+            // 16 kare oluştur
+            for (let i = 0; i < width * width; i++) {
+                const square = document.createElement('div');
+                square.innerHTML = '';
+                square.className = 'tile';
+                gridDisplay.appendChild(square);
+                squares.push(square);
+            }
+            generate();
+            generate();
+        }
+
+        // Rastgele sayı oluştur (2)
+        function generate() {
+            let random = Math.floor(Math.random() * squares.length);
+            if (squares[random].innerHTML == '') {
+                squares[random].innerHTML = 2;
+                squares[random].className = 'tile x2';
+                checkForGameOver();
+            } else {
+                // Boş yer yoksa tekrar dene (basit recursive)
+                let emptySpots = squares.filter(sq => sq.innerHTML == '').length;
+                if (emptySpots > 0) generate();
+            }
+        }
+
+        // --- HAREKET MANTIĞI ---
+
+        function moveRight() {
+            let moved = false;
+            for (let i = 0; i < 16; i++) {
+                if (i % 4 === 0) {
+                    let totalOne = squares[i].innerHTML;
+                    let totalTwo = squares[i + 1].innerHTML;
+                    let totalThree = squares[i + 2].innerHTML;
+                    let totalFour = squares[i + 3].innerHTML;
+                    let row = [parseInt(totalOne) || 0, parseInt(totalTwo) || 0, parseInt(totalThree) || 0, parseInt(totalFour) || 0];
+
+                    let filteredRow = row.filter(num => num);
+                    let missing = 4 - filteredRow.length;
+                    let zeros = Array(missing).fill(0);
+                    let newRow = zeros.concat(filteredRow);
+
+                    if (row.toString() !== newRow.toString()) moved = true;
+
+                    squares[i].innerHTML = newRow[0] || '';
+                    squares[i + 1].innerHTML = newRow[1] || '';
+                    squares[i + 2].innerHTML = newRow[2] || '';
+                    squares[i + 3].innerHTML = newRow[3] || '';
+                    updateColors();
+                }
+            }
+            if (moved) return true;
+        }
+
+        function moveLeft() {
+            let moved = false;
+            for (let i = 0; i < 16; i++) {
+                if (i % 4 === 0) {
+                    let totalOne = squares[i].innerHTML;
+                    let totalTwo = squares[i + 1].innerHTML;
+                    let totalThree = squares[i + 2].innerHTML;
+                    let totalFour = squares[i + 3].innerHTML;
+                    let row = [parseInt(totalOne) || 0, parseInt(totalTwo) || 0, parseInt(totalThree) || 0, parseInt(totalFour) || 0];
+
+                    let filteredRow = row.filter(num => num);
+                    let missing = 4 - filteredRow.length;
+                    let zeros = Array(missing).fill(0);
+                    let newRow = filteredRow.concat(zeros);
+
+                    if (row.toString() !== newRow.toString()) moved = true;
+
+                    squares[i].innerHTML = newRow[0] || '';
+                    squares[i + 1].innerHTML = newRow[1] || '';
+                    squares[i + 2].innerHTML = newRow[2] || '';
+                    squares[i + 3].innerHTML = newRow[3] || '';
+                    updateColors();
+                }
+            }
+            if (moved) return true;
+        }
+
+        function moveDown() {
+            let moved = false;
+            for (let i = 0; i < 4; i++) {
+                let totalOne = squares[i].innerHTML;
+                let totalTwo = squares[i + width].innerHTML;
+                let totalThree = squares[i + (width * 2)].innerHTML;
+                let totalFour = squares[i + (width * 3)].innerHTML;
+                let column = [parseInt(totalOne) || 0, parseInt(totalTwo) || 0, parseInt(totalThree) || 0, parseInt(totalFour) || 0];
+
+                let filteredColumn = column.filter(num => num);
+                let missing = 4 - filteredColumn.length;
+                let zeros = Array(missing).fill(0);
+                let newColumn = zeros.concat(filteredColumn);
+
+                if (column.toString() !== newColumn.toString()) moved = true;
+
+                squares[i].innerHTML = newColumn[0] || '';
+                squares[i + width].innerHTML = newColumn[1] || '';
+                squares[i + (width * 2)].innerHTML = newColumn[2] || '';
+                squares[i + (width * 3)].innerHTML = newColumn[3] || '';
+                updateColors();
+            }
+            if (moved) return true;
+        }
+
+        function moveUp() {
+            let moved = false;
+            for (let i = 0; i < 4; i++) {
+                let totalOne = squares[i].innerHTML;
+                let totalTwo = squares[i + width].innerHTML;
+                let totalThree = squares[i + (width * 2)].innerHTML;
+                let totalFour = squares[i + (width * 3)].innerHTML;
+                let column = [parseInt(totalOne) || 0, parseInt(totalTwo) || 0, parseInt(totalThree) || 0, parseInt(totalFour) || 0];
+
+                let filteredColumn = column.filter(num => num);
+                let missing = 4 - filteredColumn.length;
+                let zeros = Array(missing).fill(0);
+                let newColumn = filteredColumn.concat(zeros);
+
+                if (column.toString() !== newColumn.toString()) moved = true;
+
+                squares[i].innerHTML = newColumn[0] || '';
+                squares[i + width].innerHTML = newColumn[1] || '';
+                squares[i + (width * 2)].innerHTML = newColumn[2] || '';
+                squares[i + (width * 3)].innerHTML = newColumn[3] || '';
+                updateColors();
+            }
+            if (moved) return true;
+        }
+
+        // --- BİRLEŞTİRME MANTIĞI ---
+
+        function combineRow() {
+            let combined = false;
+            for (let i = 0; i < 15; i++) {
+                // Sadece aynı satırda olanları birleştir (Örn: 3 ve 4 birleşemez çünkü 3 satır sonu)
+                if ((i + 1) % 4 === 0) continue;
+
+                if (squares[i].innerHTML === squares[i + 1].innerHTML && squares[i].innerHTML !== '') {
+                    let combinedTotal = parseInt(squares[i].innerHTML) + parseInt(squares[i + 1].innerHTML);
+                    squares[i].innerHTML = combinedTotal;
+                    squares[i + 1].innerHTML = '';
+                    score += combinedTotal;
+                    scoreDisplay.innerHTML = score;
+                    combined = true;
+                }
+            }
+            updateColors();
+            return combined;
+        }
+
+        function combineColumn() {
+            let combined = false;
+            for (let i = 0; i < 12; i++) {
+                if (squares[i].innerHTML === squares[i + width].innerHTML && squares[i].innerHTML !== '') {
+                    let combinedTotal = parseInt(squares[i].innerHTML) + parseInt(squares[i + width].innerHTML);
+                    squares[i].innerHTML = combinedTotal;
+                    squares[i + width].innerHTML = '';
+                    score += combinedTotal;
+                    scoreDisplay.innerHTML = score;
+                    combined = true;
+                }
+            }
+            updateColors();
+            return combined;
+        }
+
+        // Renkleri güncelle
+        function updateColors() {
+            for (let i = 0; i < squares.length; i++) {
+                squares[i].className = 'tile'; // Sıfırla
+                let val = squares[i].innerHTML;
+                if (val !== '') {
+                    squares[i].classList.add('x' + val);
+                }
+            }
+        }
+
+        // --- KONTROLLER (PC & MOBİL) ---
+
+        function control(e) {
+            if (e.keyCode === 39) keyRight();
+            else if (e.keyCode === 37) keyLeft();
+            else if (e.keyCode === 38) keyUp();
+            else if (e.keyCode === 40) keyDown();
+        }
+
+        // PC Tuşlarını Dinle
+        document.addEventListener('keydown', (e) => {
+            // Sadece yön tuşları basıldığında sayfanın kaymasını engelle
+            if ([37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+                e.preventDefault();
+                control(e);
+            }
+        });
+
+        function keyRight() {
+            let m = moveRight();
+            let c = combineRow();
+            let m2 = moveRight();
+            if (m || c || m2) generate();
+        }
+
+        function keyLeft() {
+            let m = moveLeft();
+            let c = combineRow();
+            let m2 = moveLeft();
+            if (m || c || m2) generate();
+        }
+
+        function keyUp() {
+            let m = moveUp();
+            let c = combineColumn();
+            let m2 = moveUp();
+            if (m || c || m2) generate();
+        }
+
+        function keyDown() {
+            let m = moveDown();
+            let c = combineColumn();
+            let m2 = moveDown();
+            if (m || c || m2) generate();
+        }
+
+        // Mobil Dokunmatik (Swipe)
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: false });
+
+        document.addEventListener('touchend', (e) => {
+            let touchEndX = e.changedTouches[0].clientX;
+            let touchEndY = e.changedTouches[0].clientY;
+
+            let dx = touchEndX - touchStartX;
+            let dy = touchEndY - touchStartY;
+
+            // Kaydırma mesafesi çok kısaysa (tıklama gibi) işlem yapma
+            if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 0) keyRight();
+                else keyLeft();
+            } else {
+                if (dy > 0) keyDown();
+                else keyUp();
+            }
+            e.preventDefault();
+        }, { passive: false });
+
+        // Oyun Bitti Kontrolü
+        function checkForGameOver() {
+            let zeros = 0;
+            for (let i = 0; i < squares.length; i++) {
+                if (squares[i].innerHTML == '') zeros++;
+            }
+            // Boş yer varsa oyun bitmez
+            if (zeros > 0) return;
+
+            // Boş yer yok, birleşme ihtimali var mı?
+            // Yatay kontrol
+            for (let i = 0; i < 15; i++) {
+                if ((i + 1) % 4 !== 0) {
+                    if (squares[i].innerHTML === squares[i + 1].innerHTML) return;
+                }
+            }
+            // Dikey kontrol
+            for (let i = 0; i < 12; i++) {
+                if (squares[i].innerHTML === squares[i + width].innerHTML) return;
+            }
+
+            // Buraya geldiyse oyun bitmiştir
+            messageDisplay.style.display = 'flex';
+        }
+
+        // Başlat
+        startGame();
+    </script>
+</body>
+
+</html>

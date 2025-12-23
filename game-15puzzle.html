@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15 Puzzle - Baki-Sumqayit.site</title>
+    <meta name="description" content="15 Puzzle sürüşdürmə oyunu ilə zehni qabiliyyətlərinizi yoxlayın.">
+    <link rel="stylesheet" href="game-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header class="sticky-header">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Ana Səhifə</span></a>
+        <div class="site-logo">baki-sumqayit.site</div>
+    </header>
+    <div class="main-container">
+        <main class="game-wrapper" id="game-container">
+            <style>
+                :root {
+                    --puzzle-primary: #4e54c8;
+                    --puzzle-secondary: #8f94fb;
+                    --puzzle-accent: #ff6b6b;
+                    --puzzle-text: #ffffff;
+                    --puzzle-tile-bg: rgba(255, 255, 255, 0.15);
+                    --puzzle-tile-border: rgba(255, 255, 255, 0.2);
+                    --puzzle-glass: rgba(255, 255, 255, 0.1);
+                }
+
+                .puzzle-game-area {
+                    font-family: 'Poppins', sans-serif;
+                    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+                    background-size: 400% 400%;
+                    animation: gradientBG 15s ease infinite;
+                    color: var(--puzzle-text);
+                    border-radius: 20px;
+                    padding: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 500px;
+                    margin-bottom: 20px;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                @keyframes gradientBG {
+                    0% {
+                        background-position: 0% 50%;
+                    }
+
+                    50% {
+                        background-position: 100% 50%;
+                    }
+
+                    100% {
+                        background-position: 0% 50%;
+                    }
+                }
+
+                .puzzle-container {
+                    background: var(--puzzle-glass);
+                    backdrop-filter: blur(10px);
+                    -webkit-backdrop-filter: blur(10px);
+                    border-radius: 20px;
+                    padding: 25px;
+                    border: 1px solid rgba(255, 255, 255, 0.18);
+                    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+                    text-align: center;
+                    width: 100%;
+                    max-width: 400px;
+                    position: relative;
+                    z-index: 2;
+                }
+
+                .puzzle-container h1 {
+                    margin: 0 0 15px 0;
+                    font-size: 1.5rem;
+                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                    color: white;
+                }
+
+                .stats-bar {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 20px;
+                    background: rgba(0, 0, 0, 0.2);
+                    padding: 10px 15px;
+                    border-radius: 12px;
+                    font-size: 0.9rem;
+                }
+
+                .stat-item b {
+                    display: block;
+                    font-size: 1.1rem;
+                    color: #ffd700;
+                }
+
+                .game-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 8px;
+                    aspect-ratio: 1;
+                    margin-bottom: 20px;
+                }
+
+                .puzzle-tile {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: var(--puzzle-tile-bg);
+                    border: 1px solid var(--puzzle-tile-border);
+                    border-radius: 10px;
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    color: #fff;
+                    cursor: pointer;
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    user-select: none;
+                }
+
+                .puzzle-tile:not(.empty):hover {
+                    transform: translateY(-2px);
+                    background: rgba(255, 255, 255, 0.25);
+                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+                }
+
+                .puzzle-tile:not(.empty):active {
+                    transform: scale(0.95);
+                }
+
+                .puzzle-tile.correct {
+                    background: rgba(46, 204, 113, 0.4);
+                    border-color: rgba(46, 204, 113, 0.6);
+                }
+
+                .puzzle-tile.empty {
+                    background: transparent;
+                    border: none;
+                    box-shadow: none;
+                    cursor: default;
+                }
+
+                .btn-restart {
+                    background: var(--puzzle-accent);
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 50px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: transform 0.2s, box-shadow 0.2s;
+                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+                    font-family: 'Poppins', sans-serif;
+                }
+
+                .btn-restart:active {
+                    transform: scale(0.95);
+                }
+
+                /* Modal (Kazanma Ekranı) */
+                .puzzle-modal {
+                    display: none;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.85);
+                    border-radius: 20px;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10;
+                }
+
+                .puzzle-modal.active {
+                    display: flex;
+                    animation: fadeIn 0.3s ease;
+                }
+
+                .puzzle-modal h2 {
+                    color: #ffd700;
+                    font-size: 2rem;
+                    margin-bottom: 10px;
+                }
+
+                .puzzle-modal p {
+                    font-size: 1.1rem;
+                    margin-bottom: 20px;
+                }
+
+                @keyframes fadeIn {
+                    from {
+                        opacity: 0;
+                    }
+
+                    to {
+                        opacity: 1;
+                    }
+                }
+
+                /* Canvas for Confetti */
+                #confetti-canvas {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    z-index: 999;
+                }
+            </style>
+
+            <canvas id="confetti-canvas"></canvas>
+
+            <div class="puzzle-game-area">
+                <div class="puzzle-container">
+                    <h1>Qatarı Gözləyirsən?</h1>
+
+                    <div class="stats-bar">
+                        <div class="stat-item">Həmlə<b id="move-count">0</b></div>
+                        <div class="stat-item">Vaxt<b id="timer">00:00</b></div>
+                        <div class="stat-item">Rekord<b id="best-score">-</b></div>
+                    </div>
+
+                    <div class="game-grid" id="grid">
+                        <!-- Squares JS generated -->
+                    </div>
+
+                    <button class="btn-restart" onclick="newGame()">Qarışdır və Başla</button>
+
+                    <!-- Win Screen -->
+                    <div class="puzzle-modal" id="win-modal">
+                        <h2>Təbriklər! 🎉</h2>
+                        <p>Tapmacanı həll etdin!</p>
+                        <button class="btn-restart" onclick="newGame()">Yenidən Oyna</button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                const grid = document.getElementById('grid');
+                const moveLabel = document.getElementById('move-count');
+                const timeLabel = document.getElementById('timer');
+                const bestScoreLabel = document.getElementById('best-score');
+                const modal = document.getElementById('win-modal');
+
+                let tiles = [];
+                let moves = 0;
+                let timer = 0;
+                let timerInterval;
+                let isPlaying = false;
+
+                // LocalStorage prefix for unique storage
+                let bestScore = localStorage.getItem('puzzle15BestScore') || '-';
+                bestScoreLabel.innerText = bestScore;
+
+                function newGame() {
+                    modal.classList.remove('active');
+                    stopConfetti();
+
+                    moves = 0;
+                    timer = 0;
+                    moveLabel.innerText = '0';
+                    timeLabel.innerText = '00:00';
+                    clearInterval(timerInterval);
+                    isPlaying = true;
+
+                    // Init tiles
+                    tiles = Array.from({ length: 15 }, (_, i) => i + 1);
+                    tiles.push(0);
+
+                    // Shuffle logic
+                    let emptyIdx = 15;
+                    let previousIdx = -1;
+
+                    for (let i = 0; i < 800; i++) {
+                        const neighbors = getNeighbors(emptyIdx);
+                        const validNeighbors = neighbors.filter(n => n !== previousIdx);
+                        const randomNeighbor = validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
+
+                        [tiles[emptyIdx], tiles[randomNeighbor]] = [tiles[randomNeighbor], tiles[emptyIdx]];
+                        previousIdx = emptyIdx;
+                        emptyIdx = randomNeighbor;
+                    }
+
+                    render();
+                    startTimer();
+                }
+
+                function getNeighbors(idx) {
+                    const row = Math.floor(idx / 4);
+                    const col = idx % 4;
+                    const res = [];
+                    if (row > 0) res.push(idx - 4);
+                    if (row < 3) res.push(idx + 4);
+                    if (col > 0) res.push(idx - 1);
+                    if (col < 3) res.push(idx + 1);
+                    return res;
+                }
+
+                function move(idx) {
+                    if (!isPlaying) return;
+
+                    const emptyIdx = tiles.indexOf(0);
+                    const neighbors = getNeighbors(emptyIdx);
+
+                    if (neighbors.includes(idx)) {
+                        [tiles[idx], tiles[emptyIdx]] = [tiles[emptyIdx], tiles[idx]];
+                        moves++;
+                        moveLabel.innerText = moves;
+                        render();
+                        checkWin();
+                    }
+                }
+
+                function render() {
+                    grid.innerHTML = '';
+                    tiles.forEach((num, idx) => {
+                        const div = document.createElement('div');
+                        div.className = num === 0 ? 'puzzle-tile empty' : 'puzzle-tile';
+                        if (num !== 0) {
+                            div.innerText = num;
+                            div.onclick = () => move(idx);
+                            if (num === idx + 1) div.classList.add('correct');
+                        }
+                        grid.appendChild(div);
+                    });
+                }
+
+                function startTimer() {
+                    timerInterval = setInterval(() => {
+                        timer++;
+                        const m = Math.floor(timer / 60).toString().padStart(2, '0');
+                        const s = (timer % 60).toString().padStart(2, '0');
+                        timeLabel.innerText = `${m}:${s}`;
+                    }, 1000);
+                }
+
+                function checkWin() {
+                    const isWin = tiles.slice(0, 15).every((val, i) => val === i + 1);
+                    if (isWin) {
+                        endGame();
+                    }
+                }
+
+                function endGame() {
+                    isPlaying = false;
+                    clearInterval(timerInterval);
+
+                    if (bestScore === '-' || moves < parseInt(bestScore)) {
+                        bestScore = moves;
+                        localStorage.setItem('puzzle15BestScore', bestScore);
+                        bestScoreLabel.innerText = bestScore;
+                    }
+
+                    modal.classList.add('active');
+                    startConfetti();
+                }
+
+                // Confetti
+                const confettiCanvas = document.getElementById('confetti-canvas');
+                const ctx = confettiCanvas.getContext('2d');
+                let confettiParticles = [];
+                let animationId;
+
+                function startConfetti() {
+                    confettiCanvas.width = window.innerWidth;
+                    confettiCanvas.height = window.innerHeight;
+                    confettiParticles = [];
+                    for (let i = 0; i < 100; i++) {
+                        confettiParticles.push({
+                            x: Math.random() * confettiCanvas.width,
+                            y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+                            color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                            size: Math.random() * 8 + 4,
+                            speed: Math.random() * 3 + 2,
+                            angle: Math.random() * 6.2
+                        });
+                    }
+                    animateConfetti();
+                }
+
+                function animateConfetti() {
+                    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+                    confettiParticles.forEach((p, i) => {
+                        p.y += p.speed;
+                        p.x += Math.sin(p.angle);
+                        p.angle += 0.1;
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        if (p.y > confettiCanvas.height) confettiParticles[i].y = -10;
+                    });
+                    animationId = requestAnimationFrame(animateConfetti);
+                }
+
+                function stopConfetti() {
+                    cancelAnimationFrame(animationId);
+                    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+                }
+
+                // Init game
+                newGame();
+            </script>
+        </main>
+        <!-- Other Games Panel -->
+        <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
+                <i class="fa-solid fa-gamepad text-purple-600 mr-3"></i>
+                Digər Oyunlar
+            </h2>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                <!-- 2048 -->
+                <a href="game-2048.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-layer-group text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-yellow-700 text-sm">2048</span>
+                </a>
+
+                <!-- 15 Puzzle -->
+                <a href="game-15puzzle.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-border-all text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-blue-700 text-sm">15 Puzzle</span>
+                </a>
+
+                <!-- Flappy -->
+                <a href="game-flappy.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-dove text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-sky-700 text-sm">Uçan Top</span>
+                </a>
+
+                <!-- Snake -->
+                <a href="game-snake.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-staff-snake text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-green-700 text-sm">İlan</span>
+                </a>
+
+                <!-- TicTacToe -->
+                <a href="game-tictactoe.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-xmarks-lines text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-red-700 text-sm">X-O</span>
+                </a>
+
+                <!-- Tetris -->
+                <a href="game-tetris.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-shapes text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-indigo-700 text-sm">Tetris</span>
+                </a>
+
+                <!-- Memory -->
+                <a href="game-memory.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-teal-400/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-brain text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-teal-700 text-sm">Yaddaş</span>
+                </a>
+
+                <!-- Math -->
+                <a href="game-math.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-calculator text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-orange-700 text-sm">Riyaziyyat</span>
+                </a>
+
+                <!-- Reflex (ZigZag) -->
+                <a href="game-reflex.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-fuchsia-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-bolt text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-fuchsia-700 text-sm">Ziq Zaq</span>
+                </a>
+
+                <!-- Arkanoid -->
+                <a href="game-arkanoid.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-cubes text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-rose-700 text-sm">Kərpic</span>
+                </a>
+
+            </div>
+        </section>
+        <article class="seo-content">
+            <h1>15 Puzzle - Klassik Zəka Testi</h1>
+            <h2>Necə Oynanılır?</h2>
+            <p>Bu klassik oyunda 15 ədəd nömrələnmiş kvadrat və bir boş xana var. Boş xananın yanındakı daşları
+                sürüşdürərək hərəkət etdirə bilərsiniz. Məqsəd: Qarışıq rəqəmləri 1-dən 15-ə qədər ardıcıl şəkildə
+                düzməkdir. Nə qədər az gedişlə tamamlasanız, o qədər ustasınız!</p>
+            <h3>Yüksək Xal Taktikaları:</h3>
+            <ul>
+                <li><strong>Sətir-Sətir Həll Edin:</strong> Əvvəlcə birinci sıranı (1, 2, 3, 4) yerinə qoyun, sonra
+                    ikinci sıraya keçin.</li>
+                <li><strong>Künc Daşlarına Diqqət:</strong> Son iki sıranı yerləşdirərkən diqqətli olun.</li>
+                <li><strong>Səbirli Olun:</strong> Tələsmək səhv gedişlərə səbəb ola bilər. Hər bir hərəkəti əvvəlcədən
+                    planlaşdırın.</li>
+            </ul>
+            <h2>Qatar Gözləyərkən Niyə Oynanmalı?</h2>
+            <p>Sürüşdürmə tapmacaları məntiqi təfəkkürü gücləndirir. Qatar gecikirsə və ya platformada gözləyirsinizsə,
+                15 Puzzle beyninizi aktiv saxlamaq üçün əla vasitədir.</p>
+        </article>
+    </div>
+    <footer>
+        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kərpic Qırma - Baki-Sumqayit.site</title>
+    <meta name="description" content="Kərpic Qırma (Arkanoid) oyunu ilə əyləncə dolu anlar yaşayın.">
+    <link rel="stylesheet" href="game-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header class="sticky-header">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Ana Səhifə</span></a>
+        <div class="site-logo">baki-sumqayit.site</div>
+    </header>
+    <div class="main-container">
+        <main class="game-wrapper" id="game-container">
+            <style>
+                .arkanoid-container {
+                    /* Game specific container styles */
+                    position: relative;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                    border-radius: 10px;
+                    overflow: hidden;
+                    background: #000;
+                    margin: 0 auto;
+                    /* Center it */
+                }
+
+                .arkanoid-canvas {
+                    display: block;
+                    background-color: #111;
+                    width: 100%;
+                    /* Make responsive */
+                    height: auto;
+                }
+
+                .arkanoid-header {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    padding: 10px;
+                    box-sizing: border-box;
+                    display: flex;
+                    justify-content: space-between;
+                    pointer-events: none;
+                    z-index: 5;
+                }
+
+                .stat-box {
+                    font-size: 14px;
+                    background: rgba(0, 0, 0, 0.5);
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                    color: white;
+                    font-family: 'Poppins', sans-serif;
+                }
+
+                .stat-box span {
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #ff9f43;
+                }
+
+                .overlay-arkanoid {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.85);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10;
+                    text-align: center;
+                    font-family: 'Poppins', sans-serif;
+                }
+
+                .overlay-arkanoid h2 {
+                    margin: 0 0 10px 0;
+                    font-size: 32px;
+                    color: #ff9f43;
+                }
+
+                .overlay-arkanoid p {
+                    font-size: 16px;
+                    margin-bottom: 25px;
+                    color: #ddd;
+                }
+
+                .btn-play-arkanoid {
+                    background: #ff4757;
+                    color: white;
+                    border: none;
+                    padding: 15px 40px;
+                    font-size: 20px;
+                    border-radius: 50px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+                    transition: transform 0.1s;
+                }
+
+                .btn-play-arkanoid:active {
+                    transform: scale(0.95);
+                }
+
+                .controls-hint {
+                    margin-top: 20px;
+                    font-size: 13px;
+                    color: #aaa;
+                    opacity: 0.8;
+                }
+            </style>
+
+            <div class="arkanoid-container" id="gameWrapper">
+                <canvas id="gameCanvas" class="arkanoid-canvas"></canvas>
+
+                <div class="arkanoid-header">
+                    <div class="stat-box">XAL: <span id="score">0</span></div>
+                    <div class="stat-box">CAN: <span id="lives">3</span></div>
+                </div>
+
+                <div class="overlay-arkanoid" id="startScreen">
+                    <h2>Kərpic Qırma</h2>
+                    <p>Raketi hərəkət etdir</p>
+                    <button class="btn-play-arkanoid" onclick="startGame()">BAŞLA</button>
+                    <div class="controls-hint">
+                        Mobil: Sürüşdür ↔️ <br>
+                        PC: Ox düymələri ⬅️➡️
+                    </div>
+                </div>
+
+                <div class="overlay-arkanoid" id="gameOverScreen" style="display: none;">
+                    <h2 id="endTitle">OYUN BİTDİ</h2>
+                    <p>Xalınız: <span id="finalScore" style="font-weight:bold; color:white;">0</span></p>
+                    <button class="btn-play-arkanoid" onclick="startGame()">Yenidən Oyna</button>
+                </div>
+            </div>
+
+            <script>
+                const canvas = document.getElementById("gameCanvas");
+                const ctx = canvas.getContext("2d");
+                const wrapper = document.getElementById("gameWrapper");
+
+                const scoreEl = document.getElementById("score");
+                const livesEl = document.getElementById("lives");
+                const startScreen = document.getElementById("startScreen");
+                const gameOverScreen = document.getElementById("gameOverScreen");
+                const finalScoreEl = document.getElementById("finalScore");
+                const endTitle = document.getElementById("endTitle");
+
+                // Dynamic sizing logic
+                let canvasWidth = Math.min(window.innerWidth * 0.9, 400);
+                let canvasHeight = Math.min(window.innerHeight * 0.6, 600);
+
+                // Adjust if on mobile to capture swipes better
+                if (window.innerWidth < 500) {
+                    canvasWidth = window.innerWidth - 40; // padding
+                }
+
+                canvas.width = canvasWidth;
+                canvas.height = canvasHeight;
+                wrapper.style.width = canvasWidth + "px";
+                wrapper.style.height = canvasHeight + "px";
+
+                let x, y, dx, dy;
+                let ballRadius = 8;
+                let paddleHeight = 15;
+                let paddleWidth = 80;
+                let paddleX = (canvas.width - paddleWidth) / 2;
+
+                let rightPressed = false;
+                let leftPressed = false;
+
+                let score = 0;
+                let lives = 3;
+                let isGameRunning = false;
+                let animationId;
+
+                const brickRowCount = 5;
+                const brickColumnCount = 5;
+                const brickPadding = 10;
+                const brickOffsetTop = 50;
+                const brickOffsetLeft = 20;
+                // Recalculate brick width based on dynamic canvas width
+                const brickWidth = (canvasWidth - (brickOffsetLeft * 2) - (brickPadding * (brickColumnCount - 1))) / brickColumnCount;
+
+                let bricks = [];
+                const colors = ["#ff4757", "#ff6b81", "#ffa502", "#eccc68", "#2ed573"];
+
+                function initBricks() {
+                    bricks = [];
+                    for (let c = 0; c < brickColumnCount; c++) {
+                        bricks[c] = [];
+                        for (let r = 0; r < brickRowCount; r++) {
+                            bricks[c][r] = { x: 0, y: 0, status: 1 };
+                        }
+                    }
+                }
+
+                function resetBall() {
+                    x = canvas.width / 2;
+                    y = canvas.height - 30;
+                    // SÜRƏT ARTIRILDI: 3-dən 4-ə qaldırıldı
+                    dx = 4 * (Math.random() < 0.5 ? 1 : -1);
+                    // SÜRƏT ARTIRILDI: -4-dən -5-ə qaldırıldı
+                    dy = -5;
+                    paddleX = (canvas.width - paddleWidth) / 2;
+                }
+
+                function startGame() {
+                    startScreen.style.display = "none";
+                    gameOverScreen.style.display = "none";
+                    score = 0;
+                    lives = 3;
+                    scoreEl.innerText = score;
+                    livesEl.innerText = lives;
+                    initBricks();
+                    resetBall();
+                    isGameRunning = true;
+                    draw();
+                }
+
+                function drawBall() {
+                    ctx.beginPath();
+                    ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fill();
+                    ctx.closePath();
+                }
+
+                function drawPaddle() {
+                    ctx.beginPath();
+                    ctx.rect(paddleX, canvas.height - paddleHeight - 5, paddleWidth, paddleHeight);
+                    ctx.fillStyle = "#00a8ff";
+                    ctx.fill();
+                    ctx.closePath();
+                }
+
+                function drawBricks() {
+                    for (let c = 0; c < brickColumnCount; c++) {
+                        for (let r = 0; r < brickRowCount; r++) {
+                            if (bricks[c][r].status === 1) {
+                                let brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+                                let brickY = (r * (25 + brickPadding)) + brickOffsetTop;
+                                bricks[c][r].x = brickX;
+                                bricks[c][r].y = brickY;
+
+                                ctx.beginPath();
+                                ctx.rect(brickX, brickY, brickWidth, 20);
+                                ctx.fillStyle = colors[r];
+                                ctx.fill();
+                                ctx.closePath();
+                            }
+                        }
+                    }
+                }
+
+                function collisionDetection() {
+                    for (let c = 0; c < brickColumnCount; c++) {
+                        for (let r = 0; r < brickRowCount; r++) {
+                            let b = bricks[c][r];
+                            if (b.status === 1) {
+                                if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + 20) {
+                                    dy = -dy;
+                                    b.status = 0;
+                                    score++;
+                                    scoreEl.innerText = score;
+                                    if (score === brickRowCount * brickColumnCount) {
+                                        gameOver(true);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                function draw() {
+                    if (!isGameRunning) return;
+
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    drawBricks();
+                    drawBall();
+                    drawPaddle();
+                    collisionDetection();
+
+                    if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+                        dx = -dx;
+                    }
+                    if (y + dy < ballRadius) {
+                        dy = -dy;
+                    } else if (y + dy > canvas.height - ballRadius - paddleHeight + 5) {
+                        if (x > paddleX && x < paddleX + paddleWidth) {
+                            dy = -dy;
+                            let deltaX = x - (paddleX + paddleWidth / 2);
+                            dx = deltaX * 0.25; // Bucaq həssaslığı artırıldı
+
+                            // Sürətlənmə effekti (Top raketə dəydikcə sürətlənir)
+                            let speed = Math.sqrt(dx * dx + dy * dy);
+                            if (speed < 12) {
+                                dx *= 1.05;
+                                dy *= 1.05;
+                            }
+
+                        } else if (y + dy > canvas.height) {
+                            lives--;
+                            livesEl.innerText = lives;
+                            if (!lives) {
+                                gameOver(false);
+                            } else {
+                                resetBall();
+                            }
+                        }
+                    }
+
+                    // KLAVİATURA SÜRƏTİ ARTIRILDI (7-dən 10-a)
+                    if (rightPressed && paddleX < canvas.width - paddleWidth) {
+                        paddleX += 10;
+                    } else if (leftPressed && paddleX > 0) {
+                        paddleX -= 10;
+                    }
+
+                    x += dx;
+                    y += dy;
+
+                    animationId = requestAnimationFrame(draw);
+                }
+
+                function gameOver(win) {
+                    isGameRunning = false;
+                    cancelAnimationFrame(animationId);
+                    endTitle.innerText = win ? "QAZANDIN! 🎉" : "OYUN BİTDİ";
+                    endTitle.style.color = win ? "#2ed573" : "#ff4757";
+                    finalScoreEl.innerText = score;
+                    gameOverScreen.style.display = "flex";
+                }
+
+                document.addEventListener("keydown", keyDownHandler, false);
+                document.addEventListener("keyup", keyUpHandler, false);
+
+                function keyDownHandler(e) {
+                    if (e.key == "Right" || e.key == "ArrowRight") rightPressed = true;
+                    else if (e.key == "Left" || e.key == "ArrowLeft") leftPressed = true;
+                }
+
+                function keyUpHandler(e) {
+                    if (e.key == "Right" || e.key == "ArrowRight") rightPressed = false;
+                    else if (e.key == "Left" || e.key == "ArrowLeft") leftPressed = false;
+                }
+
+                function movePaddle(clientX) {
+                    let rect = canvas.getBoundingClientRect();
+                    let relativeX = clientX - rect.left;
+
+                    if (relativeX > 0 && relativeX < canvas.width) {
+                        paddleX = relativeX - paddleWidth / 2;
+                    }
+                }
+
+                document.addEventListener("mousemove", (e) => {
+                    if (isGameRunning) movePaddle(e.clientX);
+                }, false);
+
+                document.addEventListener("touchmove", (e) => {
+                    if (isGameRunning) {
+                        e.preventDefault();
+                        movePaddle(e.touches[0].clientX);
+                    }
+                }, { passive: false });
+
+                document.addEventListener("touchstart", (e) => {
+                    if (isGameRunning && e.target === canvas) {
+                        e.preventDefault();
+                        movePaddle(e.touches[0].clientX);
+                    }
+                }, { passive: false });
+
+            </script>
+        </main>
+        <!-- Other Games Panel -->
+        <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
+                <i class="fa-solid fa-gamepad text-purple-600 mr-3"></i>
+                Digər Oyunlar
+            </h2>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                <!-- 2048 -->
+                <a href="game-2048.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-layer-group text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-yellow-700 text-sm">2048</span>
+                </a>
+
+                <!-- 15 Puzzle -->
+                <a href="game-15puzzle.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-border-all text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-blue-700 text-sm">15 Puzzle</span>
+                </a>
+
+                <!-- Flappy -->
+                <a href="game-flappy.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-dove text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-sky-700 text-sm">Uçan Top</span>
+                </a>
+
+                <!-- Snake -->
+                <a href="game-snake.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-staff-snake text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-green-700 text-sm">İlan</span>
+                </a>
+
+                <!-- TicTacToe -->
+                <a href="game-tictactoe.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-xmarks-lines text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-red-700 text-sm">X-O</span>
+                </a>
+
+                <!-- Tetris -->
+                <a href="game-tetris.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-shapes text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-indigo-700 text-sm">Tetris</span>
+                </a>
+
+                <!-- Memory -->
+                <a href="game-memory.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-teal-400/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-brain text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-teal-700 text-sm">Yaddaş</span>
+                </a>
+
+                <!-- Math -->
+                <a href="game-math.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-calculator text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-orange-700 text-sm">Riyaziyyat</span>
+                </a>
+
+                <!-- Reflex (ZigZag) -->
+                <a href="game-reflex.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-fuchsia-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-bolt text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-fuchsia-700 text-sm">Ziq Zaq</span>
+                </a>
+
+                <!-- Arkanoid -->
+                <a href="game-arkanoid.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-cubes text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-rose-700 text-sm">Kərpic</span>
+                </a>
+
+            </div>
+        </section>
+        <article class="seo-content">
+            <h1>Kərpic Qırma - Klassik Arcade Əyləncəsi</h1>
+            <h2>Necə Oynanılır?</h2>
+            <p>Aşağıdakı platformanı (raketkanı) sağa-sola hərəkət ettirin. Topu platformadan sıçradaraq yuxarıdakı
+                kərpicləri (blokları) vurun. Topun aşağı düşməsinə imkan verməyin!</p>
+            <h3>Yüksək Xal Taktikaları:</h3>
+            <ul>
+                <li><strong>Bucağı İdarə Edin:</strong> Topun platformanın hansı hissəsinə dəydiyi, onun sıçrama
+                    bucağını dəyişir.</li>
+                <li><strong>Yuxarı Çıxın:</strong> Mümkün qədər tez bir zamanda kərpiclərin arxasına keçəyə çalışın.
+                </li>
+            </ul>
+            <h2>Qatar Gözləyərkən Niyə Oynanmalı?</h2>
+            <p>Əl-göz koordinasiyasını inkişaf etdirən bu oyun, ətrafdakı səs-küydən uzaqlaşmaq üçün mükəmməldir.</p>
+        </article>
+    </div>
+    <footer>
+        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
+    </footer>
+</body>
+
+</html>

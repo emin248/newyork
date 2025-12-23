@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riyaziyyat Yarışı - Baki-Sumqayit.site</title>
+    <meta name="description" content="Riyaziyyat Yarışı ilə hesablama sürətinizi artırın.">
+    <link rel="stylesheet" href="game-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header class="sticky-header">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Ana Səhifə</span></a>
+        <div class="site-logo">baki-sumqayit.site</div>
+    </header>
+    <div class="main-container">
+        <main class="game-wrapper" id="game-container">
+            <style>
+                .math-game-wrapper {
+                    font-family: 'Poppins', sans-serif;
+                    background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+                    color: white;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                    border-radius: 20px;
+                    width: 100%;
+                    box-sizing: border-box;
+                    min-height: 500px;
+                }
+
+                .math-container {
+                    background: rgba(255, 255, 255, 0.15);
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                    border-radius: 20px;
+                    padding: 30px 20px;
+                    width: 100%;
+                    max-width: 380px;
+                    text-align: center;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    position: relative;
+                }
+
+                /* Skor və Rekord */
+                .header-math {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 20px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    opacity: 0.9;
+                }
+
+                .score-box-math span {
+                    display: block;
+                    font-size: 24px;
+                    color: #ffd700;
+                }
+
+                /* Zaman Çubuğu */
+                .timer-container {
+                    width: 100%;
+                    height: 10px;
+                    background: rgba(0, 0, 0, 0.2);
+                    border-radius: 5px;
+                    margin-bottom: 25px;
+                    overflow: hidden;
+                }
+
+                .timer-bar {
+                    height: 100%;
+                    width: 100%;
+                    background: #00ff88;
+                    border-radius: 5px;
+                    transition: width 0.1s linear;
+                }
+
+                /* Sual Sahəsi */
+                .question-box {
+                    font-size: 48px;
+                    font-weight: 800;
+                    margin-bottom: 30px;
+                    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+                    height: 70px;
+                    /* Sabit hündürlük */
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                /* Cavab Düymələri */
+                .options-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 15px;
+                }
+
+                .option-btn {
+                    background: white;
+                    color: #2193b0;
+                    border: none;
+                    padding: 20px;
+                    font-size: 24px;
+                    font-weight: bold;
+                    border-radius: 15px;
+                    cursor: pointer;
+                    transition: transform 0.1s, background 0.2s;
+                    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1);
+                    width: 100%;
+                }
+
+                .option-btn:active {
+                    transform: translateY(4px);
+                    box-shadow: none;
+                }
+
+                .option-btn.correct {
+                    background: #00ff88 !important;
+                    color: #fff !important;
+                }
+
+                .option-btn.wrong {
+                    background: #ff4757 !important;
+                    color: #fff !important;
+                }
+
+                /* Başlanğıc və Bitmə Ekranı */
+                .overlay-math {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(33, 147, 176, 0.95);
+                    border-radius: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10;
+                }
+
+                .overlay-math h2 {
+                    margin-bottom: 10px;
+                    font-size: 28px;
+                }
+
+                .overlay-math p {
+                    margin-bottom: 25px;
+                    font-size: 16px;
+                    opacity: 0.9;
+                }
+
+                .btn-start {
+                    background: #ffd700;
+                    color: #333;
+                    border: none;
+                    padding: 15px 40px;
+                    font-size: 20px;
+                    font-weight: bold;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                    animation: pulse 1.5s infinite;
+                }
+
+                @keyframes pulse {
+                    0% {
+                        transform: scale(1);
+                    }
+
+                    50% {
+                        transform: scale(1.05);
+                    }
+
+                    100% {
+                        transform: scale(1);
+                    }
+                }
+            </style>
+
+            <div class="math-game-wrapper">
+                <div class="math-container">
+
+                    <!-- Başlanğıc Ekranı -->
+                    <div class="overlay-math" id="startScreen">
+                        <h2>Riyaziyyat Yarışı</h2>
+                        <p>Sürətli düşün, düzgün cavabı tap!</p>
+                        <button class="btn-start" onclick="startGame()">BAŞLA</button>
+                    </div>
+
+                    <!-- Oyun Bitmə Ekranı -->
+                    <div class="overlay-math" id="gameOverScreen" style="display: none;">
+                        <h2>Oyun Bitdi!</h2>
+                        <p>Xalınız: <span id="finalScore" style="font-weight:bold; font-size:22px;">0</span></p>
+                        <button class="btn-start" onclick="startGame()">Yenidən Oyna</button>
+                    </div>
+
+                    <div class="header-math">
+                        <div class="score-box-math">XAL <span id="score">0</span></div>
+                        <div class="score-box-math">REKORD <span id="highScore">0</span></div>
+                    </div>
+
+                    <div class="timer-container">
+                        <div class="timer-bar" id="timerBar"></div>
+                    </div>
+
+                    <div class="question-box" id="question">
+                        Hazır?
+                    </div>
+
+                    <div class="options-grid" id="options">
+                        <!-- Düymələr JS ilə gələcək -->
+                    </div>
+
+                </div>
+            </div>
+
+            <script>
+                const questionEl = document.getElementById('question');
+                const optionsEl = document.getElementById('options');
+                const scoreEl = document.getElementById('score');
+                const highScoreEl = document.getElementById('highScore');
+                const timerBar = document.getElementById('timerBar');
+                const startScreen = document.getElementById('startScreen');
+                const gameOverScreen = document.getElementById('gameOverScreen');
+                const finalScoreEl = document.getElementById('finalScore');
+
+                let score = 0;
+                let highScore = localStorage.getItem('mathHighScore') || 0;
+                let timeLeft = 100; // Faiz olaraq
+                let timerInterval;
+                let gameActive = false;
+                let correctAnswer = 0;
+                let maxTime = 5000; // Sual başına vaxt (ms)
+                let currentTime = maxTime;
+
+                highScoreEl.innerText = highScore;
+
+                function startGame() {
+                    startScreen.style.display = 'none';
+                    gameOverScreen.style.display = 'none';
+                    score = 0;
+                    scoreEl.innerText = score;
+                    gameActive = true;
+                    nextQuestion();
+                }
+
+                function nextQuestion() {
+                    if (!gameActive) return;
+
+                    // Timer sıfırla
+                    clearInterval(timerInterval);
+                    timeLeft = 100;
+                    timerBar.style.width = '100%';
+                    timerBar.style.background = '#00ff88';
+
+                    // Timer başlat
+                    // Hər sual üçün 5-10 saniyə (Skor artdıqca çətinləşir)
+                    let duration = Math.max(2000, 5000 - (score * 50));
+                    let step = 100 / (duration / 20); // 20ms update rate
+
+                    timerInterval = setInterval(() => {
+                        timeLeft -= step;
+                        timerBar.style.width = timeLeft + '%';
+
+                        // Rəng dəyişimi (Yaşıldan Qırmızıya)
+                        if (timeLeft < 30) timerBar.style.background = '#ff4757';
+                        else if (timeLeft < 60) timerBar.style.background = '#ffd700';
+
+                        if (timeLeft <= 0) {
+                            gameOver();
+                        }
+                    }, 20);
+
+                    generateQuestion();
+                }
+
+                function generateQuestion() {
+                    // Əməliyyatlar: +, -, *
+                    const types = ['+', '-', '*'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+
+                    let num1, num2;
+
+                    if (type === '*') {
+                        num1 = Math.floor(Math.random() * 10) + 2; // 2-11
+                        num2 = Math.floor(Math.random() * 10) + 1; // 1-10
+                        correctAnswer = num1 * num2;
+                    } else if (type === '+') {
+                        num1 = Math.floor(Math.random() * 50) + 1;
+                        num2 = Math.floor(Math.random() * 50) + 1;
+                        correctAnswer = num1 + num2;
+                    } else {
+                        num1 = Math.floor(Math.random() * 50) + 10;
+                        num2 = Math.floor(Math.random() * num1) + 1; // Mənfi olmasın
+                        correctAnswer = num1 - num2;
+                    }
+
+                    questionEl.innerText = `${num1} ${type} ${num2}`;
+
+                    // Səhv cavabları yarat
+                    let answers = [correctAnswer];
+                    while (answers.length < 4) {
+                        let wrong = correctAnswer + Math.floor(Math.random() * 10) - 5; // Yaxın rəqəmlər
+                        if (wrong !== correctAnswer && !answers.includes(wrong) && wrong >= 0) {
+                            answers.push(wrong);
+                        }
+                    }
+
+                    // Cavabları qarışdır
+                    answers.sort(() => Math.random() - 0.5);
+
+                    // Ekrana yaz
+                    optionsEl.innerHTML = '';
+                    answers.forEach(ans => {
+                        const btn = document.createElement('button');
+                        btn.classList.add('option-btn');
+                        btn.innerText = ans;
+                        btn.onclick = () => checkAnswer(btn, ans);
+                        optionsEl.appendChild(btn);
+                    });
+                }
+
+                function checkAnswer(btn, answer) {
+                    if (!gameActive) return;
+
+                    if (answer === correctAnswer) {
+                        // Düzgün
+                        btn.classList.add('correct');
+                        score++;
+                        scoreEl.innerText = score;
+                        clearInterval(timerInterval); // Vaxtı dayandır
+                        setTimeout(nextQuestion, 200); // Qısa gecikmə ilə növbəti sual
+                    } else {
+                        // Səhv
+                        btn.classList.add('wrong');
+                        // Doğrunu göstər
+                        const buttons = document.querySelectorAll('.option-btn');
+                        buttons.forEach(b => {
+                            if (parseInt(b.innerText) === correctAnswer) {
+                                b.classList.add('correct');
+                            }
+                        });
+                        gameOver();
+                    }
+                }
+
+                function gameOver() {
+                    gameActive = false;
+                    clearInterval(timerInterval);
+
+                    if (score > highScore) {
+                        highScore = score;
+                        localStorage.setItem('mathHighScore', highScore);
+                        highScoreEl.innerText = highScore;
+                    }
+
+                    setTimeout(() => {
+                        finalScoreEl.innerText = score;
+                        gameOverScreen.style.display = 'flex';
+                    }, 1000);
+                }
+
+            </script>
+        </main>
+        <!-- Other Games Panel -->
+        <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
+                <i class="fa-solid fa-gamepad text-purple-600 mr-3"></i>
+                Digər Oyunlar
+            </h2>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                <!-- 2048 -->
+                <a href="game-2048.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-layer-group text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-yellow-700 text-sm">2048</span>
+                </a>
+
+                <!-- 15 Puzzle -->
+                <a href="game-15puzzle.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-border-all text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-blue-700 text-sm">15 Puzzle</span>
+                </a>
+
+                <!-- Flappy -->
+                <a href="game-flappy.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-dove text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-sky-700 text-sm">Uçan Top</span>
+                </a>
+
+                <!-- Snake -->
+                <a href="game-snake.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-staff-snake text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-green-700 text-sm">İlan</span>
+                </a>
+
+                <!-- TicTacToe -->
+                <a href="game-tictactoe.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-xmarks-lines text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-red-700 text-sm">X-O</span>
+                </a>
+
+                <!-- Tetris -->
+                <a href="game-tetris.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-shapes text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-indigo-700 text-sm">Tetris</span>
+                </a>
+
+                <!-- Memory -->
+                <a href="game-memory.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-teal-400/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-brain text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-teal-700 text-sm">Yaddaş</span>
+                </a>
+
+                <!-- Math -->
+                <a href="game-math.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-calculator text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-orange-700 text-sm">Riyaziyyat</span>
+                </a>
+
+                <!-- Reflex (ZigZag) -->
+                <a href="game-reflex.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-fuchsia-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-bolt text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-fuchsia-700 text-sm">Ziq Zaq</span>
+                </a>
+
+                <!-- Arkanoid -->
+                <a href="game-arkanoid.html"
+                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <i class="fa-solid fa-cubes text-xl"></i>
+                    </div>
+                    <span class="font-bold text-gray-700 group-hover:text-rose-700 text-sm">Kərpic</span>
+                </a>
+
+            </div>
+        </section>
+        <article class="seo-content">
+            <h1>Riyaziyyat Yarışı - Beyin Gimnastikası</h1>
+            <h2>Necə Oynanılır?</h2>
+            <p>Ekranda sadə riyazi tənliklər görünəcək (məsələn, 5 + 3 = ?). Məhdud vaxt ərzində doğru cavabı
+                tapmalısınız. Suallar getdikcə çətinləşə bilər.</p>
+            <h3>Yüksək Xal Taktikaları:</h3>
+            <ul>
+                <li><strong>Təxmin Edin:</strong> Dəqiq hesablamaq vaxt aparırsa, təxmin yürütməyə çalışın.</li>
+                <li><strong>Diqqətli Oxuyun:</strong> İşarələrə diqqət edin.</li>
+                <li><strong>Panikləməyin:</strong> Sakitliyinizi qorumaq vacibdir.</li>
+            </ul>
+            <h2>Qatar Gözləyərkən Niyə Oynanmalı?</h2>
+            <p>Zehni hesablama qabiliyyətinizi itiləmək üçün mükəmməldir. Günün yorğunluğunu atmaq üçün faydalıdır.</p>
+        </article>
+    </div>
+    <footer>
+        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
+    </footer>
+</body>
+
+</html>
