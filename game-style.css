@@ -12,11 +12,18 @@ body {
     margin: 0;
     font-family: 'Inter', sans-serif;
     background: var(--bg-gradient);
-    background-attachment: fixed;
+    background-attachment: scroll;
     color: var(--text-color);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+    body {
+        background-attachment: fixed;
+    }
 }
 
 /* Sticky Header */
