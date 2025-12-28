@@ -270,6 +270,70 @@
         text-align: center;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     }
+<<<<<<< HEAD
+=======
+
+    /* Mobile D-pad Styles */
+    .mobile-controls {
+        display: none;
+        margin-top: 30px;
+        grid-template-areas:
+            ". up ."
+            "left . right"
+            ". down .";
+        gap: 12px;
+        user-select: none;
+    }
+
+    @media (max-width: 768px) {
+        .mobile-controls {
+            display: grid;
+        }
+
+        .instructions {
+            display: none;
+        }
+    }
+
+    .d-btn {
+        width: 65px;
+        height: 65px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(8px);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.15s ease;
+        touch-action: manipulation;
+    }
+
+    .d-btn:active {
+        transform: scale(0.92);
+        background: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-up {
+        grid-area: up;
+    }
+
+    .btn-left {
+        grid-area: left;
+    }
+
+    .btn-right {
+        grid-area: right;
+    }
+
+    .btn-down {
+        grid-area: down;
+    }
+>>>>>>> 0ec077b (əsas səhifədə oyun banneri və 2048 mobil idarəetmə təkmilləşdirildi)
 </style>
 </head>
 
@@ -303,7 +367,19 @@
                 </div>
 
                 <div class="instructions">
+<<<<<<< HEAD
                     PC: Ox Düymələri <br> Mobil: Barmağını sürüşdür
+=======
+                    PC: Ox Düymələri <br> Mobil: Barmağını sürüşdür və ya oxları istifadə et
+                </div>
+
+                <!-- Mobile D-pad -->
+                <div class="mobile-controls">
+                    <button class="d-btn btn-up" id="btn-up"><i class="fas fa-chevron-up"></i></button>
+                    <button class="d-btn btn-left" id="btn-left"><i class="fas fa-chevron-left"></i></button>
+                    <button class="d-btn btn-right" id="btn-right"><i class="fas fa-chevron-right"></i></button>
+                    <button class="d-btn btn-down" id="btn-down"><i class="fas fa-chevron-down"></i></button>
+>>>>>>> 0ec077b (əsas səhifədə oyun banneri və 2048 mobil idarəetmə təkmilləşdirildi)
                 </div>
 
                 <div class="game-over" id="game-message">
@@ -788,6 +864,15 @@
             messageDisplay.style.display = 'flex';
         }
 
+<<<<<<< HEAD
+=======
+        // D-pad Event Listeners
+        document.getElementById('btn-up').addEventListener('click', keyUp);
+        document.getElementById('btn-down').addEventListener('click', keyDown);
+        document.getElementById('btn-left').addEventListener('click', keyLeft);
+        document.getElementById('btn-right').addEventListener('click', keyRight);
+
+>>>>>>> 0ec077b (əsas səhifədə oyun banneri və 2048 mobil idarəetmə təkmilləşdirildi)
         startGame();
     </script>
 </body>
