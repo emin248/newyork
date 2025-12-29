@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="az">
 
 <head>
@@ -17,202 +17,39 @@
 
     <!-- Monetag Vignette Ad -->
     <script>(function (s) { s.dataset.zone = '10313116', s.src = 'https://gizokraijaw.net/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-    <!-- Favicon Settings -->
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+            <!-- Favicon Settings -->
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-</head>
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-<body>
-    <header class="sticky-header">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Ana Səhifə</span></a>
-        <div class="site-logo">baki-sumqayit.site</div>
-    </header>
-    <div class="main-container">
-        <main class="game-wrapper" id="game-container">
-            <style>
-                .memory-game-wrapper {
-                    font-family: 'Poppins', sans-serif;
-                    background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
-                    color: #fff;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 20px;
-                    border-radius: 20px;
-                    width: 100%;
-                    box-sizing: border-box;
-                    min-height: 500px;
-                }
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                .memory-container {
-                    background: rgba(255, 255, 255, 0.2);
-                    backdrop-filter: blur(10px);
-                    -webkit-backdrop-filter: blur(10px);
-                    border-radius: 20px;
-                    padding: 20px;
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-                    width: 100%;
-                    max-width: 400px;
-                    text-align: center;
-                    position: relative;
-                }
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-                .memory-container h1 {
-                    margin: 0 0 20px 0;
-                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                    font-size: 28px;
-                }
+    <!-- PNG faviconlar -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-                .stats {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-bottom: 20px;
-                    background: rgba(0, 0, 0, 0.1);
-                    padding: 10px 20px;
-                    border-radius: 12px;
-                }
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-                .stat-item {
-                    display: flex;
-                    flex-direction: column;
-                }
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                .stat-label {
-                    font-size: 12px;
-                    text-transform: uppercase;
-                    opacity: 0.8;
-                }
-
-                .stat-value {
-                    font-size: 20px;
-                    font-weight: bold;
-                }
-
-                .grid {
-                    display: grid;
-                    grid-template-columns: repeat(4, 1fr);
-                    gap: 10px;
-                    perspective: 1000px;
-                    /* 3D effekt üçün */
-                }
-
-                .card {
-                    background-color: transparent;
-                    aspect-ratio: 1;
-                    /* Kvadrat olsun */
-                    cursor: pointer;
-                    position: relative;
-                    transform-style: preserve-3d;
-                    transition: transform 0.5s;
-                    border-radius: 8px;
-                }
-
-                .card.flip {
-                    transform: rotateY(180deg);
-                }
-
-                .card-face {
-                    position: absolute;
-                    width: 100%;
-                    height: 100%;
-                    backface-visibility: hidden;
-                    /* Arxa tərəfi gizlət */
-                    border-radius: 8px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 32px;
-                    /* Emoji size */
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                }
-
-                /* Kartın Arxası (Bağlı tərəf) */
-                .card-front {
-                    background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
-                    color: white;
-                    font-size: 24px;
-                    font-weight: bold;
-                    transform: rotateY(0deg);
-                }
-
-                .card-front::after {
-                    content: '?';
-                }
-
-                /* Kartın Üzü (Açıq tərəf) */
-                .card-back {
-                    background: white;
-                    color: #333;
-                    transform: rotateY(180deg);
-                }
-
-                .btn-restart {
-                    background: #fff;
-                    color: #66a6ff;
-                    border: none;
-                    padding: 12px 30px;
-                    font-size: 16px;
-                    border-radius: 50px;
-                    cursor: pointer;
-                    font-weight: bold;
-                    margin-top: 25px;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-                    transition: transform 0.2s;
-                }
-
-                .btn-restart:active {
-                    transform: scale(0.95);
-                }
-
-                /* Uğur Ekranı */
-                .modal-memory {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0, 0, 0, 0.85);
-                    display: none;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 10;
-                    border-radius: 20px;
-                }
-
-                .modal-memory h2 {
-                    margin-bottom: 5px;
-                    color: #ffd700;
-                    font-size: 24px;
-                }
-
-                .modal-memory p {
-                    font-size: 18px;
-                    margin: 5px 0;
-                }
-            </style>
-
-            <div class="memory-game-wrapper">
-                <div class="memory-container">
-                    <h1>Yaddaş Oyunu</h1>
-
-                    <div class="stats">
-                        <div class="stat-item">
-                            <span class="stat-label">Həmlə</span>
-                            <span class="stat-value" id="moves">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Vaxt</span>
-                            <span class="stat-value" id="timer">00:00</span>
-                        </div>
-                    </div>
-
-                    <div class="grid" id="grid">
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
                         <!-- Kartlar JS ilə gələcək -->
                     </div>
 

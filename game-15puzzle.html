@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="az">
 
 <head>
@@ -17,244 +17,39 @@
 
     <!-- Monetag Vignette Ad -->
     <script>(function (s) { s.dataset.zone = '10313116', s.src = 'https://gizokraijaw.net/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-    <!-- Favicon Settings -->
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+            <!-- Favicon Settings -->
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-</head>
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-<body>
-    <header class="sticky-header">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Ana Səhifə</span></a>
-        <div class="site-logo">baki-sumqayit.site</div>
-    </header>
-    <div class="main-container">
-        <main class="game-wrapper" id="game-container">
-            <style>
-                :root {
-                    --puzzle-primary: #4e54c8;
-                    --puzzle-secondary: #8f94fb;
-                    --puzzle-accent: #ff6b6b;
-                    --puzzle-text: #ffffff;
-                    --puzzle-tile-bg: rgba(255, 255, 255, 0.15);
-                    --puzzle-tile-border: rgba(255, 255, 255, 0.2);
-                    --puzzle-glass: rgba(255, 255, 255, 0.1);
-                }
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                .puzzle-game-area {
-                    font-family: 'Poppins', sans-serif;
-                    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-                    background-size: 400% 400%;
-                    animation: gradientBG 15s ease infinite;
-                    color: var(--puzzle-text);
-                    border-radius: 20px;
-                    padding: 20px;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    min-height: 500px;
-                    margin-bottom: 20px;
-                    position: relative;
-                    overflow: hidden;
-                }
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-                @media (max-width: 480px) {
-                    .puzzle-game-area {
-                        padding: 15px;
-                        min-height: 400px;
-                    }
+    <!-- PNG faviconlar -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-                    .puzzle-container {
-                        padding: 15px;
-                    }
-                }
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-                @keyframes gradientBG {
-                    0% {
-                        background-position: 0% 50%;
-                    }
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                    50% {
-                        background-position: 100% 50%;
-                    }
-
-                    100% {
-                        background-position: 0% 50%;
-                    }
-                }
-
-                .puzzle-container {
-                    background: var(--puzzle-glass);
-                    backdrop-filter: blur(10px);
-                    -webkit-backdrop-filter: blur(10px);
-                    border-radius: 20px;
-                    padding: 25px;
-                    border: 1px solid rgba(255, 255, 255, 0.18);
-                    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-                    text-align: center;
-                    width: 100%;
-                    max-width: 400px;
-                    position: relative;
-                    z-index: 2;
-                }
-
-                .puzzle-container h1 {
-                    margin: 0 0 15px 0;
-                    font-size: 1.5rem;
-                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-                    color: white;
-                }
-
-                .stats-bar {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-bottom: 20px;
-                    background: rgba(0, 0, 0, 0.2);
-                    padding: 10px 15px;
-                    border-radius: 12px;
-                    font-size: 0.9rem;
-                }
-
-                .stat-item b {
-                    display: block;
-                    font-size: 1.1rem;
-                    color: #ffd700;
-                }
-
-                .game-grid {
-                    display: grid;
-                    grid-template-columns: repeat(4, 1fr);
-                    gap: 8px;
-                    aspect-ratio: 1;
-                    margin-bottom: 20px;
-                }
-
-                .puzzle-tile {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: var(--puzzle-tile-bg);
-                    border: 1px solid var(--puzzle-tile-border);
-                    border-radius: 10px;
-                    font-size: 1.5rem;
-                    font-weight: 700;
-                    color: #fff;
-                    cursor: pointer;
-                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                    user-select: none;
-                }
-
-                .puzzle-tile:not(.empty):hover {
-                    transform: translateY(-2px);
-                    background: rgba(255, 255, 255, 0.25);
-                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-                }
-
-                .puzzle-tile:not(.empty):active {
-                    transform: scale(0.95);
-                }
-
-                .puzzle-tile.correct {
-                    background: rgba(46, 204, 113, 0.4);
-                    border-color: rgba(46, 204, 113, 0.6);
-                }
-
-                .puzzle-tile.empty {
-                    background: transparent;
-                    border: none;
-                    box-shadow: none;
-                    cursor: default;
-                }
-
-                .btn-restart {
-                    background: var(--puzzle-accent);
-                    color: white;
-                    border: none;
-                    padding: 12px 30px;
-                    border-radius: 50px;
-                    font-size: 1rem;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: transform 0.2s, box-shadow 0.2s;
-                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
-                    font-family: 'Poppins', sans-serif;
-                }
-
-                .btn-restart:active {
-                    transform: scale(0.95);
-                }
-
-                /* Modal (Kazanma Ekranı) */
-                .puzzle-modal {
-                    display: none;
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0, 0, 0, 0.85);
-                    border-radius: 20px;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 10;
-                }
-
-                .puzzle-modal.active {
-                    display: flex;
-                    animation: fadeIn 0.3s ease;
-                }
-
-                .puzzle-modal h2 {
-                    color: #ffd700;
-                    font-size: 2rem;
-                    margin-bottom: 10px;
-                }
-
-                .puzzle-modal p {
-                    font-size: 1.1rem;
-                    margin-bottom: 20px;
-                }
-
-                @keyframes fadeIn {
-                    from {
-                        opacity: 0;
-                    }
-
-                    to {
-                        opacity: 1;
-                    }
-                }
-
-                /* Canvas for Confetti */
-                #confetti-canvas {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    pointer-events: none;
-                    z-index: 999;
-                }
-            </style>
-
-            <canvas id="confetti-canvas"></canvas>
-
-            <div class="puzzle-game-area">
-                <div class="puzzle-container">
-                    <h1>Qatarı Gözləyirsən?</h1>
-
-                    <div class="stats-bar">
-                        <div class="stat-item">Həmlə<b id="move-count">0</b></div>
-                        <div class="stat-item">Vaxt<b id="timer">00:00</b></div>
-                        <div class="stat-item">Rekord<b id="best-score">-</b></div>
-                    </div>
-
-                    <div class="game-grid" id="grid">
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
                         <!-- Squares JS generated -->
                     </div>
 

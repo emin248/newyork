@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="az">
 
 <head>
@@ -22,341 +22,72 @@
 
     <!-- Monetag Vignette Ad -->
     <script>(function (s) { s.dataset.zone = '10313116', s.src = 'https://gizokraijaw.net/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-    <!-- Favicon Settings -->
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+            <!-- Favicon Settings -->
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" href="/favicon.ico">
-
-</head>
-<style>
-    /* 2048 Game Specific Styles by User */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
-
-    .game-area-2048 {
-        background: linear-gradient(135deg, #8EC5FC 0%, #E0C3FC 100%);
-        color: #776e65;
-        font-family: "Poppins", sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border-radius: 20px;
-        padding: 20px;
-        width: 100%;
-        max-width: 500px;
-        box-sizing: border-box;
-        position: relative;
-        /* height removed to fit content */
-        margin: 0 auto;
-    }
-
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        max-width: 320px;
-        margin-bottom: 20px;
-    }
-
-    .title {
-        font-size: 48px;
-        font-weight: bold;
-        color: white;
-        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        margin: 0;
-    }
-
-    .score-box {
-        background: #bbada0;
-        padding: 5px 20px;
-        border-radius: 6px;
-        color: white;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .score-title {
-        font-size: 11px;
-        text-transform: uppercase;
-        display: block;
-        letter-spacing: 1px;
-    }
-
-    .score-val {
-        font-size: 22px;
-        font-weight: bold;
-        display: block;
-    }
-
-    .game-container {
-        width: 320px;
-        height: 320px;
-        background-color: #bbada0;
-        border-radius: 10px;
-        padding: 10px;
-        position: relative;
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: repeat(4, 1fr);
-        gap: 10px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    }
-
-    .tile {
-        width: 100%;
-        height: 100%;
-        background-color: rgba(238, 228, 218, 0.35);
-        border-radius: 5px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 32px;
-        font-weight: bold;
-        color: #776e65;
-        transition: transform 0.1s ease-in-out;
-    }
-
-    /* Animations */
-    @keyframes appear {
-        0% {
-            opacity: 0;
-            transform: scale(0);
-        }
-
-        100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    .new-tile {
-        animation: appear 0.2s ease-in-out backwards;
-    }
-
-    @keyframes pop {
-        0% {
-            transform: scale(1);
-        }
-
-        50% {
-            transform: scale(1.25);
-            filter: brightness(1.2);
-        }
-
-        100% {
-            transform: scale(1);
-        }
-    }
-
-    .pop-anim {
-        animation: pop 0.2s ease-in-out;
-        z-index: 10;
-    }
-
-    /* Colors */
-    .x2 {
-        background-color: #eee4da;
-        color: #776e65;
-    }
-
-    .x4 {
-        background-color: #ede0c8;
-        color: #776e65;
-    }
-
-    .x8 {
-        background-color: #f2b179;
-        color: #f9f6f2;
-    }
-
-    .x16 {
-        background-color: #f59563;
-        color: #f9f6f2;
-    }
-
-    .x32 {
-        background-color: #f67c5f;
-        color: #f9f6f2;
-    }
-
-    .x64 {
-        background-color: #f65e3b;
-        color: #f9f6f2;
-    }
-
-    .x128 {
-        background-color: #edcf72;
-        color: #f9f6f2;
-        font-size: 28px;
-        box-shadow: 0 0 10px #edcf72;
-    }
-
-    .x256 {
-        background-color: #edcc61;
-        color: #f9f6f2;
-        font-size: 28px;
-        box-shadow: 0 0 15px #edcc61;
-    }
-
-    .x512 {
-        background-color: #edc850;
-        color: #f9f6f2;
-        font-size: 28px;
-        box-shadow: 0 0 20px #edc850;
-    }
-
-    .x1024 {
-        background-color: #edc53f;
-        color: #f9f6f2;
-        font-size: 22px;
-    }
-
-    .x2048 {
-        background-color: #edc22e;
-        color: #f9f6f2;
-        font-size: 22px;
-        box-shadow: 0 0 30px #edc22e;
-    }
-
-    .game-over {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(5px);
-        z-index: 20;
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        animation: fadein 0.5s;
-    }
-
-    @keyframes fadein {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
-        }
-    }
-
-    .game-over h2 {
-        color: #776e65;
-        font-size: 40px;
-        margin: 0 0 20px 0;
-    }
-
-    .btn-restart {
-        background-color: #8f7a66;
-        color: white;
-        border: none;
-        padding: 12px 25px;
-        font-size: 18px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: transform 0.1s;
-    }
-
-    .btn-restart:active {
-        transform: scale(0.95);
-    }
-
-    .instructions {
-        margin-top: 25px;
-        color: white;
-        font-size: 14px;
-        text-align: center;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Mobile D-pad Styles */
-    .mobile-controls {
-        display: none;
-        margin-top: 30px;
-        grid-template-areas:
-            ". up ."
-            "left . right"
-            ". down .";
-        gap: 12px;
-        user-select: none;
-    }
-
-    @media (max-width: 768px) {
-        .mobile-controls {
-            display: grid;
-        }
-
-        .instructions {
-            display: none;
-        }
-    }
-
-    .d-btn {
-        width: 65px;
-        height: 65px;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(8px);
-        border: 2px solid rgba(255, 255, 255, 0.4);
-        border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 24px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        transition: all 0.15s ease;
-        touch-action: manipulation;
-    }
-
-    .d-btn:active {
-        transform: scale(0.92);
-        background: rgba(255, 255, 255, 0.4);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-up {
-        grid-area: up;
-    }
-
-    .btn-left {
-        grid-area: left;
-    }
-
-    .btn-right {
-        grid-area: right;
-    }
-
-    .btn-down {
-        grid-area: down;
-    }
-</style>
-    <!-- Favicon Settings -->
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-</head>
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-<body>
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-    <header class="sticky-header">
-        <a href="index.html" class="back-btn">
-            <i class="fas fa-arrow-left"></i>
-            <span>Ana Səhifə</span>
-        </a>
-        <div class="site-logo">baki-sumqayit.site</div>
-    </header>
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
+            <!-- Favicon Settings -->
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-    <div class="main-container">
+    <!-- PNG faviconlar -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PNG faviconlar -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
 
         <!-- Game Wrapper -->
         <main class="game-wrapper" id="game-container"

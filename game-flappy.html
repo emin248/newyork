@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="az">
 
 <head>
@@ -17,296 +17,39 @@
 
     <!-- Monetag Vignette Ad -->
     <script>(function (s) { s.dataset.zone = '10313116', s.src = 'https://gizokraijaw.net/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-    <!-- Favicon Settings -->
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+            <!-- Favicon Settings -->
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-</head>
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-<body>
-    <header class="sticky-header">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Ana Səhifə</span></a>
-        <div class="site-logo">baki-sumqayit.site</div>
-    </header>
-    <div class="main-container">
-        <main class="game-wrapper" id="game-container">
-            <div id="flappy-wrapper"
-                style="position: relative; width: 100%; height: 600px; overflow: hidden; background: #70c5ce; border-radius: 15px; user-select: none; -webkit-user-select: none;">
-                <div id="score-board"
-                    style="position: absolute; top: 10%; width: 100%; text-align: center; font-size: 50px; color: white; font-weight: bold; text-shadow: 2px 2px 4px #000; z-index: 5; pointer-events: none;">
-                    0</div>
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                <div id="start-screen"
-                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; text-shadow: 2px 2px 4px #000; z-index: 10;">
-                    <h1 style="font-size: 40px; margin: 0 0 10px 0;">Hoppan!</h1>
-                    <p style="font-size: 20px;">Ekrana toxun və ya boşluq (space) düyməsini bas</p>
-                    <button onclick="startGame()"
-                        style="background: #ff6b6b; color: white; border: none; padding: 15px 30px; font-size: 20px; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 0 #c0392b; font-weight: bold;">BAŞLA</button>
-                </div>
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-                <div id="game-over-screen"
-                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; text-shadow: 2px 2px 4px #000; z-index: 10; display: none;">
-                    <h1 style="font-size: 40px; margin: 0 0 10px 0;">Oyun Bitdi!</h1>
-                    <p style="font-size: 20px;">Xal: <span id="final-score">0</span></p>
-                    <button onclick="resetGame()"
-                        style="background: #ff6b6b; color: white; border: none; padding: 15px 30px; font-size: 20px; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 0 #c0392b; font-weight: bold;">Yenidən
-                        Oyna</button>
-                </div>
+    <!-- PNG faviconlar -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-                <canvas id="gameCanvas" style="display: block; width: 100%; height: 100%;"></canvas>
-            </div>
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-            <script>
-                const canvas = document.getElementById("gameCanvas");
-                const ctx = canvas.getContext("2d");
-                const gameWrapper = document.getElementById("flappy-wrapper");
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                // Ekran boyutlarını ayarla
-                function resizeCanvas() {
-                    canvas.width = gameWrapper.clientWidth;
-                    canvas.height = gameWrapper.clientHeight;
-                }
-                resizeCanvas();
-                window.addEventListener('resize', resizeCanvas);
-
-
-                // Değişkenler
-                let frames = 0;
-                let score = 0;
-                let gameRunning = false;
-                let speed = 3; // Oyun hızı
-
-                const state = {
-                    current: 0,
-                    getReady: 0,
-                    game: 1,
-                    over: 2
-                }
-
-                // KONTROLLER
-                document.addEventListener("keydown", function (evt) {
-                    // Sadece oyun alanı görünürdeyse veya odaklanılmışsa çalıştırılabilir, 
-                    // ama basitlik için şimdilik Space tüm sayfada çalışsın.
-                    // Sayfa kaymasını engellemek için preventDefault
-                    if (evt.code === "Space") {
-                        if (state.current === state.game) {
-                            evt.preventDefault();
-                        }
-                        action();
-                    }
-                });
-
-                // Sadece oyun alanına tıklayınca zıplasın
-                gameWrapper.addEventListener("touchstart", function (evt) {
-                    if (evt.target.tagName === 'BUTTON') return;
-                    action();
-                    evt.preventDefault();
-                }, { passive: false });
-
-                gameWrapper.addEventListener("mousedown", function (evt) {
-                    action();
-                });
-
-                function action() {
-                    if (state.current === state.game) {
-                        bird.flap();
-                    }
-                }
-
-                function startGame() {
-                    state.current = state.game;
-                    document.getElementById("start-screen").style.display = "none";
-                    loop();
-                }
-
-                function resetGame() {
-                    bird.reset();
-                    pipes.reset();
-                    score = 0;
-                    frames = 0;
-                    speed = 3; // Hızı sıfırla
-                    document.getElementById("score-board").innerText = 0;
-                    document.getElementById("game-over-screen").style.display = "none";
-                    state.current = state.game;
-                    loop();
-                }
-
-                // KUŞ (TOP) NESNESİ
-                const bird = {
-                    x: 50,
-                    y: 150,
-                    radius: 15,
-                    velocity: 0,
-                    gravity: 0.25,
-                    jump: 4.6,
-
-                    draw: function () {
-                        ctx.fillStyle = "#ffeb3b";
-                        ctx.beginPath();
-                        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.strokeStyle = "#000";
-                        ctx.lineWidth = 2;
-                        ctx.stroke();
-
-                        // Göz
-                        ctx.fillStyle = "#fff";
-                        ctx.beginPath();
-                        ctx.arc(this.x + 6, this.y - 6, 5, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.fillStyle = "#000";
-                        ctx.beginPath();
-                        ctx.arc(this.x + 8, this.y - 6, 2, 0, Math.PI * 2);
-                        ctx.fill();
-                    },
-
-                    update: function () {
-                        this.velocity += this.gravity;
-                        this.y += this.velocity;
-
-                        // Zemin kontrolü
-                        if (this.y + this.radius >= canvas.height) {
-                            this.y = canvas.height - this.radius;
-                            gameOver();
-                        }
-
-                        // Tavan kontrolü
-                        if (this.y - this.radius <= 0) {
-                            this.y = this.radius;
-                            this.velocity = 0;
-                        }
-                    },
-
-                    flap: function () {
-                        this.velocity = -this.jump;
-                    },
-
-                    reset: function () {
-                        this.y = 150;
-                        this.velocity = 0;
-                    }
-                }
-
-                // BORULAR
-                const pipes = {
-                    position: [],
-                    w: 50,
-                    h: 150, // Gap (boşluk) boyutu
-                    dx: 3,  // Hız
-
-                    draw: function () {
-                        for (let i = 0; i < this.position.length; i++) {
-                            let p = this.position[i];
-                            let topY = p.y;
-                            let bottomY = p.y + this.h;
-
-                            ctx.fillStyle = "#2ecc71";
-
-                            // Üst Boru
-                            ctx.fillRect(p.x, 0, this.w, topY);
-                            ctx.strokeStyle = "#27ae60";
-                            ctx.lineWidth = 2;
-                            ctx.strokeRect(p.x, 0, this.w, topY);
-
-                            // Alt Boru
-                            ctx.fillRect(p.x, bottomY, this.w, canvas.height - bottomY);
-                            ctx.strokeRect(p.x, bottomY, this.w, canvas.height - bottomY);
-                        }
-                    },
-
-                    update: function () {
-                        // Her 120 karede bir yeni boru ekle (mobilde daha sık olması için ayarlayabilirsiniz)
-                        if (frames % 120 === 0) {
-                            this.position.push({
-                                x: canvas.width,
-                                y: Math.random() * (canvas.height - 300) + 50 // Rastgele yükseklik
-                            });
-                        }
-
-                        for (let i = 0; i < this.position.length; i++) {
-                            let p = this.position[i];
-
-                            p.x -= speed; // Hızlanma eklenebilir
-
-                            // Çarpışma Kontrolü
-                            // Borunun içine girdi mi?
-                            if (bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + this.w) {
-                                // Üst boruya veya alt boruya çarptı mı?
-                                if (bird.y - bird.radius < p.y || bird.y + bird.radius > p.y + this.h) {
-                                    gameOver();
-                                }
-                            }
-
-                            // Ekrandan çıktıysa sil
-                            if (p.x + this.w <= 0) {
-                                this.position.shift();
-                                score++;
-                                document.getElementById("score-board").innerText = score;
-
-                                // Her 5 puanda biraz hızlandır
-                                if (score % 5 === 0) speed += 0.5;
-
-                                // En iyi skoru kaydet (Opsiyonel)
-                                score = Math.max(score, 0);
-                            }
-                        }
-                    },
-
-                    reset: function () {
-                        this.position = [];
-                    }
-                }
-
-                // ARKA PLAN (Bulutlar)
-                const bg = {
-                    draw: function () {
-                        ctx.fillStyle = "#70c5ce";
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                        // Basit bulutlar
-                        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-                        for (let i = 0; i < 5; i++) {
-                            ctx.beginPath();
-                            ctx.arc((frames * 0.5 + i * 200) % (canvas.width + 200) - 100, 100 + i * 50, 40, 0, Math.PI * 2);
-                            ctx.fill();
-                        }
-                    }
-                }
-
-                function gameOver() {
-                    state.current = state.over;
-                    document.getElementById("game-over-screen").style.display = "block";
-                    document.getElementById("final-score").innerText = score;
-                }
-
-                function loop() {
-                    bg.draw();
-                    pipes.draw();
-                    bird.draw();
-
-                    if (state.current === state.game) {
-                        pipes.update();
-                        bird.update();
-                        frames++;
-                        requestAnimationFrame(loop);
-                    }
-                }
-
-                // Pencere boyutu değişirse
-                window.addEventListener('resize', function () {
-                    resizeCanvas();
-                    // Kuşu ortaya al
-                    // bird.y = canvas.height / 2; 
-                });
-
-                // İlk çizim
-                bg.draw();
-                bird.draw();
-
-            </script>
-        </main>
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
         <!-- Other Games Panel -->
         <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
             <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="az">
 
 <head>
@@ -17,202 +17,39 @@
 
     <!-- Monetag Vignette Ad -->
     <script>(function (s) { s.dataset.zone = '10313116', s.src = 'https://gizokraijaw.net/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-    <!-- Favicon Settings -->
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+            <!-- Favicon Settings -->
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-</head>
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-<body>
-    <header class="sticky-header">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Ana Səhifə</span></a>
-        <div class="site-logo">baki-sumqayit.site</div>
-    </header>
-    <div class="main-container">
-        <main class="game-wrapper" id="game-container">
-            <style>
-                .tetris-wrapper {
-                    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-                    color: #fff;
-                    font-family: 'Poppins', sans-serif;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 20px;
-                    padding: 20px;
-                    width: 100%;
-                    box-sizing: border-box;
-                }
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                @media (max-width: 480px) {
-                    .tetris-wrapper {
-                        padding: 15px;
-                    }
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-                    .game-container-tetris {
-                        padding: 8px;
-                    }
-                }
+    <!-- PNG faviconlar -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-                .game-container-tetris {
-                    position: relative;
-                    background: rgba(0, 0, 0, 0.8);
-                    padding: 10px;
-                    border-radius: 15px;
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    max-width: 320px;
-                    width: 100%;
-                }
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-                .header-tetris {
-                    display: flex;
-                    justify-content: space-between;
-                    width: 100%;
-                    margin-bottom: 10px;
-                    padding: 0 10px;
-                    box-sizing: border-box;
-                }
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                .score-box-tetris {
-                    text-align: center;
-                }
-
-                .score-label-tetris {
-                    font-size: 12px;
-                    opacity: 0.7;
-                    text-transform: uppercase;
-                }
-
-                .score-val-tetris {
-                    font-size: 20px;
-                    font-weight: bold;
-                    color: #fdbb2d;
-                }
-
-                #tetris {
-                    border: 2px solid #333;
-                    background-color: #111;
-                    display: block;
-                    border-radius: 4px;
-                    max-width: 100%;
-                    height: auto;
-                }
-
-                /* Mobil Kontroller */
-                .controls-tetris {
-                    margin-top: 15px;
-                    display: grid;
-                    grid-template-columns: 1fr 1fr 1fr;
-                    grid-template-rows: 1fr 1fr;
-                    gap: 10px;
-                    width: 100%;
-                    max-width: 260px;
-                }
-
-                .btn-tetra {
-                    background: rgba(255, 255, 255, 0.15);
-                    border: none;
-                    border-radius: 12px;
-                    height: 50px;
-                    color: white;
-                    font-size: 24px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
-                    transition: background 0.1s;
-                    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
-                }
-
-                .btn-tetra:active {
-                    background: rgba(255, 255, 255, 0.3);
-                    transform: translateY(2px);
-                    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
-                }
-
-                .btn-rotate {
-                    grid-column: 2;
-                    background: #8e44ad;
-                }
-
-                .btn-left {
-                    grid-row: 2;
-                    grid-column: 1;
-                }
-
-                .btn-down {
-                    grid-row: 2;
-                    grid-column: 2;
-                }
-
-                .btn-right {
-                    grid-row: 2;
-                    grid-column: 3;
-                }
-
-                /* Game Over Modal */
-                .modal-tetris {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0, 0, 0, 0.85);
-                    display: none;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 10;
-                    border-radius: 15px;
-                }
-
-                .modal-tetris h2 {
-                    font-size: 30px;
-                    margin-bottom: 10px;
-                    color: #e74c3c;
-                }
-
-                .btn-restart-tetris {
-                    background: #27ae60;
-                    color: white;
-                    border: none;
-                    padding: 10px 25px;
-                    font-size: 18px;
-                    border-radius: 25px;
-                    cursor: pointer;
-                    margin-top: 15px;
-                }
-
-                /* PC için kontrolleri gizle/göster */
-                @media (min-width: 768px) {
-                    .controls-tetris {
-                        display: none;
-                    }
-
-                    /* PC'de butonları gizle */
-                }
-            </style>
-
-            <div class="tetris-wrapper">
-                <div class="game-container-tetris">
-                    <div class="header-tetris">
-                        <div class="score-box-tetris">
-                            <div class="score-label-tetris">XAL</div>
-                            <div class="score-val-tetris" id="score">0</div>
-                        </div>
-                        <div class="score-box-tetris">
-                            <div class="score-label-tetris">REKORD</div>
-                            <div class="score-val-tetris" id="highscore">0</div>
-                        </div>
-                    </div>
-
-                    <canvas id="tetris" width="240" height="400"></canvas>
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
 
                     <!-- Mobil Kontroller -->
                     <div class="controls-tetris">

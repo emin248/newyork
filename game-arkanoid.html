@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="az">
 
 <head>
@@ -17,389 +17,39 @@
 
     <!-- Monetag Vignette Ad -->
     <script>(function (s) { s.dataset.zone = '10313116', s.src = 'https://gizokraijaw.net/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-    <!-- Favicon Settings -->
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+            <!-- Favicon Settings -->
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-</head>
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-<body>
-    <header class="sticky-header">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Ana Səhifə</span></a>
-        <div class="site-logo">baki-sumqayit.site</div>
-    </header>
-    <div class="main-container">
-        <main class="game-wrapper" id="game-container">
-            <style>
-                .arkanoid-container {
-                    /* Game specific container styles */
-                    position: relative;
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-                    border-radius: 10px;
-                    overflow: hidden;
-                    background: #000;
-                    margin: 0 auto;
-                    /* Center it */
-                    width: 100%;
-                    max-width: 480px;
-                }
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                .arkanoid-canvas {
-                    display: block;
-                    background-color: #111;
-                    width: 100%;
-                    /* Make responsive */
-                    height: auto;
-                }
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-                .arkanoid-header {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    padding: 10px;
-                    box-sizing: border-box;
-                    display: flex;
-                    justify-content: space-between;
-                    pointer-events: none;
-                    z-index: 5;
-                }
+    <!-- PNG faviconlar -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-                .stat-box {
-                    font-size: 14px;
-                    background: rgba(0, 0, 0, 0.5);
-                    padding: 5px 10px;
-                    border-radius: 5px;
-                    color: white;
-                    font-family: 'Poppins', sans-serif;
-                }
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-                .stat-box span {
-                    font-size: 18px;
-                    font-weight: bold;
-                    color: #ff9f43;
-                }
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                .overlay-arkanoid {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0, 0, 0, 0.85);
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 10;
-                    text-align: center;
-                    font-family: 'Poppins', sans-serif;
-                }
-
-                .overlay-arkanoid h2 {
-                    margin: 0 0 10px 0;
-                    font-size: 32px;
-                    color: #ff9f43;
-                }
-
-                .overlay-arkanoid p {
-                    font-size: 16px;
-                    margin-bottom: 25px;
-                    color: #ddd;
-                }
-
-                .btn-play-arkanoid {
-                    background: #ff4757;
-                    color: white;
-                    border: none;
-                    padding: 15px 40px;
-                    font-size: 20px;
-                    border-radius: 50px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
-                    transition: transform 0.1s;
-                }
-
-                .btn-play-arkanoid:active {
-                    transform: scale(0.95);
-                }
-
-                .controls-hint {
-                    margin-top: 20px;
-                    font-size: 13px;
-                    color: #aaa;
-                    opacity: 0.8;
-                }
-            </style>
-
-            <div class="arkanoid-container" id="gameWrapper">
-                <canvas id="gameCanvas" class="arkanoid-canvas"></canvas>
-
-                <div class="arkanoid-header">
-                    <div class="stat-box">XAL: <span id="score">0</span></div>
-                    <div class="stat-box">CAN: <span id="lives">3</span></div>
-                </div>
-
-                <div class="overlay-arkanoid" id="startScreen">
-                    <h2>Kərpic Qırma</h2>
-                    <p>Raketi hərəkət etdir</p>
-                    <button class="btn-play-arkanoid" onclick="startGame()">BAŞLA</button>
-                    <div class="controls-hint">
-                        Mobil: Sürüşdür ↔️ <br>
-                        PC: Ox düymələri ⬅️➡️
-                    </div>
-                </div>
-
-                <div class="overlay-arkanoid" id="gameOverScreen" style="display: none;">
-                    <h2 id="endTitle">OYUN BİTDİ</h2>
-                    <p>Xalınız: <span id="finalScore" style="font-weight:bold; color:white;">0</span></p>
-                    <button class="btn-play-arkanoid" onclick="startGame()">Yenidən Oyna</button>
-                </div>
-            </div>
-
-            <script>
-                const canvas = document.getElementById("gameCanvas");
-                const ctx = canvas.getContext("2d");
-                const wrapper = document.getElementById("gameWrapper");
-
-                const scoreEl = document.getElementById("score");
-                const livesEl = document.getElementById("lives");
-                const startScreen = document.getElementById("startScreen");
-                const gameOverScreen = document.getElementById("gameOverScreen");
-                const finalScoreEl = document.getElementById("finalScore");
-                const endTitle = document.getElementById("endTitle");
-
-                // Dynamic sizing logic
-                let canvasWidth = Math.min(window.innerWidth * 0.9, 400);
-                let canvasHeight = Math.min(window.innerHeight * 0.6, 600);
-
-                // Adjust if on mobile to capture swipes better
-                if (window.innerWidth < 500) {
-                    canvasWidth = window.innerWidth - 40; // padding
-                }
-
-                canvas.width = canvasWidth;
-                canvas.height = canvasHeight;
-                wrapper.style.width = canvasWidth + "px";
-                wrapper.style.height = canvasHeight + "px";
-
-                let x, y, dx, dy;
-                let ballRadius = 8;
-                let paddleHeight = 15;
-                let paddleWidth = 80;
-                let paddleX = (canvas.width - paddleWidth) / 2;
-
-                let rightPressed = false;
-                let leftPressed = false;
-
-                let score = 0;
-                let lives = 3;
-                let isGameRunning = false;
-                let animationId;
-
-                const brickRowCount = 5;
-                const brickColumnCount = 5;
-                const brickPadding = 10;
-                const brickOffsetTop = 50;
-                const brickOffsetLeft = 20;
-                // Recalculate brick width based on dynamic canvas width
-                const brickWidth = (canvasWidth - (brickOffsetLeft * 2) - (brickPadding * (brickColumnCount - 1))) / brickColumnCount;
-
-                let bricks = [];
-                const colors = ["#ff4757", "#ff6b81", "#ffa502", "#eccc68", "#2ed573"];
-
-                function initBricks() {
-                    bricks = [];
-                    for (let c = 0; c < brickColumnCount; c++) {
-                        bricks[c] = [];
-                        for (let r = 0; r < brickRowCount; r++) {
-                            bricks[c][r] = { x: 0, y: 0, status: 1 };
-                        }
-                    }
-                }
-
-                function resetBall() {
-                    x = canvas.width / 2;
-                    y = canvas.height - 30;
-                    // SÜRƏT ARTIRILDI: 3-dən 4-ə qaldırıldı
-                    dx = 4 * (Math.random() < 0.5 ? 1 : -1);
-                    // SÜRƏT ARTIRILDI: -4-dən -5-ə qaldırıldı
-                    dy = -5;
-                    paddleX = (canvas.width - paddleWidth) / 2;
-                }
-
-                function startGame() {
-                    startScreen.style.display = "none";
-                    gameOverScreen.style.display = "none";
-                    score = 0;
-                    lives = 3;
-                    scoreEl.innerText = score;
-                    livesEl.innerText = lives;
-                    initBricks();
-                    resetBall();
-                    isGameRunning = true;
-                    draw();
-                }
-
-                function drawBall() {
-                    ctx.beginPath();
-                    ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-                    ctx.fillStyle = "#ffffff";
-                    ctx.fill();
-                    ctx.closePath();
-                }
-
-                function drawPaddle() {
-                    ctx.beginPath();
-                    ctx.rect(paddleX, canvas.height - paddleHeight - 5, paddleWidth, paddleHeight);
-                    ctx.fillStyle = "#00a8ff";
-                    ctx.fill();
-                    ctx.closePath();
-                }
-
-                function drawBricks() {
-                    for (let c = 0; c < brickColumnCount; c++) {
-                        for (let r = 0; r < brickRowCount; r++) {
-                            if (bricks[c][r].status === 1) {
-                                let brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
-                                let brickY = (r * (25 + brickPadding)) + brickOffsetTop;
-                                bricks[c][r].x = brickX;
-                                bricks[c][r].y = brickY;
-
-                                ctx.beginPath();
-                                ctx.rect(brickX, brickY, brickWidth, 20);
-                                ctx.fillStyle = colors[r];
-                                ctx.fill();
-                                ctx.closePath();
-                            }
-                        }
-                    }
-                }
-
-                function collisionDetection() {
-                    for (let c = 0; c < brickColumnCount; c++) {
-                        for (let r = 0; r < brickRowCount; r++) {
-                            let b = bricks[c][r];
-                            if (b.status === 1) {
-                                if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + 20) {
-                                    dy = -dy;
-                                    b.status = 0;
-                                    score++;
-                                    scoreEl.innerText = score;
-                                    if (score === brickRowCount * brickColumnCount) {
-                                        gameOver(true);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                function draw() {
-                    if (!isGameRunning) return;
-
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    drawBricks();
-                    drawBall();
-                    drawPaddle();
-                    collisionDetection();
-
-                    if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
-                        dx = -dx;
-                    }
-                    if (y + dy < ballRadius) {
-                        dy = -dy;
-                    } else if (y + dy > canvas.height - ballRadius - paddleHeight + 5) {
-                        if (x > paddleX && x < paddleX + paddleWidth) {
-                            dy = -dy;
-                            let deltaX = x - (paddleX + paddleWidth / 2);
-                            dx = deltaX * 0.25; // Bucaq həssaslığı artırıldı
-
-                            // Sürətlənmə effekti (Top raketə dəydikcə sürətlənir)
-                            let speed = Math.sqrt(dx * dx + dy * dy);
-                            if (speed < 12) {
-                                dx *= 1.05;
-                                dy *= 1.05;
-                            }
-
-                        } else if (y + dy > canvas.height) {
-                            lives--;
-                            livesEl.innerText = lives;
-                            if (!lives) {
-                                gameOver(false);
-                            } else {
-                                resetBall();
-                            }
-                        }
-                    }
-
-                    // KLAVİATURA SÜRƏTİ ARTIRILDI (7-dən 10-a)
-                    if (rightPressed && paddleX < canvas.width - paddleWidth) {
-                        paddleX += 10;
-                    } else if (leftPressed && paddleX > 0) {
-                        paddleX -= 10;
-                    }
-
-                    x += dx;
-                    y += dy;
-
-                    animationId = requestAnimationFrame(draw);
-                }
-
-                function gameOver(win) {
-                    isGameRunning = false;
-                    cancelAnimationFrame(animationId);
-                    endTitle.innerText = win ? "QAZANDIN! 🎉" : "OYUN BİTDİ";
-                    endTitle.style.color = win ? "#2ed573" : "#ff4757";
-                    finalScoreEl.innerText = score;
-                    gameOverScreen.style.display = "flex";
-                }
-
-                document.addEventListener("keydown", keyDownHandler, false);
-                document.addEventListener("keyup", keyUpHandler, false);
-
-                function keyDownHandler(e) {
-                    if (e.key == "Right" || e.key == "ArrowRight") rightPressed = true;
-                    else if (e.key == "Left" || e.key == "ArrowLeft") leftPressed = true;
-                }
-
-                function keyUpHandler(e) {
-                    if (e.key == "Right" || e.key == "ArrowRight") rightPressed = false;
-                    else if (e.key == "Left" || e.key == "ArrowLeft") leftPressed = false;
-                }
-
-                function movePaddle(clientX) {
-                    let rect = canvas.getBoundingClientRect();
-                    let relativeX = clientX - rect.left;
-
-                    if (relativeX > 0 && relativeX < canvas.width) {
-                        paddleX = relativeX - paddleWidth / 2;
-                    }
-                }
-
-                document.addEventListener("mousemove", (e) => {
-                    if (isGameRunning) movePaddle(e.clientX);
-                }, false);
-
-                document.addEventListener("touchmove", (e) => {
-                    if (isGameRunning) {
-                        e.preventDefault();
-                        movePaddle(e.touches[0].clientX);
-                    }
-                }, { passive: false });
-
-                document.addEventListener("touchstart", (e) => {
-                    if (isGameRunning && e.target === canvas) {
-                        e.preventDefault();
-                        movePaddle(e.touches[0].clientX);
-                    }
-                }, { passive: false });
-
-            </script>
-        </main>
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
         <!-- Other Games Panel -->
         <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
             <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">

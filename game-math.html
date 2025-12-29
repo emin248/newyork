@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="az">
 
 <head>
@@ -17,191 +17,39 @@
 
     <!-- Monetag Vignette Ad -->
     <script>(function (s) { s.dataset.zone = '10313116', s.src = 'https://gizokraijaw.net/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-    <!-- Favicon Settings -->
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+            <!-- Favicon Settings -->
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-</head>
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-<body>
-    <header class="sticky-header">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Ana Səhifə</span></a>
-        <div class="site-logo">baki-sumqayit.site</div>
-    </header>
-    <div class="main-container">
-        <main class="game-wrapper" id="game-container">
-            <style>
-                .math-game-wrapper {
-                    font-family: 'Poppins', sans-serif;
-                    background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
-                    color: white;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 20px;
-                    border-radius: 20px;
-                    width: 100%;
-                    box-sizing: border-box;
-                    min-height: 500px;
-                }
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                .math-container {
-                    background: rgba(255, 255, 255, 0.15);
-                    backdrop-filter: blur(12px);
-                    -webkit-backdrop-filter: blur(12px);
-                    border-radius: 20px;
-                    padding: 30px 20px;
-                    width: 100%;
-                    max-width: 380px;
-                    text-align: center;
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                    position: relative;
-                }
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-                /* Skor və Rekord */
-                .header-math {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-bottom: 20px;
-                    font-size: 14px;
-                    font-weight: 600;
-                    opacity: 0.9;
-                }
+    <!-- PNG faviconlar -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-                .score-box-math span {
-                    display: block;
-                    font-size: 24px;
-                    color: #ffd700;
-                }
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-                /* Zaman Çubuğu */
-                .timer-container {
-                    width: 100%;
-                    height: 10px;
-                    background: rgba(0, 0, 0, 0.2);
-                    border-radius: 5px;
-                    margin-bottom: 25px;
-                    overflow: hidden;
-                }
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                .timer-bar {
-                    height: 100%;
-                    width: 100%;
-                    background: #00ff88;
-                    border-radius: 5px;
-                    transition: width 0.1s linear;
-                }
-
-                /* Sual Sahəsi */
-                .question-box {
-                    font-size: 48px;
-                    font-weight: 800;
-                    margin-bottom: 30px;
-                    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-                    height: 70px;
-                    /* Sabit hündürlük */
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                /* Cavab Düymələri */
-                .options-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 15px;
-                }
-
-                .option-btn {
-                    background: white;
-                    color: #2193b0;
-                    border: none;
-                    padding: 20px;
-                    font-size: 24px;
-                    font-weight: bold;
-                    border-radius: 15px;
-                    cursor: pointer;
-                    transition: transform 0.1s, background 0.2s;
-                    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1);
-                    width: 100%;
-                }
-
-                .option-btn:active {
-                    transform: translateY(4px);
-                    box-shadow: none;
-                }
-
-                .option-btn.correct {
-                    background: #00ff88 !important;
-                    color: #fff !important;
-                }
-
-                .option-btn.wrong {
-                    background: #ff4757 !important;
-                    color: #fff !important;
-                }
-
-                /* Başlanğıc və Bitmə Ekranı */
-                .overlay-math {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(33, 147, 176, 0.95);
-                    border-radius: 20px;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 10;
-                }
-
-                .overlay-math h2 {
-                    margin-bottom: 10px;
-                    font-size: 28px;
-                }
-
-                .overlay-math p {
-                    margin-bottom: 25px;
-                    font-size: 16px;
-                    opacity: 0.9;
-                }
-
-                .btn-start {
-                    background: #ffd700;
-                    color: #333;
-                    border: none;
-                    padding: 15px 40px;
-                    font-size: 20px;
-                    font-weight: bold;
-                    border-radius: 50px;
-                    cursor: pointer;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-                    animation: pulse 1.5s infinite;
-                }
-
-                @keyframes pulse {
-                    0% {
-                        transform: scale(1);
-                    }
-
-                    50% {
-                        transform: scale(1.05);
-                    }
-
-                    100% {
-                        transform: scale(1);
-                    }
-                }
-            </style>
-
-            <div class="math-game-wrapper">
-                <div class="math-container">
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
 
                     <!-- Başlanğıc Ekranı -->
                     <div class="overlay-math" id="startScreen">

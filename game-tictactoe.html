@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="az">
 
 <head>
@@ -17,214 +17,39 @@
 
     <!-- Monetag Vignette Ad -->
     <script>(function (s) { s.dataset.zone = '10313116', s.src = 'https://gizokraijaw.net/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-    <!-- Favicon Settings -->
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+            <!-- Favicon Settings -->
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-</head>
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-<body>
-    <header class="sticky-header">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Ana Səhifə</span></a>
-        <div class="site-logo">baki-sumqayit.site</div>
-    </header>
-    <div class="main-container">
-        <main class="game-wrapper" id="game-container">
-            <style>
-                /* Scoped styles for Tic-Tac-Toe */
-                .tictactoe-wrapper {
-                    font-family: 'Poppins', sans-serif;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    color: white;
-                    border-radius: 20px;
-                    padding: 20px;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    width: 100%;
-                    box-sizing: border-box;
-                    min-height: 500px;
-                }
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                .tictactoe-container {
-                    background: rgba(255, 255, 255, 0.1);
-                    backdrop-filter: blur(10px);
-                    -webkit-backdrop-filter: blur(10px);
-                    border-radius: 20px;
-                    padding: 25px;
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-                    text-align: center;
-                    width: 100%;
-                    max-width: 350px;
-                }
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-                .tictactoe-container h1 {
-                    font-family: 'Fredoka One', cursive;
-                    /* Fallback will be handled if font not loaded */
-                    letter-spacing: 2px;
-                    margin-top: 0;
-                    margin-bottom: 20px;
-                    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
-                    color: white;
-                }
+    <!-- PNG faviconlar -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 
-                /* Mod Seçimi Butonları */
-                .mode-selector {
-                    display: flex;
-                    justify-content: center;
-                    gap: 10px;
-                    margin-bottom: 20px;
-                    background: rgba(0, 0, 0, 0.2);
-                    padding: 5px;
-                    border-radius: 30px;
-                }
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-                .mode-btn {
-                    background: transparent;
-                    border: none;
-                    color: rgba(255, 255, 255, 0.6);
-                    padding: 8px 15px;
-                    border-radius: 20px;
-                    cursor: pointer;
-                    font-size: 14px;
-                    transition: all 0.3s ease;
-                }
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 
-                .mode-btn.active {
-                    background: white;
-                    color: #764ba2;
-                    font-weight: bold;
-                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-                }
-
-                /* Skor Tablosu */
-                .scoreboard {
-                    display: flex;
-                    justify-content: space-around;
-                    margin-bottom: 20px;
-                    font-weight: bold;
-                }
-
-                .score-box {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    padding: 10px;
-                    border-radius: 10px;
-                    width: 80px;
-                    transition: background 0.3s;
-                }
-
-                .score-box.active-turn {
-                    background: rgba(255, 255, 255, 0.2);
-                    border: 1px solid rgba(255, 255, 255, 0.4);
-                }
-
-                .player-x {
-                    color: #4facfe;
-                }
-
-                .player-o {
-                    color: #f093fb;
-                }
-
-                .score-val {
-                    font-size: 24px;
-                }
-
-                /* Oyun Tahtası */
-                .board {
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 10px;
-                    margin-bottom: 20px;
-                }
-
-                .cell {
-                    background: rgba(255, 255, 255, 0.15);
-                    aspect-ratio: 1;
-                    border-radius: 10px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-family: 'Fredoka One', cursive;
-                    /* Fallback */
-                    font-weight: bold;
-                    font-size: 40px;
-                    cursor: pointer;
-                    transition: transform 0.2s, background 0.2s;
-                    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
-                    user-select: none;
-                }
-
-                .cell:hover {
-                    background: rgba(255, 255, 255, 0.25);
-                }
-
-                .cell.x {
-                    color: #4facfe;
-                    text-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
-                }
-
-                .cell.o {
-                    color: #f093fb;
-                    text-shadow: 0 0 10px rgba(240, 147, 251, 0.5);
-                }
-
-                .cell.winning {
-                    background: #2ecc71;
-                    color: white;
-                    animation: pulse 1s infinite;
-                }
-
-                @keyframes pulse {
-                    0% {
-                        transform: scale(1);
-                    }
-
-                    50% {
-                        transform: scale(1.05);
-                    }
-
-                    100% {
-                        transform: scale(1);
-                    }
-                }
-
-                /* Durum Mesajı */
-                .status {
-                    font-size: 18px;
-                    margin-bottom: 15px;
-                    height: 27px;
-                }
-
-                .btn-restart {
-                    background: linear-gradient(to right, #ff6b6b, #ee5253);
-                    color: white;
-                    border: none;
-                    padding: 12px 30px;
-                    border-radius: 50px;
-                    font-size: 16px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    box-shadow: 0 4px 15px rgba(238, 82, 83, 0.4);
-                    transition: transform 0.2s;
-                }
-
-                .btn-restart:active {
-                    transform: scale(0.95);
-                }
-            </style>
-
-            <div class="tictactoe-wrapper">
-                <div class="tictactoe-container">
-                    <h1>X - O Oyunu</h1>
-
-                    <div class="mode-selector">
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
                         <!-- Varsayılan olarak Kompyuter aktif -->
                         <button class="mode-btn" onclick="setMode('human')">Dostunla</button>
                         <button class="mode-btn active" onclick="setMode('ai')">Kompyuter</button>

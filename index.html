@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="az" class="scroll-smooth">
 
 <head>
@@ -10,7 +10,7 @@
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Bakı-Sumqayıt Müasir Cədvəl | Baki-Sumqayit.site">
     <meta property="og:description" content="Bakı-Sumqayıt qatar cədvəli, bilet qiymətləri və marşrut planlayıcı.">
-    <meta property="og:image" content="https://www.baki-sumqayit.site/favicon/android-chrome-512x512.png">
+    <meta property="og:image" content="https://www.baki-sumqayit.site/android-chrome-512x512.png">
     <meta property="og:url" content="https://www.baki-sumqayit.site/">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="az_AZ">
@@ -20,18 +20,10 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Bakı-Sumqayıt Müasir Cədvəl">
     <meta name="twitter:description" content="Bakı-Sumqayıt qatar cədvəli, bilet qiymətləri və marşrut planlayıcı.">
-    <meta name="twitter:image" content="https://www.baki-sumqayit.site/favicon/android-chrome-512x512.png">
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W05T401WMG"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-W05T401WMG');
-    </script>
+    <meta name="twitter:image" content="https://www.baki-sumqayit.site/android-chrome-512x512.png">
 
     <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js?id=G-W05T401WMG"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3725039577144467"
         crossorigin="anonymous"></script>
 
@@ -39,10 +31,49 @@
     <script>(function (s) { s.dataset.zone = '10313116', s.src = 'https://gizokraijaw.net/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 
     <!-- Favicon Settings -->
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <!-- Klasik favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
+    <!-- Web App Manifest (PWA) -->
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Baki-Sumqayit.site",
+      "url": "https://www.baki-sumqayit.site/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.baki-sumqayit.site/?s={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Baki-Sumqayit.site",
+      "url": "https://www.baki-sumqayit.site/",
+      "logo": "https://www.baki-sumqayit.site/favicon-32x32.png",
+      "sameAs": [
+        "https://t.me/emin249"
+      ]
+    }
+    </script>
 
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -207,14 +238,15 @@
 
 <body class="antialiased pb-10">
 
-    <div class="max-w-lg mx-auto px-4 pt-6 sm:pt-10">
+    <main class="max-w-lg mx-auto px-4 pt-6 sm:pt-10">
 
         <!-- Header -->
         <header class="text-center mb-6 animate-fade-in" style="animation-delay: 0ms;">
             <!-- Logo Section: Clean Look -->
             <div
                 class="inline-flex items-center justify-center mb-4 transform rotate-6 hover:rotate-0 transition-all duration-300">
-                <img src="favicon/favicon-32x32.png" alt="Logo" class="w-16 h-16 object-contain drop-shadow-xl"
+                <img src="favicon-32x32.png" alt="Bakı Sumqayıt Qatar Cədvəli Logo"
+                    class="w-16 h-16 object-contain drop-shadow-xl"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block'">
                 <!-- Fallback icon -->
                 <i class="fa-solid fa-train-subway text-4xl text-blue-600 hidden"></i>
@@ -231,7 +263,7 @@
 
 
         <!-- Search Box -->
-        <div class="glass-panel rounded-3xl p-6 mb-8 animate-fade-in relative z-20" style="animation-delay: 100ms;">
+        <section class="glass-panel rounded-3xl p-6 mb-8 animate-fade-in relative z-20" style="animation-delay: 100ms;">
             <form class="space-y-4" onsubmit="searchTrains(event)">
 
                 <div class="relative group">
@@ -306,7 +338,7 @@
                     <i class="fa-solid fa-magnifying-glass"></i> Qatarları Axtar
                 </button>
             </form>
-        </div>
+        </section>
 
         <div id="message-area" class="mb-6 transition-all duration-300 ease-in-out empty:hidden"></div>
 
@@ -475,7 +507,7 @@
             </div>
             <p class="text-gray-400 text-xs opacity-70">© 2025 Baki-Sumqayit.site</p>
         </footer>
-    </div>
+    </main>
 
     <script>
         // --- DATA (UPDATED: 24.02.2025) ---
