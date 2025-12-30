@@ -4,12 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yaddaş Oyunu - Baki-Sumqayit.site</title>
-    <meta name="description" content="Yaddaş (Memory) oyunu ilə vizual hafizənizi gücləndirin.">
-    <link rel="stylesheet" href="game-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Yaddaş Oyunu | Baki-Sumqayit.site</title>
+    <meta name="description" content="Yaddaşınızı yoxlayın və cütləri tapın. Əyləncəli yaddaş oyunu.">
+    <link rel="canonical" href="https://www.baki-sumqayit.site/game-memory.html">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W05T401WMG"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-W05T401WMG');
+    </script>
 
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3725039577144467"
@@ -17,7 +23,7 @@
 
     <!-- Monetag Vignette Ad -->
     <script>(function (s) { s.dataset.zone = '10313116', s.src = 'https://gizokraijaw.net/vignette.min.js' })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-            <!-- Favicon Settings -->
+    <!-- Favicon Settings -->
     <!-- Klasik favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
@@ -50,341 +56,341 @@
 
     <!-- Web App Manifest (PWA) -->
     <link rel="manifest" href="/site.webmanifest">
-                        <!-- Kartlar JS ilə gələcək -->
-                    </div>
+    <!-- Kartlar JS ilə gələcək -->
+    </div>
 
-                    <button class="btn-restart" onclick="restartGame()">Yenidən Başla</button>
+    <button class="btn-restart" onclick="restartGame()">Yenidən Başla</button>
 
-                    <div class="modal-memory" id="winModal">
-                        <h2>Təbriklər! 🎉</h2>
-                        <p>Hamısını tapdın!</p>
-                        <p>Həmlə: <span id="finalMoves">0</span></p>
-                        <button class="btn-restart" onclick="restartGame()">Təkrar Oyna</button>
-                    </div>
+    <div class="modal-memory" id="winModal">
+        <h2>Təbriklər! 🎉</h2>
+        <p>Hamısını tapdın!</p>
+        <p>Həmlə: <span id="finalMoves">0</span></p>
+        <button class="btn-restart" onclick="restartGame()">Təkrar Oyna</button>
+    </div>
+    </div>
+    </div>
+
+    <script>
+        const grid = document.getElementById('grid');
+        const movesElement = document.getElementById('moves');
+        const timerElement = document.getElementById('timer');
+        const modal = document.getElementById('winModal');
+        const finalMovesElement = document.getElementById('finalMoves');
+
+        // Oyun Məlumatları (Bakı və Nəqliyyat temalı)
+        const items = [
+            '🚂', '🚂', // Qatar
+            '🚌', '🚌', // Avtobus
+            '🎫', '🎫', // Bilet
+            '🏙️', '🏙️', // Şəhər
+            '🕌', '🕌', // İçərişəhər / Məscid
+            '🌊', '🌊', // Xəzər dənizi
+            '🚕', '🚕', // Taksi
+            '🚦', '🚦'  // İşıqfor
+        ];
+
+        let cards = [];
+        let hasFlippedCard = false;
+        let lockBoard = false;
+        let firstCard, secondCard;
+        let moves = 0;
+        let timer = 0;
+        let timerInterval;
+        let matchesFound = 0;
+        let gameStarted = false;
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function createBoard() {
+            grid.innerHTML = '';
+            cards = shuffle([...items]); // Qarışdır
+
+            cards.forEach(item => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.name = item;
+
+                // Ön tərəf (Sual işarəsi)
+                const front = document.createElement('div');
+                front.classList.add('card-face', 'card-front');
+
+                // Arxa tərəf (Emojinin olduğu yer)
+                const back = document.createElement('div');
+                back.classList.add('card-face', 'card-back');
+                back.innerText = item;
+
+                card.appendChild(front);
+                card.appendChild(back);
+
+                card.addEventListener('click', flipCard);
+                grid.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (!gameStarted) startTimer();
+            if (lockBoard) return;
+            if (this === firstCard) return; // Eyni karta iki dəfə basanda
+
+            this.classList.add('flip');
+
+            if (!hasFlippedCard) {
+                // Birinci kart
+                hasFlippedCard = true;
+                firstCard = this;
+                return;
+            }
+
+            // İkinci kart
+            secondCard = this;
+            incrementMoves();
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            let isMatch = firstCard.dataset.name === secondCard.dataset.name;
+
+            if (isMatch) {
+                disableCards();
+                matchesFound++;
+                if (matchesFound === items.length / 2) {
+                    gameOver();
+                }
+            } else {
+                unflipCards();
+            }
+        }
+
+        function disableCards() {
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+            resetBoard();
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+            setTimeout(() => {
+                firstCard.classList.remove('flip');
+                secondCard.classList.remove('flip');
+                resetBoard();
+            }, 1000);
+        }
+
+        function resetBoard() {
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
+        }
+
+        function incrementMoves() {
+            moves++;
+            movesElement.innerText = moves;
+        }
+
+        function startTimer() {
+            gameStarted = true;
+            clearInterval(timerInterval);
+            timer = 0;
+            timerInterval = setInterval(() => {
+                timer++;
+                let mins = Math.floor(timer / 60).toString().padStart(2, '0');
+                let secs = (timer % 60).toString().padStart(2, '0');
+                timerElement.innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function gameOver() {
+            clearInterval(timerInterval);
+            setTimeout(() => {
+                modal.style.display = 'flex';
+                finalMovesElement.innerText = moves;
+            }, 500);
+        }
+
+        function restartGame() {
+            modal.style.display = 'none';
+            moves = 0;
+            movesElement.innerText = 0;
+            timerElement.innerText = "00:00";
+            matchesFound = 0;
+            gameStarted = false;
+            clearInterval(timerInterval);
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
+            createBoard();
+        }
+
+        // Oyunu başlat
+        createBoard();
+
+    </script>
+    </main>
+    <!-- Other Games Panel -->
+    <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
+        <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
+            <i class="fa-solid fa-gamepad text-purple-600 mr-3"></i>
+            Digər Oyunlar
+        </h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            <!-- 2048 -->
+            <a href="game-2048.html"
+                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
                 </div>
-            </div>
+                <div
+                    class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                    <i class="fa-solid fa-layer-group text-xl"></i>
+                </div>
+                <span class="font-bold text-gray-700 group-hover:text-yellow-700 text-sm">2048</span>
+            </a>
 
-            <script>
-                const grid = document.getElementById('grid');
-                const movesElement = document.getElementById('moves');
-                const timerElement = document.getElementById('timer');
-                const modal = document.getElementById('winModal');
-                const finalMovesElement = document.getElementById('finalMoves');
+            <!-- 15 Puzzle -->
+            <a href="game-15puzzle.html"
+                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                    <i class="fa-solid fa-border-all text-xl"></i>
+                </div>
+                <span class="font-bold text-gray-700 group-hover:text-blue-700 text-sm">15 Puzzle</span>
+            </a>
 
-                // Oyun Məlumatları (Bakı və Nəqliyyat temalı)
-                const items = [
-                    '🚂', '🚂', // Qatar
-                    '🚌', '🚌', // Avtobus
-                    '🎫', '🎫', // Bilet
-                    '🏙️', '🏙️', // Şəhər
-                    '🕌', '🕌', // İçərişəhər / Məscid
-                    '🌊', '🌊', // Xəzər dənizi
-                    '🚕', '🚕', // Taksi
-                    '🚦', '🚦'  // İşıqfor
-                ];
+            <!-- Flappy -->
+            <a href="game-flappy.html"
+                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                    <i class="fa-solid fa-dove text-xl"></i>
+                </div>
+                <span class="font-bold text-gray-700 group-hover:text-sky-700 text-sm">Uçan Top</span>
+            </a>
 
-                let cards = [];
-                let hasFlippedCard = false;
-                let lockBoard = false;
-                let firstCard, secondCard;
-                let moves = 0;
-                let timer = 0;
-                let timerInterval;
-                let matchesFound = 0;
-                let gameStarted = false;
+            <!-- Snake -->
+            <a href="game-snake.html"
+                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                    <i class="fa-solid fa-staff-snake text-xl"></i>
+                </div>
+                <span class="font-bold text-gray-700 group-hover:text-green-700 text-sm">İlan</span>
+            </a>
 
-                function shuffle(array) {
-                    let currentIndex = array.length, randomIndex;
-                    while (currentIndex != 0) {
-                        randomIndex = Math.floor(Math.random() * currentIndex);
-                        currentIndex--;
-                        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-                    }
-                    return array;
-                }
+            <!-- TicTacToe -->
+            <a href="game-tictactoe.html"
+                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                    <i class="fa-solid fa-xmarks-lines text-xl"></i>
+                </div>
+                <span class="font-bold text-gray-700 group-hover:text-red-700 text-sm">X-O</span>
+            </a>
 
-                function createBoard() {
-                    grid.innerHTML = '';
-                    cards = shuffle([...items]); // Qarışdır
+            <!-- Tetris -->
+            <a href="game-tetris.html"
+                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                    <i class="fa-solid fa-shapes text-xl"></i>
+                </div>
+                <span class="font-bold text-gray-700 group-hover:text-indigo-700 text-sm">Tetris</span>
+            </a>
 
-                    cards.forEach(item => {
-                        const card = document.createElement('div');
-                        card.classList.add('card');
-                        card.dataset.name = item;
+            <!-- Memory -->
+            <a href="game-memory.html"
+                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-teal-400/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                    <i class="fa-solid fa-brain text-xl"></i>
+                </div>
+                <span class="font-bold text-gray-700 group-hover:text-teal-700 text-sm">Yaddaş</span>
+            </a>
 
-                        // Ön tərəf (Sual işarəsi)
-                        const front = document.createElement('div');
-                        front.classList.add('card-face', 'card-front');
+            <!-- Math -->
+            <a href="game-math.html"
+                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                    <i class="fa-solid fa-calculator text-xl"></i>
+                </div>
+                <span class="font-bold text-gray-700 group-hover:text-orange-700 text-sm">Riyaziyyat</span>
+            </a>
 
-                        // Arxa tərəf (Emojinin olduğu yer)
-                        const back = document.createElement('div');
-                        back.classList.add('card-face', 'card-back');
-                        back.innerText = item;
+            <!-- Reflex (ZigZag) -->
+            <a href="game-reflex.html"
+                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-fuchsia-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-12 h-12 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                    <i class="fa-solid fa-bolt text-xl"></i>
+                </div>
+                <span class="font-bold text-gray-700 group-hover:text-fuchsia-700 text-sm">Ziq Zaq</span>
+            </a>
 
-                        card.appendChild(front);
-                        card.appendChild(back);
+            <!-- Arkanoid -->
+            <a href="game-arkanoid.html"
+                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                    <i class="fa-solid fa-cubes text-xl"></i>
+                </div>
+                <span class="font-bold text-gray-700 group-hover:text-rose-700 text-sm">Kərpic</span>
+            </a>
 
-                        card.addEventListener('click', flipCard);
-                        grid.appendChild(card);
-                    });
-                }
-
-                function flipCard() {
-                    if (!gameStarted) startTimer();
-                    if (lockBoard) return;
-                    if (this === firstCard) return; // Eyni karta iki dəfə basanda
-
-                    this.classList.add('flip');
-
-                    if (!hasFlippedCard) {
-                        // Birinci kart
-                        hasFlippedCard = true;
-                        firstCard = this;
-                        return;
-                    }
-
-                    // İkinci kart
-                    secondCard = this;
-                    incrementMoves();
-                    checkForMatch();
-                }
-
-                function checkForMatch() {
-                    let isMatch = firstCard.dataset.name === secondCard.dataset.name;
-
-                    if (isMatch) {
-                        disableCards();
-                        matchesFound++;
-                        if (matchesFound === items.length / 2) {
-                            gameOver();
-                        }
-                    } else {
-                        unflipCards();
-                    }
-                }
-
-                function disableCards() {
-                    firstCard.removeEventListener('click', flipCard);
-                    secondCard.removeEventListener('click', flipCard);
-                    resetBoard();
-                }
-
-                function unflipCards() {
-                    lockBoard = true;
-                    setTimeout(() => {
-                        firstCard.classList.remove('flip');
-                        secondCard.classList.remove('flip');
-                        resetBoard();
-                    }, 1000);
-                }
-
-                function resetBoard() {
-                    [hasFlippedCard, lockBoard] = [false, false];
-                    [firstCard, secondCard] = [null, null];
-                }
-
-                function incrementMoves() {
-                    moves++;
-                    movesElement.innerText = moves;
-                }
-
-                function startTimer() {
-                    gameStarted = true;
-                    clearInterval(timerInterval);
-                    timer = 0;
-                    timerInterval = setInterval(() => {
-                        timer++;
-                        let mins = Math.floor(timer / 60).toString().padStart(2, '0');
-                        let secs = (timer % 60).toString().padStart(2, '0');
-                        timerElement.innerText = `${mins}:${secs}`;
-                    }, 1000);
-                }
-
-                function gameOver() {
-                    clearInterval(timerInterval);
-                    setTimeout(() => {
-                        modal.style.display = 'flex';
-                        finalMovesElement.innerText = moves;
-                    }, 500);
-                }
-
-                function restartGame() {
-                    modal.style.display = 'none';
-                    moves = 0;
-                    movesElement.innerText = 0;
-                    timerElement.innerText = "00:00";
-                    matchesFound = 0;
-                    gameStarted = false;
-                    clearInterval(timerInterval);
-                    [hasFlippedCard, lockBoard] = [false, false];
-                    [firstCard, secondCard] = [null, null];
-                    createBoard();
-                }
-
-                // Oyunu başlat
-                createBoard();
-
-            </script>
-        </main>
-        <!-- Other Games Panel -->
-        <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
-            <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
-                <i class="fa-solid fa-gamepad text-purple-600 mr-3"></i>
-                Digər Oyunlar
-            </h2>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                <!-- 2048 -->
-                <a href="game-2048.html"
-                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                        <i class="fa-solid fa-layer-group text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 group-hover:text-yellow-700 text-sm">2048</span>
-                </a>
-
-                <!-- 15 Puzzle -->
-                <a href="game-15puzzle.html"
-                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                        <i class="fa-solid fa-border-all text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 group-hover:text-blue-700 text-sm">15 Puzzle</span>
-                </a>
-
-                <!-- Flappy -->
-                <a href="game-flappy.html"
-                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                        <i class="fa-solid fa-dove text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 group-hover:text-sky-700 text-sm">Uçan Top</span>
-                </a>
-
-                <!-- Snake -->
-                <a href="game-snake.html"
-                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                        <i class="fa-solid fa-staff-snake text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 group-hover:text-green-700 text-sm">İlan</span>
-                </a>
-
-                <!-- TicTacToe -->
-                <a href="game-tictactoe.html"
-                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                        <i class="fa-solid fa-xmarks-lines text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 group-hover:text-red-700 text-sm">X-O</span>
-                </a>
-
-                <!-- Tetris -->
-                <a href="game-tetris.html"
-                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                        <i class="fa-solid fa-shapes text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 group-hover:text-indigo-700 text-sm">Tetris</span>
-                </a>
-
-                <!-- Memory -->
-                <a href="game-memory.html"
-                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-teal-400/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                        <i class="fa-solid fa-brain text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 group-hover:text-teal-700 text-sm">Yaddaş</span>
-                </a>
-
-                <!-- Math -->
-                <a href="game-math.html"
-                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                        <i class="fa-solid fa-calculator text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 group-hover:text-orange-700 text-sm">Riyaziyyat</span>
-                </a>
-
-                <!-- Reflex (ZigZag) -->
-                <a href="game-reflex.html"
-                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-fuchsia-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                        <i class="fa-solid fa-bolt text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 group-hover:text-fuchsia-700 text-sm">Ziq Zaq</span>
-                </a>
-
-                <!-- Arkanoid -->
-                <a href="game-arkanoid.html"
-                    class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                        <i class="fa-solid fa-cubes text-xl"></i>
-                    </div>
-                    <span class="font-bold text-gray-700 group-hover:text-rose-700 text-sm">Kərpic</span>
-                </a>
-
-            </div>
-        </section>
-        <article class="seo-content">
-            <h1>Yaddaş Oyunu - Göz Yaddaşınızı Gücləndirin</h1>
-            <h2>Necə Oynanılır?</h2>
-            <p>Kartlar üzü aşağı çevrilmiş şəkildə düzülür. Hər gedişdə iki kartı çevirin. Əgər kartlardakı şəkillər
-                eynidirsə, onlar açıq qalır. Məqsəd: Bütün cütləri ən az gedişlə tapmaqdır.</p>
-            <h3>Yüksək Xal Taktikaları:</h3>
-            <ul>
-                <li><strong>Səsli Təkrar:</strong> Kartı açanda şəklin adını içinizdə təkrar edin.</li>
-                <li><strong>Mühüm Yerləri Yadda Saxlayın:</strong> Açılan lakin uyğun olmayan kartların yerini yadda
-                    saxlayın.</li>
-                <li><strong>Sistemli Olun:</strong> Sətir və ya sütun üzrə getməyə cəhd edin.</li>
-            </ul>
-            <h2>Qatar Gözləyərkən Niyə Oynanmalı?</h2>
-            <p>Yaddaş oyunları beyin üçün vitamin kimidir. Qısa müddətli yaddaşı gücləndirir və diqqətinizi artırır.</p>
-        </article>
+        </div>
+    </section>
+    <article class="seo-content">
+        <h1>Yaddaş Oyunu - Göz Yaddaşınızı Gücləndirin</h1>
+        <h2>Necə Oynanılır?</h2>
+        <p>Kartlar üzü aşağı çevrilmiş şəkildə düzülür. Hər gedişdə iki kartı çevirin. Əgər kartlardakı şəkillər
+            eynidirsə, onlar açıq qalır. Məqsəd: Bütün cütləri ən az gedişlə tapmaqdır.</p>
+        <h3>Yüksək Xal Taktikaları:</h3>
+        <ul>
+            <li><strong>Səsli Təkrar:</strong> Kartı açanda şəklin adını içinizdə təkrar edin.</li>
+            <li><strong>Mühüm Yerləri Yadda Saxlayın:</strong> Açılan lakin uyğun olmayan kartların yerini yadda
+                saxlayın.</li>
+            <li><strong>Sistemli Olun:</strong> Sətir və ya sütun üzrə getməyə cəhd edin.</li>
+        </ul>
+        <h2>Qatar Gözləyərkən Niyə Oynanmalı?</h2>
+        <p>Yaddaş oyunları beyin üçün vitamin kimidir. Qısa müddətli yaddaşı gücləndirir və diqqətinizi artırır.</p>
+    </article>
     </div>
     <footer>
         <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
     </footer>
-</body>
+    </body>
 
 </html>
