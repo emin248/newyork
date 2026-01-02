@@ -22,7 +22,7 @@
         crossorigin="anonymous"></script>
 
     <!-- Monetag Vignette Ad -->
-    
+
     <link rel="stylesheet" href="game-style.css">
     <!-- Google Fonts -->
     <link
@@ -38,7 +38,7 @@
         crossorigin="anonymous"></script>
 
     <!-- Monetag Vignette Ad -->
-    
+
     <!-- Favicon Settings -->
     <!-- Klasik favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -572,16 +572,22 @@
             if (m1 || c || m2) generate();
         }
 
-        // Mobil Kontroller
+        // Mobil Kontroller Düzenlendi
         let touchStartX = 0;
         let touchStartY = 0;
+        const gameContainer = document.querySelector('.game-area-2048'); // Dokunma alanı sadece oyun kutusu
 
-        document.addEventListener('touchstart', (e) => {
+        gameContainer.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
         }, { passive: false });
 
-        document.addEventListener('touchend', (e) => {
+        gameContainer.addEventListener('touchmove', (e) => {
+            // Oyun içinde kaydırma yapılıyorsa sayfa kaymasını engelle
+            e.preventDefault();
+        }, { passive: false });
+
+        gameContainer.addEventListener('touchend', (e) => {
             let dx = e.changedTouches[0].clientX - touchStartX;
             let dy = e.changedTouches[0].clientY - touchStartY;
 
@@ -595,7 +601,8 @@
                 if (dy > 0) keyDown();
                 else keyUp();
             }
-            e.preventDefault();
+            // Sadece oyun içi kaydırmaysa preventDefault
+            // e.preventDefault(); // Buraya gerek kalmayabilir, touchmove zaten engelliyor ama teyit edelim.
         }, { passive: false });
 
         function checkForGameOver() {
