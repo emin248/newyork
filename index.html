@@ -842,36 +842,9 @@
                 const isNext = isToday && !train.passed && !nextTrainFound;
 
                 // Məntiq: İlk gələcək qatar tapılanda, onun üstünə reklam yerləşdir
+                // Məntiq: İlk gələcək qatar tapılanda işaretle
                 if (isNext) {
                     nextTrainFound = true;
-                    // Mobil Tətbiq Banneri
-                    html += `
-                    <div class="mb-6 p-5 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-xl relative overflow-hidden group animate-fade-in border border-white/20">
-                        <!-- Decorative bg elements -->
-                        <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white/10 blur-2xl"></div>
-                        <div class="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 rounded-full bg-white/10 blur-xl"></div>
-                        
-                        <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div class="text-center sm:text-left">
-                                <h3 class="font-bold text-xl mb-1 flex items-center justify-center sm:justify-start">
-                                    <span class="bg-white/20 p-1.5 rounded-lg mr-2 backdrop-blur-sm">
-                                        <i class="fa-solid fa-mobile-screen-button"></i>
-                                    </span>
-                                    Yeni Mobil Tətbiqimiz Çıxdı!
-                                </h3>
-                                <p class="text-indigo-100 text-sm font-medium leading-relaxed max-w-md">
-                                    Siz də ilk istifadəçilərdən olun! Platformamızı inkişaf etdirmək üçün
-                                </p>
-                            </div>
-                            <a href="https://docs.google.com/forms/d/1nPVy2aU5aJH24w2Ptosez9hfc8LFUMej9Cf5xvwan7E/edit" 
-                               target="_blank" 
-                               class="group/btn relative bg-white text-indigo-600 font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all duration-300 active:scale-95 whitespace-nowrap flex items-center">
-                                DAXİL OL 
-                                <i class="fa-solid fa-arrow-right ml-2 group-hover/btn:translate-x-1 transition-transform"></i>
-                            </a>
-                        </div>
-                    </div>
-                    `;
                 }
 
                 const opacityClass = train.passed ? 'opacity-60 grayscale' : 'opacity-100';
