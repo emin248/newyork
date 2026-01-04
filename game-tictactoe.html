@@ -3,13 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>X-O Oyunu | Baki-Sumqayit.site</title>
     <meta name="description" content="Klassik X-O (Tic-Tac-Toe) oyunu. Dostunla və ya robota qarşı oyna.">
     <link rel="canonical" href="https://www.baki-sumqayit.site/game-tictactoe.html">
 
-        <!-- Google tag (gtag.js) -->
-        <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-W05T401WMG"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -17,93 +16,232 @@
         gtag('js', new Date());
         gtag('config', 'G-W05T401WMG');
     </script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-W05T401WMG');
-    </script>
-    
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3725039577144467"
+        crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="game-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- Favicon Settings -->
-    <!-- Klasik favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-
-    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-
-    <!-- Apple Touch Icon (iOS) -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-
-    <!-- Android Chrome -->
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
-
-    <!-- Web App Manifest (PWA) -->
     <link rel="manifest" href="/site.webmanifest">
-    <!-- Klasik favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-    <!-- PNG faviconlar -->
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <style>
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+        }
 
-    <!-- Apple Touch Icon (iOS) -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        .cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 800;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-    <!-- Android Chrome -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
 
-    <!-- Web App Manifest (PWA) -->
-    <link rel="manifest" href="/site.webmanifest">
-    <!-- Varsayılan olarak Kompyuter aktif -->
-    <button class="mode-btn" onclick="setMode('human')">Dostunla</button>
-    <button class="mode-btn active" onclick="setMode('ai')">Kompyuter</button>
+        .cell.x {
+            color: #4ade80;
+            /* Green */
+        }
+
+        .cell.o {
+            color: #f472b6;
+            /* Pink */
+        }
+
+        .cell.winning {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .mode-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #333;
+            font-weight: bold;
+            border-color: white;
+        }
+
+        .score-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 45%;
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+
+        .score-box.active-turn {
+            border-color: #fbbf24;
+            /* Yellow border for active turn */
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .player-label {
+            font-size: 11px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .player-score {
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="sticky-header">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Ana Səhifə</span>
+        </a>
+        <div class="site-logo">baki-sumqayit.site</div>
+    </header>
+
+    <div class="main-container">
+
+        <main class="game-wrapper" id="game-container">
+            <div id="tictactoe-game-area" class="relative max-w-[320px] mx-auto text-white">
+
+                <h1 class="text-2xl font-bold text-center mb-4">X-O Oyunu</h1>
+
+                <!-- Mode Selection -->
+                <div class="flex justify-center gap-3 mb-6">
+                    <button class="mode-btn" onclick="setMode('human')">Dostunla</button>
+                    <button class="mode-btn active" onclick="setMode('ai')">Kompyuter</button>
+                </div>
+
+                <!-- Scores -->
+                <div class="flex justify-between mb-4">
+                    <div class="score-box active-turn" id="box-x">
+                        <span class="player-label">Sən (X)</span>
+                        <span class="player-score" id="score-x">0</span>
+                    </div>
+                    <div class="score-box" id="box-o">
+                        <span class="player-label player-o-label">Kompyuter</span>
+                        <span class="player-score" id="score-o">0</span>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="text-center bg-white/10 rounded-lg py-2 mb-4 font-bold" id="status">
+                    Sıra: Səndə (X)
+                </div>
+
+                <!-- Board -->
+                <div class="board" id="board">
+                    <div class="cell" onclick="handleCellClick(0)"></div>
+                    <div class="cell" onclick="handleCellClick(1)"></div>
+                    <div class="cell" onclick="handleCellClick(2)"></div>
+                    <div class="cell" onclick="handleCellClick(3)"></div>
+                    <div class="cell" onclick="handleCellClick(4)"></div>
+                    <div class="cell" onclick="handleCellClick(5)"></div>
+                    <div class="cell" onclick="handleCellClick(6)"></div>
+                    <div class="cell" onclick="handleCellClick(7)"></div>
+                    <div class="cell" onclick="handleCellClick(8)"></div>
+                </div>
+
+                <!-- Restart -->
+                <div class="text-center mt-4">
+                    <button class="btn-restart" onclick="restartGame()">Yenidən Başla</button>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Other Games Panel -->
+        <section class="other-games-panel">
+            <div class="panel-title">
+                <i class="fas fa-gamepad"></i>
+                Digər Oyunlar
+            </div>
+            <div class="games-scroll-container">
+                <a href="game-2048.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="game-name">2048</div>
+                </a>
+                <a href="game-snake.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-staff-snake"></i></div>
+                    <div class="game-name">İlan</div>
+                </a>
+                <a href="game-arkanoid.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-cubes"></i></div>
+                    <div class="game-name">Kərpic</div>
+                </a>
+                <a href="game-reflex.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="game-name">Refleks</div>
+                </a>
+                <a href="game-15puzzle.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-border-all"></i></div>
+                    <div class="game-name">15 Puzzle</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- SEO Content -->
+        <article class="seo-content">
+            <h1>X-O Oyunu - Klassik Strategiya</h1>
+            <h2>Necə Oynanılır?</h2>
+            <p>Məqsəd: Öz işarənizi (X və ya O) üfüqi, şaquli və ya diaqonal olaraq 3 xanada ardıcıl düzməkdir.</p>
+        </article>
     </div>
 
-    <div class="scoreboard">
-        <div class="score-box active-turn" id="box-x">
-            <span class="player-x">Sən (X)</span>
-            <span class="score-val" id="score-x">0</span>
-        </div>
-        <div class="score-box" id="box-o">
-            <!-- Varsayılan isim Kompyuter -->
-            <span class="player-o">Kompyuter</span>
-            <span class="score-val" id="score-o">0</span>
-        </div>
-    </div>
-
-    <div class="status" id="status">Sıra: Səndə (X)</div>
-
-    <div class="board" id="board">
-        <div class="cell" onclick="handleCellClick(0)"></div>
-        <div class="cell" onclick="handleCellClick(1)"></div>
-        <div class="cell" onclick="handleCellClick(2)"></div>
-        <div class="cell" onclick="handleCellClick(3)"></div>
-        <div class="cell" onclick="handleCellClick(4)"></div>
-        <div class="cell" onclick="handleCellClick(5)"></div>
-        <div class="cell" onclick="handleCellClick(6)"></div>
-        <div class="cell" onclick="handleCellClick(7)"></div>
-        <div class="cell" onclick="handleCellClick(8)"></div>
-    </div>
-
-    <button class="btn-restart" onclick="restartGame()">Yenidən Başla</button>
-    </div>
-    </div>
+    <footer>
+        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
+    </footer>
 
     <script>
         const statusDisplay = document.getElementById('status');
         const boxX = document.getElementById('box-x');
         const boxO = document.getElementById('box-o');
         const cells = document.querySelectorAll('.cell');
-        const playerOLabel = document.querySelector('#box-o .player-o');
+        const playerOLabel = document.querySelector('.player-o-label');
+        const modeBtns = document.querySelectorAll('.mode-btn');
 
         let gameActive = true;
         let currentPlayer = "X";
         let gameState = ["", "", "", "", "", "", "", "", ""];
-        // Varsayılan modu AI yaptım
-        let gameMode = 'ai';
+        let gameMode = 'ai'; // Default AI
 
         let scoreX = 0;
         let scoreO = 0;
@@ -116,15 +254,19 @@
 
         function setMode(mode) {
             gameMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            modeBtns.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
+            // Reset Names and Scores
             if (mode === 'ai') {
                 playerOLabel.innerText = "Kompyuter";
             } else {
                 playerOLabel.innerText = "Dostun";
             }
-            // Mod değişince skorları sıfırlamak isterseniz buraya kod ekleyebilirsiniz
+            scoreX = 0;
+            scoreO = 0;
+            document.getElementById('score-x').innerText = 0;
+            document.getElementById('score-o').innerText = 0;
             restartGame();
         }
 
@@ -136,28 +278,30 @@
             }
 
             handlePlayerPlayed(clickedCell, clickedCellIndex);
-            handleResultValidation();
         }
 
         function handlePlayerPlayed(clickedCell, clickedCellIndex) {
             gameState[clickedCellIndex] = currentPlayer;
             clickedCell.innerText = currentPlayer;
             clickedCell.classList.add(currentPlayer.toLowerCase());
+
+            // Validate after move
+            if (!handleResultValidation()) {
+                handlePlayerChange();
+            }
         }
 
         function handleResultValidation() {
             let roundWon = false;
             let winningLine = [];
 
-            for (let i = 0; i <= 7; i++) {
+            for (let i = 0; i < 8; i++) {
                 const winCondition = winningConditions[i];
                 let a = gameState[winCondition[0]];
                 let b = gameState[winCondition[1]];
                 let c = gameState[winCondition[2]];
 
-                if (a === '' || b === '' || c === '') {
-                    continue;
-                }
+                if (a === '' || b === '' || c === '') continue;
                 if (a === b && b === c) {
                     roundWon = true;
                     winningLine = winCondition;
@@ -167,20 +311,22 @@
 
             if (roundWon) {
                 statusDisplay.innerText = `Qazandı: ${currentPlayer === 'X' ? 'Sən' : (gameMode === 'ai' ? 'Kompyuter' : 'Dostun')}! 🎉`;
+                statusDisplay.classList.add('text-green-400');
                 gameActive = false;
                 updateScore(currentPlayer);
                 highlightWinningCells(winningLine);
-                return;
+                return true;
             }
 
             let roundDraw = !gameState.includes("");
             if (roundDraw) {
                 statusDisplay.innerText = "Heç-heçə! 🤝";
+                statusDisplay.classList.add('text-yellow-400');
                 gameActive = false;
-                return;
+                return true;
             }
 
-            handlePlayerChange();
+            return false;
         }
 
         function handlePlayerChange() {
@@ -194,28 +340,25 @@
                 statusDisplay.innerText = `Sıra: ${gameMode === 'ai' ? 'Kompyuter' : 'Dostun'} (O)`;
                 boxO.classList.add('active-turn');
                 boxX.classList.remove('active-turn');
-            }
 
-            if (gameMode === 'ai' && currentPlayer === "O" && gameActive) {
-                setTimeout(computerMove, 600); // 600ms düşünme süresi
+                if (gameMode === 'ai' && gameActive) {
+                    setTimeout(computerMove, 500);
+                }
             }
         }
 
         function computerMove() {
             if (!gameActive) return;
 
-            // Yapay Zeka Mantığı (Biraz daha akıllı hale getirebiliriz ama şimdilik rastgele)
-            // 1. Kazanabiliyor muyum? (Bakılabilir - İleri seviye)
-            // 2. Rakibi engelleyebilir miyim? (Bakılabilir - İleri seviye)
-            // 3. Rastgele oyna (Şimdiki mantık)
-
+            // Simple AI: Find empty cells and pick random
             let emptyIndices = [];
             gameState.forEach((cell, index) => {
                 if (cell === "") emptyIndices.push(index);
             });
 
             if (emptyIndices.length > 0) {
-                // Rastgele boş bir kare seç
+                // Try to win or block (optional improvement)
+                // For now random is fine as per original logic
                 const randomIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
                 handleCellClick(randomIndex);
             }
@@ -242,6 +385,7 @@
             currentPlayer = "X";
             gameState = ["", "", "", "", "", "", "", "", ""];
             statusDisplay.innerText = "Sıra: Səndə (X)";
+            statusDisplay.classList.remove('text-green-400', 'text-yellow-400');
 
             boxX.classList.add('active-turn');
             boxO.classList.remove('active-turn');
@@ -252,166 +396,6 @@
             });
         }
     </script>
-    </main>
-    <!-- Other Games Panel -->
-    <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
-        <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
-            <i class="fa-solid fa-gamepad text-purple-600 mr-3"></i>
-            Digər Oyunlar
-        </h2>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            <!-- 2048 -->
-            <a href="game-2048.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-layer-group text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-yellow-700 text-sm">2048</span>
-            </a>
-
-            <!-- 15 Puzzle -->
-            <a href="game-15puzzle.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-border-all text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-blue-700 text-sm">15 Puzzle</span>
-            </a>
-
-            <!-- Flappy -->
-            <a href="game-flappy.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-dove text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-sky-700 text-sm">Uçan Top</span>
-            </a>
-
-            <!-- Snake -->
-            <a href="game-snake.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-staff-snake text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-green-700 text-sm">İlan</span>
-            </a>
-
-            <!-- TicTacToe -->
-            <a href="game-tictactoe.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-xmarks-lines text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-red-700 text-sm">X-O</span>
-            </a>
-
-            <!-- Tetris -->
-            <a href="game-tetris.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-shapes text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-indigo-700 text-sm">Tetris</span>
-            </a>
-
-            <!-- Memory -->
-            <a href="game-memory.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-teal-400/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-brain text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-teal-700 text-sm">Yaddaş</span>
-            </a>
-
-            <!-- Math -->
-            <a href="game-math.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-calculator text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-orange-700 text-sm">Riyaziyyat</span>
-            </a>
-
-            <!-- Reflex (ZigZag) -->
-            <a href="game-reflex.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-fuchsia-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-bolt text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-fuchsia-700 text-sm">Ziq Zaq</span>
-            </a>
-
-            <!-- Arkanoid -->
-            <a href="game-arkanoid.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-cubes text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-rose-700 text-sm">Kərpic</span>
-            </a>
-
-        </div>
-    </section>
-    <article class="seo-content">
-        <h1>X-O Oyunu - Dostunla və ya Kompüterlə Yarış</h1>
-        <h2>Necə Oynanılır?</h2>
-        <p>Dünyanın ən məşhur kağız-qələm oyunu. 3x3 ölçülü bir lövhədə oynanılır. Bir oyunçu X, digəri O işarəsini
-            seçir. Məqsəd: Öz işarənizi üfüqi, şaquli və ya diaqonal olaraq 3 xanada ardıcıl düzməkdir.</p>
-        <h3>Yüksək Xal Taktikaları:</h3>
-        <ul>
-            <li><strong>Mərkəzi Tutun:</strong> Mərkəz xanasını tutmaq qələbə şansını kəskin artırır.</li>
-            <li><strong>Küncləri Tutun:</strong> Rəqib mərkəzi tutubsa, künclərə oynayın.</li>
-            <li><strong>Rəqibi Bloklayın:</strong> Rəqibin 3-lü yaratmasına mane olmağı unutmayın.</li>
-        </ul>
-        <h2>Qatar Gözləyərkən Niyə Oynanmalı?</h2>
-        <p>Əgər yanınızda dostunuz varsa, qatar gözləyərkən X-O oynamaq söhbət etmək və vaxt öldürmək üçün əla
-            üsuldur.</p>
-    </article>
-    </div>
-    <footer>
-        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
-    </footer>
-    </body>
+</body>
 
 </html>

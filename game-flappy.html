@@ -3,13 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flappy Bird Oyunu | Baki-Sumqayit.site</title>
-    <meta name="description" content="Flappy Bird oyunu ilə qatar yolunda vaxtınızı səmərəli keçirin.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Uçan Top Oyunu | Baki-Sumqayit.site</title>
+    <meta name="description" content="Flappy Bird tərzi uçan top oyunu. Maneələri keçin və rekord qırın.">
     <link rel="canonical" href="https://www.baki-sumqayit.site/game-flappy.html">
 
-        <!-- Google tag (gtag.js) -->
-        <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-W05T401WMG"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -17,207 +16,370 @@
         gtag('js', new Date());
         gtag('config', 'G-W05T401WMG');
     </script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-W05T401WMG');
-    </script>
-    
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3725039577144467"
+        crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="game-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- Favicon Settings -->
-    <!-- Klasik favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-
-    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-
-    <!-- Apple Touch Icon (iOS) -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-
-    <!-- Android Chrome -->
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
-
-    <!-- Web App Manifest (PWA) -->
     <link rel="manifest" href="/site.webmanifest">
-    <!-- Klasik favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
 
-    <!-- PNG faviconlar -->
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<body>
 
-    <!-- Apple Touch Icon (iOS) -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <header class="sticky-header">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Ana Səhifə</span>
+        </a>
+        <div class="site-logo">baki-sumqayit.site</div>
+    </header>
 
-    <!-- Android Chrome -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+    <div class="main-container">
 
-    <!-- Web App Manifest (PWA) -->
-    <link rel="manifest" href="/site.webmanifest">
-    <!-- Other Games Panel -->
-    <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
-        <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
-            <i class="fa-solid fa-gamepad text-purple-600 mr-3"></i>
-            Digər Oyunlar
-        </h2>
+        <main class="game-wrapper" id="game-container">
+            <div id="flappy-game-area" class="relative">
+                <div class="header flex justify-between items-center mb-4 text-white">
+                    <h1 class="text-2xl font-bold">Uçan Top</h1>
+                    <div class="bg-white/20 px-4 py-2 rounded-lg">
+                        <span class="text-xs uppercase opacity-70 block">Xal</span>
+                        <span id="score" class="text-xl font-bold">0</span>
+                    </div>
+                </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            <!-- 2048 -->
-            <a href="game-2048.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-layer-group text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-yellow-700 text-sm">2048</span>
-            </a>
+                <div class="relative w-full max-w-[320px] mx-auto">
+                    <canvas id="gameCanvas" width="320" height="480"
+                        class="bg-sky-300 rounded-lg shadow-xl cursor-pointer block w-full"></canvas>
 
-            <!-- 15 Puzzle -->
-            <a href="game-15puzzle.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div id="start-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span class="bg-black/50 text-white px-4 py-2 rounded-full animate-bounce">Başlamaq üçün
+                            toxun</span>
+                    </div>
                 </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-border-all text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-blue-700 text-sm">15 Puzzle</span>
-            </a>
 
-            <!-- Flappy -->
-            <a href="game-flappy.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                <!-- Game Over Modal -->
+                <div id="game-over-modal"
+                    class="absolute inset-0 bg-slate-900/95 rounded-lg flex flex-col items-center justify-center hidden z-10">
+                    <h2 class="text-3xl font-bold text-red-500 mb-2">Çırpıldı! 💥</h2>
+                    <p class="text-white text-lg mb-6">Xalınız: <span id="final-score"
+                            class="font-bold text-yellow-400">0</span></p>
+                    <button class="btn-restart" onclick="resetGame()">Yenidən Oyna</button>
                 </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-dove text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-sky-700 text-sm">Uçan Top</span>
-            </a>
+            </div>
+        </main>
 
-            <!-- Snake -->
-            <a href="game-snake.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-staff-snake text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-green-700 text-sm">İlan</span>
-            </a>
+        <!-- Other Games Panel -->
+        <section class="other-games-panel">
+            <div class="panel-title">
+                <i class="fas fa-gamepad"></i>
+                Digər Oyunlar
+            </div>
+            <div class="games-scroll-container">
+                <a href="game-2048.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="game-name">2048</div>
+                </a>
+                <a href="game-snake.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-staff-snake"></i></div>
+                    <div class="game-name">İlan</div>
+                </a>
+                <a href="game-arkanoid.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-cubes"></i></div>
+                    <div class="game-name">Kərpic</div>
+                </a>
+                <a href="game-reflex.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="game-name">Refleks</div>
+                </a>
+                <a href="game-memory.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-brain"></i></div>
+                    <div class="game-name">Yaddaş</div>
+                </a>
+            </div>
+        </section>
 
-            <!-- TicTacToe -->
-            <a href="game-tictactoe.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-xmarks-lines text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-red-700 text-sm">X-O</span>
-            </a>
-
-            <!-- Tetris -->
-            <a href="game-tetris.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-shapes text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-indigo-700 text-sm">Tetris</span>
-            </a>
-
-            <!-- Memory -->
-            <a href="game-memory.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-teal-400/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-brain text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-teal-700 text-sm">Yaddaş</span>
-            </a>
-
-            <!-- Math -->
-            <a href="game-math.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-calculator text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-orange-700 text-sm">Riyaziyyat</span>
-            </a>
-
-            <!-- Reflex (ZigZag) -->
-            <a href="game-reflex.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-fuchsia-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-bolt text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-fuchsia-700 text-sm">Ziq Zaq</span>
-            </a>
-
-            <!-- Arkanoid -->
-            <a href="game-arkanoid.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-cubes text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-rose-700 text-sm">Kərpic</span>
-            </a>
-
-        </div>
-    </section>
-    <article class="seo-content">
-        <h1>Uçan Top - Reflekslərinizi Yoxlayın</h1>
-        <h2>Necə Oynanılır?</h2>
-        <p>Çox sadə, lakin əsəbləri gərən bir oyun! Ekrana toxunaraq (və ya klikləyərək) topu havada saxlayın.
-            Maneələrin (boruların) arasından keçməyə çalışın. Yere dəyməyin və ya maneələrə çırpılmayın, yoxsa oyun
-            bitər.</p>
-        <h3>Yüksək Xal Taktikaları:</h3>
-        <ul>
-            <li><strong>Ritm Tutun:</strong> Nizamsız toxunuşlar əvəzinə, sabit bir ritmlə toxunmağa çalışın.</li>
-            <li><strong>Aşağıda Qalın:</strong> Topun yuxarı qalxması daha risklidir, mümkün qədər aşağı səviyyədə
-                uçmağa çalışın.</li>
-            <li><strong>Sakitləşin:</strong> Əsəbiləşdikcə xəta etmək ehtimalı artır. Dərin nəfəs alın.</li>
-        </ul>
-        <h2>Qatar Gözləyərkən Niyə Oynanmalı?</h2>
-        <p>Qısa müddətli, sürətli oyun seansları üçün idealdır. Qatar gələnə qədər "bir dəfə də oynayım" deyərək
-            vaxtın necə keçdiyini bilməyəcəksiniz.</p>
-    </article>
+        <!-- SEO Content -->
+        <article class="seo-content">
+            <h1>Uçan Top - Maneələri Keç</h1>
+            <h2>Necə Oynanılır?</h2>
+            <p>Ekrana toxunaraq topu yuxarı qaldırın. Maneələrə (borulara) və yerə dəyməyin. Hər keçilən maneə 1 xaldır.
+            </p>
+        </article>
     </div>
+
     <footer>
         <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
     </footer>
-    </body>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const finalScoreEl = document.getElementById('final-score');
+        const modal = document.getElementById('game-over-modal');
+        const startHint = document.getElementById('start-hint');
+
+        // Game Variables
+        let frames = 0;
+        const DEGREE = Math.PI / 180;
+        let score = 0;
+        let gameState = {
+            current: 0,
+            getReady: 0,
+            game: 1,
+            over: 2
+        };
+
+        // Controls
+        canvas.addEventListener('click', function (evt) {
+            switch (gameState.current) {
+                case gameState.getReady:
+                    gameState.current = gameState.game;
+                    startHint.style.display = 'none';
+                    break;
+                case gameState.game:
+                    bird.flap();
+                    break;
+                case gameState.over:
+                    // Handled by restart button
+                    break;
+            }
+        });
+
+        // Bird
+        const bird = {
+            animation: [0, 1, 2, 1],
+            x: 50,
+            y: 150,
+            w: 34,
+            h: 26,
+            radius: 12,
+            frame: 0,
+            speed: 0,
+            gravity: 0.25,
+            jump: 4.6,
+            rotation: 0,
+
+            draw: function () {
+                let birdColor = '#fbbf24'; // Yellow-400
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+
+                // Draw Simple Bird
+                ctx.fillStyle = birdColor;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Eye
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(6, -6, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(8, -6, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Wing
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                ctx.ellipse(-2, 2, 8, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Beak
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.moveTo(8, 2);
+                ctx.lineTo(16, 6);
+                ctx.lineTo(8, 10);
+                ctx.fill();
+
+                ctx.restore();
+            },
+
+            flap: function () {
+                this.speed = -this.jump;
+            },
+
+            update: function () {
+                // Period
+                this.period = gameState.current == gameState.getReady ? 10 : 5;
+                // Frame increment
+                this.frame += frames % this.period == 0 ? 1 : 0;
+                this.frame = this.frame % this.animation.length;
+
+                if (gameState.current == gameState.getReady) {
+                    this.y = 150; // Hover
+                    this.rotation = 0 * DEGREE;
+                } else {
+                    this.speed += this.gravity;
+                    this.y += this.speed;
+
+                    if (this.y + this.h / 2 >= canvas.height - fg.h) {
+                        this.y = canvas.height - fg.h - this.h / 2;
+                        if (gameState.current == gameState.game) {
+                            gameState.current = gameState.over;
+                            gameOver();
+                        }
+                    }
+
+                    // Rotation
+                    if (this.speed < this.jump) {
+                        this.rotation = -25 * DEGREE;
+                    } else {
+                        this.rotation = 90 * DEGREE;
+                        if (this.rotation > 90 * DEGREE) this.rotation = 90 * DEGREE;
+                    }
+
+                    // Floor collision
+                    if (this.y >= canvas.height - fg.h) {
+                        this.y = canvas.height - fg.h;
+                        if (gameState.current == gameState.game) gameOver();
+                    }
+                }
+            }
+        }
+
+        // Foreground
+        const fg = {
+            h: 112,
+            draw: function () {
+                ctx.fillStyle = '#22c55e'; // Green ground
+                ctx.fillRect(0, canvas.height - this.h, canvas.width, this.h);
+                // Grass top
+                ctx.fillStyle = '#4ade80';
+                ctx.fillRect(0, canvas.height - this.h, canvas.width, 10);
+            }
+        }
+
+        // Pipes
+        const pipes = {
+            position: [],
+            w: 52,
+            h: 400,
+            gap: 100, // Gap size
+            dx: 2,
+
+            draw: function () {
+                for (let i = 0; i < this.position.length; i++) {
+                    let p = this.position[i];
+                    let topY = p.y;
+                    let bottomY = p.y + this.h + this.gap;
+
+                    ctx.fillStyle = '#22c55e'; // Green Pipe
+                    ctx.fillRect(p.x, topY, this.w, this.h);
+                    ctx.fillRect(p.x, bottomY, this.w, this.h);
+
+                    // Pipe caps
+                    ctx.fillStyle = '#16a34a';
+                    ctx.fillRect(p.x - 2, topY + this.h - 20, this.w + 4, 20);
+                    ctx.fillRect(p.x - 2, bottomY, this.w + 4, 20);
+                }
+            },
+
+            update: function () {
+                if (gameState.current !== gameState.game) return;
+
+                if (frames % 100 == 0) {
+                    this.position.push({
+                        x: canvas.width,
+                        y: -150 * (Math.random() + 1)
+                    });
+                }
+
+                for (let i = 0; i < this.position.length; i++) {
+                    let p = this.position[i];
+                    p.x -= this.dx;
+
+                    // Collision Detection
+                    let bottomPipeY = p.y + this.h + this.gap;
+
+                    // Top Pipe
+                    if (bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + this.w &&
+                        bird.y - bird.radius < p.y + this.h && bird.y + bird.radius > p.y) {
+                        gameState.current = gameState.over;
+                        gameOver();
+                    }
+                    // Bottom Pipe
+                    if (bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + this.w &&
+                        bird.y + bird.radius > bottomPipeY && bird.y - bird.radius < bottomPipeY + this.h) {
+                        gameState.current = gameState.over;
+                        gameOver();
+                    }
+
+                    // Score
+                    if (p.x + this.w <= 0) {
+                        this.position.shift();
+                        score++;
+                        scoreEl.innerText = score;
+                        scoreEl.classList.add('scale-125');
+                        setTimeout(() => scoreEl.classList.remove('scale-125'), 200);
+                        i--;
+                    }
+                }
+            },
+            reset: function () {
+                this.position = [];
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = '#7dd3fc'; // Sky Blue
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            pipes.draw();
+            fg.draw();
+            bird.draw();
+        }
+
+        function update() {
+            bird.update();
+            pipes.update();
+        }
+
+        function loop() {
+            update();
+            draw();
+            frames++;
+            requestAnimationFrame(loop);
+        }
+
+        function gameOver() {
+            gameState.current = gameState.over;
+            finalScoreEl.innerText = score;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function resetGame() {
+            bird.speed = 0;
+            bird.rotation = 0;
+            pipes.reset();
+            score = 0;
+            scoreEl.innerText = 0;
+            frames = 0;
+            gameState.current = gameState.getReady;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            startHint.style.display = 'flex';
+        }
+
+        loop();
+
+    </script>
+</body>
 
 </html>

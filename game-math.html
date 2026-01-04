@@ -3,13 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Riyaziyyat Oyunu | Baki-Sumqayit.site</title>
     <meta name="description" content="Riyazi biliklərinizi yoxlayın və sürətli hesablamalar edin.">
     <link rel="canonical" href="https://www.baki-sumqayit.site/game-math.html">
 
-        <!-- Google tag (gtag.js) -->
-        <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-W05T401WMG"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -17,181 +16,271 @@
         gtag('js', new Date());
         gtag('config', 'G-W05T401WMG');
     </script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-W05T401WMG');
-    </script>
-    
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3725039577144467"
+        crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="game-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- Favicon Settings -->
-    <!-- Klasik favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-
-    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-
-    <!-- Apple Touch Icon (iOS) -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-
-    <!-- Android Chrome -->
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
-
-    <!-- Web App Manifest (PWA) -->
-    <link rel="manifest" href="/site.webmanifest">
-    <!-- Klasik favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-
-    <!-- PNG faviconlar -->
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-
-    <!-- Apple Touch Icon (iOS) -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-
-    <!-- Android Chrome -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
-
-    <!-- Web App Manifest (PWA) -->
     <link rel="manifest" href="/site.webmanifest">
 
-    <!-- Başlanğıc Ekranı -->
-    <div class="overlay-math" id="startScreen">
-        <h2>Riyaziyyat Yarışı</h2>
-        <p>Sürətli düşün, düzgün cavabı tap!</p>
-        <button class="btn-start" onclick="startGame()">BAŞLA</button>
+    <style>
+        .math-option {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            min-height: 80px;
+        }
+
+        .math-option:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .math-option.correct {
+            background: #22c55e !important;
+            border-color: #4ade80;
+        }
+
+        .math-option.wrong {
+            background: #ef4444 !important;
+            border-color: #f87171;
+            transform: rotate(5deg);
+        }
+
+        .timer-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .timer-progress {
+            height: 100%;
+            background: #fbbf24;
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="sticky-header">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Ana Səhifə</span>
+        </a>
+        <div class="site-logo">baki-sumqayit.site</div>
+    </header>
+
+    <div class="main-container">
+
+        <main class="game-wrapper" id="game-container">
+            <div id="math-game-area" class="relative max-w-[360px] mx-auto text-white text-center">
+
+                <h1 class="text-2xl font-bold mb-4">Riyaziyyat Yarışı</h1>
+
+                <div class="flex justify-between items-center mb-6 px-4">
+                    <div class="bg-white/10 rounded-lg p-2 min-w-[30%]">
+                        <div class="text-xs opacity-70">Xal</div>
+                        <div class="text-xl font-bold" id="score">0</div>
+                    </div>
+                    <div class="bg-white/10 rounded-lg p-2 min-w-[30%]">
+                        <div class="text-xs opacity-70">Rekord</div>
+                        <div class="text-xl font-bold" id="highScore">0</div>
+                    </div>
+                </div>
+
+                <div class="timer-bar">
+                    <div class="timer-progress" id="timerProgress"></div>
+                </div>
+
+                <div class="bg-indigo-600/20 p-8 rounded-2xl mb-8 border border-white/10 shadow-xl">
+                    <div class="text-4xl font-black" id="question">Hazırsan?</div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4" id="options">
+                    <!-- Options injected here -->
+                </div>
+
+                <!-- Start Overlay -->
+                <div id="startOverlay"
+                    class="absolute inset-0 bg-slate-900 z-10 flex flex-col items-center justify-center">
+                    <div class="text-6xl mb-4">🧠</div>
+                    <p class="mb-6 opacity-80">Doğru cavabı tapmaq üçün tələs!</p>
+                    <button class="btn-restart text-lg px-8 py-3" onclick="startGame()">Başla</button>
+                </div>
+
+                <!-- Game Over Modal -->
+                <div id="gameOverModal"
+                    class="absolute inset-0 bg-slate-900/95 rounded-xl flex-col items-center justify-center hidden z-20">
+                    <h2 class="text-3xl font-bold text-red-500 mb-2">Vaxt Bitdi! ⏰</h2>
+                    <p class="text-white text-lg mb-6 text-center px-4">Xalınız: <span id="finalScore"
+                            class="font-bold text-yellow-400">0</span></p>
+                    <button class="btn-restart" onclick="startGame()">Yenidən Oyna</button>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Other Games Panel -->
+        <section class="other-games-panel">
+            <div class="panel-title">
+                <i class="fas fa-gamepad"></i>
+                Digər Oyunlar
+            </div>
+            <div class="games-scroll-container">
+                <a href="game-2048.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="game-name">2048</div>
+                </a>
+                <a href="game-tetris.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-shapes"></i></div>
+                    <div class="game-name">Tetris</div>
+                </a>
+                <a href="game-arkanoid.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-cubes"></i></div>
+                    <div class="game-name">Kərpic</div>
+                </a>
+                <a href="game-snake.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-staff-snake"></i></div>
+                    <div class="game-name">İlan</div>
+                </a>
+                <a href="game-15puzzle.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-border-all"></i></div>
+                    <div class="game-name">15 Puzzle</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- SEO Content -->
+        <article class="seo-content">
+            <h1>Riyaziyyat Yarışı - Beynini Məşq Etdir</h1>
+            <h2>Necə Oynanılır?</h2>
+            <p>Ekranda sadə riyazi məsələlər görünəcək. Vaxt bitmədən doğru variantı seçmək lazımdır. Hər doğru cavab
+                vaxtı bir az artırır.</p>
+        </article>
     </div>
 
-    <!-- Oyun Bitmə Ekranı -->
-    <div class="overlay-math" id="gameOverScreen" style="display: none;">
-        <h2>Oyun Bitdi!</h2>
-        <p>Xalınız: <span id="finalScore" style="font-weight:bold; font-size:22px;">0</span></p>
-        <button class="btn-start" onclick="startGame()">Yenidən Oyna</button>
-    </div>
-
-    <div class="header-math">
-        <div class="score-box-math">XAL <span id="score">0</span></div>
-        <div class="score-box-math">REKORD <span id="highScore">0</span></div>
-    </div>
-
-    <div class="timer-container">
-        <div class="timer-bar" id="timerBar"></div>
-    </div>
-
-    <div class="question-box" id="question">
-        Hazır?
-    </div>
-
-    <div class="options-grid" id="options">
-        <!-- Düymələr JS ilə gələcək -->
-    </div>
-
-    </div>
-    </div>
+    <footer>
+        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
+    </footer>
 
     <script>
         const questionEl = document.getElementById('question');
         const optionsEl = document.getElementById('options');
         const scoreEl = document.getElementById('score');
         const highScoreEl = document.getElementById('highScore');
-        const timerBar = document.getElementById('timerBar');
-        const startScreen = document.getElementById('startScreen');
-        const gameOverScreen = document.getElementById('gameOverScreen');
+        const timerProgress = document.getElementById('timerProgress');
+        const startOverlay = document.getElementById('startOverlay');
+        const gameOverModal = document.getElementById('gameOverModal');
         const finalScoreEl = document.getElementById('finalScore');
 
         let score = 0;
         let highScore = localStorage.getItem('mathHighScore') || 0;
-        let timeLeft = 100; // Faiz olaraq
+        let timeLeft = 100;
         let timerInterval;
         let gameActive = false;
         let correctAnswer = 0;
-        let maxTime = 5000; // Sual başına vaxt (ms)
-        let currentTime = maxTime;
 
         highScoreEl.innerText = highScore;
 
         function startGame() {
-            startScreen.style.display = 'none';
-            gameOverScreen.style.display = 'none';
+            startOverlay.classList.add('hidden');
+            gameOverModal.classList.add('hidden');
+            gameOverModal.classList.remove('flex');
+
             score = 0;
             scoreEl.innerText = score;
             gameActive = true;
-            nextQuestion();
+            generateQuestion();
+            startTimer();
         }
 
-        function nextQuestion() {
-            if (!gameActive) return;
-
-            // Timer sıfırla
-            clearInterval(timerInterval);
+        function startTimer() {
             timeLeft = 100;
-            timerBar.style.width = '100%';
-            timerBar.style.background = '#00ff88';
-
-            // Timer başlat
-            // Hər sual üçün 5-10 saniyə (Skor artdıqca çətinləşir)
-            let duration = Math.max(2000, 5000 - (score * 50));
-            let step = 100 / (duration / 20); // 20ms update rate
+            clearInterval(timerInterval);
 
             timerInterval = setInterval(() => {
-                timeLeft -= step;
-                timerBar.style.width = timeLeft + '%';
+                if (!gameActive) return;
 
-                // Rəng dəyişimi (Yaşıldan Qırmızıya)
-                if (timeLeft < 30) timerBar.style.background = '#ff4757';
-                else if (timeLeft < 60) timerBar.style.background = '#ffd700';
+                // Difficulty increases: faster timer
+                let decay = 0.5 + (score * 0.05); // increases with score
+                timeLeft -= decay;
 
                 if (timeLeft <= 0) {
+                    timeLeft = 0;
                     gameOver();
                 }
-            }, 20);
 
-            generateQuestion();
+                timerProgress.style.width = `${timeLeft}%`;
+
+                // Color change
+                if (timeLeft < 30) timerProgress.style.backgroundColor = '#ef4444';
+                else if (timeLeft < 60) timerProgress.style.backgroundColor = '#f59e0b';
+                else timerProgress.style.backgroundColor = '#22c55e';
+
+            }, 50);
         }
 
         function generateQuestion() {
-            // Əməliyyatlar: +, -, *
             const types = ['+', '-', '*'];
             const type = types[Math.floor(Math.random() * types.length)];
-
             let num1, num2;
 
             if (type === '*') {
-                num1 = Math.floor(Math.random() * 10) + 2; // 2-11
-                num2 = Math.floor(Math.random() * 10) + 1; // 1-10
+                num1 = Math.floor(Math.random() * 10) + 2;
+                num2 = Math.floor(Math.random() * 10) + 1;
                 correctAnswer = num1 * num2;
             } else if (type === '+') {
-                num1 = Math.floor(Math.random() * 50) + 1;
-                num2 = Math.floor(Math.random() * 50) + 1;
+                num1 = Math.floor(Math.random() * 20) + 1;
+                num2 = Math.floor(Math.random() * 20) + 1;
                 correctAnswer = num1 + num2;
             } else {
-                num1 = Math.floor(Math.random() * 50) + 10;
-                num2 = Math.floor(Math.random() * num1) + 1; // Mənfi olmasın
+                num1 = Math.floor(Math.random() * 20) + 5;
+                num2 = Math.floor(Math.random() * num1) + 1;
                 correctAnswer = num1 - num2;
             }
 
-            questionEl.innerText = `${num1} ${type} ${num2}`;
+            questionEl.innerText = `${num1} ${type} ${num2} = ?`;
 
-            // Səhv cavabları yarat
             let answers = [correctAnswer];
             while (answers.length < 4) {
-                let wrong = correctAnswer + Math.floor(Math.random() * 10) - 5; // Yaxın rəqəmlər
+                let offset = Math.floor(Math.random() * 10) - 5;
+                let wrong = correctAnswer + offset;
                 if (wrong !== correctAnswer && !answers.includes(wrong) && wrong >= 0) {
                     answers.push(wrong);
                 }
             }
 
-            // Cavabları qarışdır
             answers.sort(() => Math.random() - 0.5);
 
-            // Ekrana yaz
             optionsEl.innerHTML = '';
             answers.forEach(ans => {
-                const btn = document.createElement('button');
-                btn.classList.add('option-btn');
+                const btn = document.createElement('div');
+                btn.className = 'math-option';
                 btn.innerText = ans;
                 btn.onclick = () => checkAnswer(btn, ans);
                 optionsEl.appendChild(btn);
@@ -202,23 +291,18 @@
             if (!gameActive) return;
 
             if (answer === correctAnswer) {
-                // Düzgün
                 btn.classList.add('correct');
                 score++;
                 scoreEl.innerText = score;
-                clearInterval(timerInterval); // Vaxtı dayandır
-                setTimeout(nextQuestion, 200); // Qısa gecikmə ilə növbəti sual
+                timeLeft = Math.min(100, timeLeft + 20); // Bonus time
+                setTimeout(generateQuestion, 200);
             } else {
-                // Səhv
                 btn.classList.add('wrong');
-                // Doğrunu göstər
-                const buttons = document.querySelectorAll('.option-btn');
-                buttons.forEach(b => {
-                    if (parseInt(b.innerText) === correctAnswer) {
-                        b.classList.add('correct');
-                    }
+                // Show correct one
+                Array.from(optionsEl.children).forEach(child => {
+                    if (parseInt(child.innerText) === correctAnswer) child.classList.add('correct');
                 });
-                gameOver();
+                setTimeout(gameOver, 500);
             }
         }
 
@@ -232,172 +316,12 @@
                 highScoreEl.innerText = highScore;
             }
 
-            setTimeout(() => {
-                finalScoreEl.innerText = score;
-                gameOverScreen.style.display = 'flex';
-            }, 1000);
+            finalScoreEl.innerText = score;
+            gameOverModal.classList.remove('hidden');
+            gameOverModal.classList.add('flex');
         }
 
     </script>
-    </main>
-    <!-- Other Games Panel -->
-    <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
-        <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
-            <i class="fa-solid fa-gamepad text-purple-600 mr-3"></i>
-            Digər Oyunlar
-        </h2>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            <!-- 2048 -->
-            <a href="game-2048.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-layer-group text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-yellow-700 text-sm">2048</span>
-            </a>
-
-            <!-- 15 Puzzle -->
-            <a href="game-15puzzle.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-border-all text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-blue-700 text-sm">15 Puzzle</span>
-            </a>
-
-            <!-- Flappy -->
-            <a href="game-flappy.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-dove text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-sky-700 text-sm">Uçan Top</span>
-            </a>
-
-            <!-- Snake -->
-            <a href="game-snake.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-staff-snake text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-green-700 text-sm">İlan</span>
-            </a>
-
-            <!-- TicTacToe -->
-            <a href="game-tictactoe.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-xmarks-lines text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-red-700 text-sm">X-O</span>
-            </a>
-
-            <!-- Tetris -->
-            <a href="game-tetris.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-shapes text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-indigo-700 text-sm">Tetris</span>
-            </a>
-
-            <!-- Memory -->
-            <a href="game-memory.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-teal-400/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-brain text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-teal-700 text-sm">Yaddaş</span>
-            </a>
-
-            <!-- Math -->
-            <a href="game-math.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-calculator text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-orange-700 text-sm">Riyaziyyat</span>
-            </a>
-
-            <!-- Reflex (ZigZag) -->
-            <a href="game-reflex.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-fuchsia-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-bolt text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-fuchsia-700 text-sm">Ziq Zaq</span>
-            </a>
-
-            <!-- Arkanoid -->
-            <a href="game-arkanoid.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-cubes text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-rose-700 text-sm">Kərpic</span>
-            </a>
-
-        </div>
-    </section>
-    <article class="seo-content">
-        <h1>Riyaziyyat Yarışı - Beyin Gimnastikası</h1>
-        <h2>Necə Oynanılır?</h2>
-        <p>Ekranda sadə riyazi tənliklər görünəcək (məsələn, 5 + 3 = ?). Məhdud vaxt ərzində doğru cavabı
-            tapmalısınız. Suallar getdikcə çətinləşə bilər.</p>
-        <h3>Yüksək Xal Taktikaları:</h3>
-        <ul>
-            <li><strong>Təxmin Edin:</strong> Dəqiq hesablamaq vaxt aparırsa, təxmin yürütməyə çalışın.</li>
-            <li><strong>Diqqətli Oxuyun:</strong> İşarələrə diqqət edin.</li>
-            <li><strong>Panikləməyin:</strong> Sakitliyinizi qorumaq vacibdir.</li>
-        </ul>
-        <h2>Qatar Gözləyərkən Niyə Oynanmalı?</h2>
-        <p>Zehni hesablama qabiliyyətinizi itiləmək üçün mükəmməldir. Günün yorğunluğunu atmaq üçün faydalıdır.</p>
-    </article>
-    </div>
-    <footer>
-        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
-    </footer>
-    </body>
+</body>
 
 </html>

@@ -3,13 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>15 Tapmaca Oyunu | Baki-Sumqayit.site</title>
-    <meta name="description" content="Klassik 15 tapmaca oyunu. Bakı-Sumqayıt yolunda əyləncəli vaxt keçirin.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>15 Puzzle Oyunu | Baki-Sumqayit.site</title>
+    <meta name="description" content="Klassik 15 tapmaca oyunu. Rəqəmləri sıraya düzün və beyninizi məşq etdirin.">
     <link rel="canonical" href="https://www.baki-sumqayit.site/game-15puzzle.html">
 
-        <!-- Google tag (gtag.js) -->
-        <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-W05T401WMG"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -17,59 +16,196 @@
         gtag('js', new Date());
         gtag('config', 'G-W05T401WMG');
     </script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-W05T401WMG');
-    </script>
-    
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3725039577144467"
+        crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="game-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- Favicon Settings -->
-    <!-- Klasik favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-
-    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-
-    <!-- Apple Touch Icon (iOS) -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-
-    <!-- Android Chrome -->
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
-
-    <!-- Web App Manifest (PWA) -->
     <link rel="manifest" href="/site.webmanifest">
-    <!-- Klasik favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-    <!-- PNG faviconlar -->
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <style>
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 12px;
+        }
 
-    <!-- Apple Touch Icon (iOS) -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        .puzzle-tile {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-    <!-- Android Chrome -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+        .puzzle-tile:hover {
+            transform: scale(1.05);
+            z-index: 1;
+        }
 
-    <!-- Web App Manifest (PWA) -->
-    <link rel="manifest" href="/site.webmanifest">
-    <!-- Squares JS generated -->
+        .puzzle-tile.correct {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .puzzle-tile.empty {
+            background: transparent;
+            box-shadow: none;
+            cursor: default;
+        }
+
+        .stats-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+        }
+
+        .stats-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            opacity: 0.7;
+            display: block;
+        }
+
+        .stats-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Confetti Canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="sticky-header">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Ana Səhifə</span>
+        </a>
+        <div class="site-logo">baki-sumqayit.site</div>
+    </header>
+
+    <div class="main-container">
+
+        <main class="game-wrapper" id="game-container">
+            <div id="puzzle-game-area" class="relative">
+                <canvas id="confetti-canvas"></canvas>
+
+                <div class="header flex justify-between items-center mb-6 max-w-[320px] mx-auto">
+                    <h1 class="text-2xl font-bold text-white">15 Puzzle</h1>
+                    <div class="flex gap-2">
+                        <div class="stats-box">
+                            <span class="stats-label">Gediş</span>
+                            <span class="stats-value" id="move-count">0</span>
+                        </div>
+                        <div class="stats-box">
+                            <span class="stats-label">Vaxt</span>
+                            <span class="stats-value" id="timer">00:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="puzzle-grid" id="grid">
+                    <!-- Tiles injected by JS -->
+                </div>
+
+                <div class="text-center mt-6">
+                    <button class="btn-restart" onclick="newGame()">
+                        <i class="fas fa-random mr-2"></i> Qarışdır və Başla
+                    </button>
+                </div>
+
+                <div class="text-center mt-4 text-white/50 text-sm">
+                    Rekord: <span id="best-score" class="font-bold text-white">-</span> gediş
+                </div>
+
+                <!-- Win Modal -->
+                <div id="win-modal"
+                    class="absolute inset-0 bg-slate-900/95 rounded-xl flex-col items-center justify-center hidden z-20">
+                    <h2 class="text-3xl font-bold text-green-400 mb-2">Təbriklər! 🎉</h2>
+                    <p class="text-white text-lg mb-6 text-center px-4">Tapmacanı həll etdin!</p>
+                    <button class="btn-restart" onclick="newGame()">Yenidən Oyna</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Other Games Panel -->
+        <section class="other-games-panel">
+            <div class="panel-title">
+                <i class="fas fa-gamepad"></i>
+                Digər Oyunlar
+            </div>
+            <div class="games-scroll-container">
+                <a href="game-2048.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="game-name">2048</div>
+                </a>
+                <a href="game-snake.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-staff-snake"></i></div>
+                    <div class="game-name">İlan</div>
+                </a>
+                <a href="game-arkanoid.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-cubes"></i></div>
+                    <div class="game-name">Kərpic</div>
+                </a>
+                <a href="game-reflex.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="game-name">Refleks</div>
+                </a>
+                <a href="game-memory.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-brain"></i></div>
+                    <div class="game-name">Yaddaş</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- SEO Content -->
+        <article class="seo-content">
+            <h1>15 Puzzle - Klassik Zəka Testi</h1>
+            <h2>Necə Oynanılır?</h2>
+            <p>1-dən 15-ə qədər olan rəqəmləri ardıcıl düzün. Boş xanadan istifadə edərək daşları sürüşdürün.</p>
+        </article>
     </div>
 
-    <button class="btn-restart" onclick="newGame()">Qarışdır və Başla</button>
-
-    <!-- Win Screen -->
-    <div class="puzzle-modal" id="win-modal">
-        <h2>Təbriklər! 🎉</h2>
-        <p>Tapmacanı həll etdin!</p>
-        <button class="btn-restart" onclick="newGame()">Yenidən Oyna</button>
-    </div>
-    </div>
-    </div>
+    <footer>
+        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
+    </footer>
 
     <script>
         const grid = document.getElementById('grid');
@@ -84,12 +220,13 @@
         let timerInterval;
         let isPlaying = false;
 
-        // LocalStorage prefix for unique storage
         let bestScore = localStorage.getItem('puzzle15BestScore') || '-';
         bestScoreLabel.innerText = bestScore;
 
         function newGame() {
-            modal.classList.remove('active');
+            modal.style.display = 'none'; // Using style for flex control manually or class
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
             stopConfetti();
 
             moves = 0;
@@ -103,11 +240,13 @@
             tiles = Array.from({ length: 15 }, (_, i) => i + 1);
             tiles.push(0);
 
-            // Shuffle logic
+            // Shuffle well ensuring solvability?
+            // Actually simplest way to ensure solvability is to start solved and make valid moves
+            // But for simple 15 puzzle, we can just do random moves from solved state
             let emptyIdx = 15;
             let previousIdx = -1;
 
-            for (let i = 0; i < 800; i++) {
+            for (let i = 0; i < 500; i++) {
                 const neighbors = getNeighbors(emptyIdx);
                 const validNeighbors = neighbors.filter(n => n !== previousIdx);
                 const randomNeighbor = validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
@@ -187,7 +326,8 @@
                 bestScoreLabel.innerText = bestScore;
             }
 
-            modal.classList.add('active');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
             startConfetti();
         }
 
@@ -238,169 +378,6 @@
         // Init game
         newGame();
     </script>
-    </main>
-    <!-- Other Games Panel -->
-    <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
-        <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
-            <i class="fa-solid fa-gamepad text-purple-600 mr-3"></i>
-            Digər Oyunlar
-        </h2>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            <!-- 2048 -->
-            <a href="game-2048.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-layer-group text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-yellow-700 text-sm">2048</span>
-            </a>
-
-            <!-- 15 Puzzle -->
-            <a href="game-15puzzle.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-border-all text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-blue-700 text-sm">15 Puzzle</span>
-            </a>
-
-            <!-- Flappy -->
-            <a href="game-flappy.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-dove text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-sky-700 text-sm">Uçan Top</span>
-            </a>
-
-            <!-- Snake -->
-            <a href="game-snake.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-staff-snake text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-green-700 text-sm">İlan</span>
-            </a>
-
-            <!-- TicTacToe -->
-            <a href="game-tictactoe.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-xmarks-lines text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-red-700 text-sm">X-O</span>
-            </a>
-
-            <!-- Tetris -->
-            <a href="game-tetris.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-shapes text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-indigo-700 text-sm">Tetris</span>
-            </a>
-
-            <!-- Memory -->
-            <a href="game-memory.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-teal-400/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-brain text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-teal-700 text-sm">Yaddaş</span>
-            </a>
-
-            <!-- Math -->
-            <a href="game-math.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-calculator text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-orange-700 text-sm">Riyaziyyat</span>
-            </a>
-
-            <!-- Reflex (ZigZag) -->
-            <a href="game-reflex.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-fuchsia-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-bolt text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-fuchsia-700 text-sm">Ziq Zaq</span>
-            </a>
-
-            <!-- Arkanoid -->
-            <a href="game-arkanoid.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-cubes text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-rose-700 text-sm">Kərpic</span>
-            </a>
-
-        </div>
-    </section>
-    <article class="seo-content">
-        <h1>15 Puzzle - Klassik Zəka Testi</h1>
-        <h2>Necə Oynanılır?</h2>
-        <p>Bu klassik oyunda 15 ədəd nömrələnmiş kvadrat və bir boş xana var. Boş xananın yanındakı daşları
-            sürüşdürərək hərəkət etdirə bilərsiniz. Məqsəd: Qarışıq rəqəmləri 1-dən 15-ə qədər ardıcıl şəkildə
-            düzməkdir. Nə qədər az gedişlə tamamlasanız, o qədər ustasınız!</p>
-        <h3>Yüksək Xal Taktikaları:</h3>
-        <ul>
-            <li><strong>Sətir-Sətir Həll Edin:</strong> Əvvəlcə birinci sıranı (1, 2, 3, 4) yerinə qoyun, sonra
-                ikinci sıraya keçin.</li>
-            <li><strong>Künc Daşlarına Diqqət:</strong> Son iki sıranı yerləşdirərkən diqqətli olun.</li>
-            <li><strong>Səbirli Olun:</strong> Tələsmək səhv gedişlərə səbəb ola bilər. Hər bir hərəkəti əvvəlcədən
-                planlaşdırın.</li>
-        </ul>
-        <h2>Qatar Gözləyərkən Niyə Oynanmalı?</h2>
-        <p>Sürüşdürmə tapmacaları məntiqi təfəkkürü gücləndirir. Qatar gecikirsə və ya platformada gözləyirsinizsə,
-            15 Puzzle beyninizi aktiv saxlamaq üçün əla vasitədir.</p>
-    </article>
-    </div>
-    <footer>
-        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
-    </footer>
-    </body>
+</body>
 
 </html>

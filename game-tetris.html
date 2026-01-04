@@ -3,13 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tetris Oyunu | Baki-Sumqayit.site</title>
     <meta name="description" content="Klassik Tetris oyunu. Blokları yerləşdirin və sətirləri təmizləyin.">
     <link rel="canonical" href="https://www.baki-sumqayit.site/game-tetris.html">
 
-        <!-- Google tag (gtag.js) -->
-        <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-W05T401WMG"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -17,66 +16,155 @@
         gtag('js', new Date());
         gtag('config', 'G-W05T401WMG');
     </script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-W05T401WMG');
-    </script>
-    
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3725039577144467"
+        crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="game-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- Favicon Settings -->
-    <!-- Klasik favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-
-    <!-- PNG faviconlar -->
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-
-    <!-- Apple Touch Icon (iOS) -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-
-    <!-- Android Chrome -->
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
-
-    <!-- Web App Manifest (PWA) -->
-    <link rel="manifest" href="/site.webmanifest">
-    <!-- Klasik favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-
-    <!-- PNG faviconlar -->
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-
-    <!-- Apple Touch Icon (iOS) -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-
-    <!-- Android Chrome -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
-
-    <!-- Web App Manifest (PWA) -->
     <link rel="manifest" href="/site.webmanifest">
 
-    <!-- Mobil Kontroller -->
-    <div class="controls-tetris">
-        <button class="btn-tetra btn-rotate" id="rotateBtn">↻</button>
-        <button class="btn-tetra btn-left" id="leftBtn">←</button>
-        <button class="btn-tetra btn-down" id="downBtn">↓</button>
-        <button class="btn-tetra btn-right" id="rightBtn">→</button>
+    <style>
+        .btn-tetra {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-tetra:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.95);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 50px);
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="sticky-header">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Ana Səhifə</span>
+        </a>
+        <div class="site-logo">baki-sumqayit.site</div>
+    </header>
+
+    <div class="main-container">
+
+        <main class="game-wrapper" id="game-container">
+            <div id="tetris-game-area" class="relative max-w-[320px] mx-auto text-white">
+
+                <div class="header flex justify-between items-center mb-4">
+                    <h1 class="text-2xl font-bold">Tetris</h1>
+                    <div class="text-right">
+                        <div class="text-xs opacity-70">Xal</div>
+                        <div class="text-xl font-bold text-yellow-400" id="score">0</div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/80 p-1 rounded-lg border border-slate-700 mx-auto w-fit shadow-2xl">
+                    <canvas id="tetris" width="240" height="400" class="block bg-slate-900 rounded"></canvas>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls-grid md:hidden">
+                    <div></div>
+                    <button class="btn-tetra" id="rotateBtn"><i class="fas fa-rotate-right"></i></button>
+                    <div></div>
+                    <button class="btn-tetra" id="leftBtn"><i class="fas fa-arrow-left"></i></button>
+                    <button class="btn-tetra" id="downBtn"><i class="fas fa-arrow-down"></i></button>
+                    <button class="btn-tetra" id="rightBtn"><i class="fas fa-arrow-right"></i></button>
+                </div>
+
+                <div class="hidden md:block text-center mt-4 text-white/50 text-sm">
+                    Yön düymələri ilə oyna. Yuxarı = Fırlat.
+                </div>
+
+                <div class="text-center mt-2 text-white/50 text-xs">
+                    Rekord: <span id="highscore">0</span>
+                </div>
+
+                <!-- Game Over Modal -->
+                <div id="gameOverModal"
+                    class="absolute inset-0 bg-slate-900/95 rounded-xl flex-col items-center justify-center hidden z-20">
+                    <h2 class="text-3xl font-bold text-red-500 mb-2">Oyun Bitdi!</h2>
+                    <p class="text-white text-lg mb-6 text-center px-4">Xalınız: <span id="finalScore"
+                            class="font-bold text-yellow-400">0</span></p>
+                    <button class="btn-restart" onclick="resetGame()">Yenidən Oyna</button>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Other Games Panel -->
+        <section class="other-games-panel">
+            <div class="panel-title">
+                <i class="fas fa-gamepad"></i>
+                Digər Oyunlar
+            </div>
+            <div class="games-scroll-container">
+                <a href="game-2048.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="game-name">2048</div>
+                </a>
+                <a href="game-tictactoe.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-xmarks-lines"></i></div>
+                    <div class="game-name">X-O</div>
+                </a>
+                <a href="game-arkanoid.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-cubes"></i></div>
+                    <div class="game-name">Kərpic</div>
+                </a>
+                <a href="game-snake.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-staff-snake"></i></div>
+                    <div class="game-name">İlan</div>
+                </a>
+                <a href="game-15puzzle.html" class="game-card">
+                    <div class="game-icon"><i class="fa-solid fa-border-all"></i></div>
+                    <div class="game-name">15 Puzzle</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- SEO Content -->
+        <article class="seo-content">
+            <h1>Tetris - Blokları Yerləşdir</h1>
+            <h2>Necə Oynanılır?</h2>
+            <p>Müxtəlif formalı blokları (tetromino) aşağıda boşluq buraxmadan sıralar yaradacaq şəkildə yerləşdirin.
+            </p>
+        </article>
     </div>
 
-    <div class="modal-tetris" id="gameOverModal">
-        <h2>Oyun Bitdi!</h2>
-        <p>Xalınız: <span id="finalScore">0</span></p>
-        <button class="btn-restart-tetris" onclick="resetGame()">Yenidən Oyna</button>
-    </div>
-    </div>
-
-    <div style="margin-top: 10px; font-size: 14px; opacity: 0.7;">
-        PC: Yön düymələri | Mobil: Düymələr
-    </div>
-    </div>
+    <footer>
+        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
+    </footer>
 
     <script>
         const canvas = document.getElementById('tetris');
@@ -86,9 +174,8 @@
         const modal = document.getElementById('gameOverModal');
         const finalScoreElement = document.getElementById('finalScore');
 
-        context.scale(20, 20); // Her kareyi 20px yap
+        context.scale(20, 20); // Scale 20x for blocks
 
-        // Oyun durumu
         let dropCounter = 0;
         let dropInterval = 1000;
         let lastTime = 0;
@@ -96,26 +183,23 @@
         let highScore = localStorage.getItem('tetris_high') || 0;
         highscoreElement.innerText = highScore;
 
-        // Oyun Alanı (12x20)
         const arena = createMatrix(12, 20);
 
-        // Parçalar
         const player = {
             pos: { x: 0, y: 0 },
             matrix: null,
             score: 0,
         };
 
-        // Renkler
         const colors = [
             null,
-            '#FF0D72', // T
-            '#0DC2FF', // O
-            '#0DFF72', // L
-            '#F538FF', // J
-            '#FF8E0D', // I
-            '#FFE138', // S
-            '#3877FF', // Z
+            '#FF0D72',
+            '#0DC2FF',
+            '#0DFF72',
+            '#F538FF',
+            '#FF8E0D',
+            '#FFE138',
+            '#3877FF',
         ];
 
         function createMatrix(w, h) {
@@ -173,7 +257,7 @@
         }
 
         function draw() {
-            context.fillStyle = '#111';
+            context.fillStyle = '#0f172a'; // match Slate-900
             context.fillRect(0, 0, canvas.width, canvas.height);
 
             drawMatrix(arena, { x: 0, y: 0 });
@@ -184,11 +268,10 @@
             matrix.forEach((row, y) => {
                 row.forEach((value, x) => {
                     if (value !== 0) {
-                        // Parça rengi
                         context.fillStyle = colors[value];
                         context.fillRect(x + offset.x, y + offset.y, 1, 1);
 
-                        // Gölge/Efekt (3D hissi için)
+                        // Simple 3D effect border
                         context.lineWidth = 0.05;
                         context.strokeStyle = 'white';
                         context.strokeRect(x + offset.x, y + offset.y, 1, 1);
@@ -266,7 +349,6 @@
             player.pos.y = 0;
             player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
 
-            // Oyun Bitti mi?
             if (collide(arena, player)) {
                 gameOver();
             }
@@ -308,27 +390,34 @@
         }
 
         function gameOver() {
-            modal.style.display = 'flex';
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
             finalScoreElement.innerText = player.score;
             if (player.score > highScore) {
                 highScore = player.score;
                 localStorage.setItem('tetris_high', highScore);
                 highscoreElement.innerText = highScore;
             }
-            // Oyunu durdurmak için matrix'i temizle veya loop'u durdur
-            // Burada basitçe matrix'i sıfırlıyoruz ama modal üstte olduğu için görünmez
-            player.matrix.forEach(row => row.fill(0));
+            // Clear for visual effect or pause?
+            // We just pause update loop via modal check in update
         }
 
         function resetGame() {
             arena.forEach(row => row.fill(0));
             player.score = 0;
             updateScore();
-            modal.style.display = 'none';
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
             playerReset();
         }
 
         function update(time = 0) {
+            // While modal is hidden
+            if (modal.classList.contains('flex')) {
+                requestAnimationFrame(update);
+                return;
+            }
+
             const deltaTime = time - lastTime;
             lastTime = time;
 
@@ -341,43 +430,27 @@
             requestAnimationFrame(update);
         }
 
-        // Klavye Kontrolleri
         document.addEventListener('keydown', event => {
-            // Sadece oyun görünürse ve modal açık değilse
-            if (modal.style.display === 'flex') return;
+            if (!modal.classList.contains('hidden')) return;
 
-            // Ok tuşlarıyla kaydırmayı engellemek için preventDefault gerekebilir
-            // ancak burada basitlik için direk kodları kullanıyoruz.
-            // Eğer sayfa kayıyorsa preventDefault eklenmelidir.
-            if ([37, 38, 39, 40, 81].includes(event.keyCode)) {
-                event.preventDefault();
-            }
-
+            // PC controls
             if (event.keyCode === 37) {
                 playerMove(-1);
             } else if (event.keyCode === 39) {
                 playerMove(1);
             } else if (event.keyCode === 40) {
                 playerDrop();
-            } else if (event.keyCode === 38 || event.keyCode === 81) {
+            } else if (event.keyCode === 38) {
                 playerRotate(1);
             }
         });
 
-        // Mobil Buton Kontrolleri
-        // "Dokunma" (touchstart) olaylarını kullanıyoruz ki gecikme olmasın
+        // Mobile Controls
         function addTouch(id, action) {
             const btn = document.getElementById(id);
             if (btn) {
-                btn.addEventListener('touchstart', (e) => {
-                    e.preventDefault(); // Zoom'u engelle
-                    action();
-                }, { passive: false });
-
-                // PC'de mouse ile tıklama için
-                btn.addEventListener('mousedown', (e) => {
-                    action();
-                });
+                btn.addEventListener('touchstart', (e) => { e.preventDefault(); action(); }, { passive: false });
+                btn.addEventListener('mousedown', (e) => { e.preventDefault(); action(); });
             }
         }
 
@@ -390,167 +463,6 @@
         update();
 
     </script>
-    </main>
-    <!-- Other Games Panel -->
-    <section class="max-w-4xl mx-auto mb-12 animate-fade-in" style="animation-delay: 200ms; padding: 0 20px;">
-        <h2 class="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
-            <i class="fa-solid fa-gamepad text-purple-600 mr-3"></i>
-            Digər Oyunlar
-        </h2>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            <!-- 2048 -->
-            <a href="game-2048.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-layer-group text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-yellow-700 text-sm">2048</span>
-            </a>
-
-            <!-- 15 Puzzle -->
-            <a href="game-15puzzle.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-border-all text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-blue-700 text-sm">15 Puzzle</span>
-            </a>
-
-            <!-- Flappy -->
-            <a href="game-flappy.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-dove text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-sky-700 text-sm">Uçan Top</span>
-            </a>
-
-            <!-- Snake -->
-            <a href="game-snake.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-staff-snake text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-green-700 text-sm">İlan</span>
-            </a>
-
-            <!-- TicTacToe -->
-            <a href="game-tictactoe.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-xmarks-lines text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-red-700 text-sm">X-O</span>
-            </a>
-
-            <!-- Tetris -->
-            <a href="game-tetris.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-shapes text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-indigo-700 text-sm">Tetris</span>
-            </a>
-
-            <!-- Memory -->
-            <a href="game-memory.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-teal-400/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-brain text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-teal-700 text-sm">Yaddaş</span>
-            </a>
-
-            <!-- Math -->
-            <a href="game-math.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-calculator text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-orange-700 text-sm">Riyaziyyat</span>
-            </a>
-
-            <!-- Reflex (ZigZag) -->
-            <a href="game-reflex.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-fuchsia-400/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-bolt text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-fuchsia-700 text-sm">Ziq Zaq</span>
-            </a>
-
-            <!-- Arkanoid -->
-            <a href="game-arkanoid.html"
-                class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center group hover:bg-white transition-all border border-white/60 hover:shadow-lg hover:-translate-y-1 relative overflow-hidden">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-rose-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-                <div
-                    class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                    <i class="fa-solid fa-cubes text-xl"></i>
-                </div>
-                <span class="font-bold text-gray-700 group-hover:text-rose-700 text-sm">Kərpic</span>
-            </a>
-
-        </div>
-    </section>
-    <article class="seo-content">
-        <h1>Tetris - Blokları Yerləşdir, Xalları Qazan</h1>
-        <h2>Necə Oynanılır?</h2>
-        <p>Müxtəlif formalı bloklar yuxarıdan aşağı düşür. Blokları fırladaraq və hərəkət etdirərək aşağıda boşluq
-            buraxmadan sıralar yaradın. Tamamlanan hər üfüqi sıra yox olur və sizə xal qazandırır.</p>
-        <h3>Yüksək Xal Taktikaları:</h3>
-        <ul>
-            <li><strong>Düz Səth Yaradın:</strong> Səthi mümkün qədər düz saxlamağa çalışın.</li>
-            <li><strong>"Tetris" Gözləyin:</strong> Uzun çubuğu (I forması) gözləyib eyni vaxtda 4 sıranı silmək
-                daha çox xal verir.</li>
-            <li><strong>Gələcəyi Görün:</strong> Növbəti gələn fiqura baxaraq plan qurun.</li>
-        </ul>
-        <h2>Qatar Gözləyərkən Niyə Oynanmalı?</h2>
-        <p>Tetris vizual zəkanı və sürətli qərar vermə qabiliyyətini inkişaf etdirir. O qədər axıcıdır ki, qatarın
-            gəldiyini eşitməyə bilərsiniz!</p>
-    </article>
-    </div>
-    <footer>
-        <p>&copy; 2024 baki-sumqayit.site - Bütün hüquqlar qorunur.</p>
-    </footer>
-    </body>
+</body>
 
 </html>
