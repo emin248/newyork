@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bakı-Sumqayıt Müasir Cədvəl | Baki-Sumqayit.site</title>
     <meta name="description" content="Bakı-Sumqayıt qatar cədvəli, bilet qiymətləri və marşrut planlayıcı.">
     <link rel="canonical" href="https://www.baki-sumqayit.site/">
@@ -37,12 +37,7 @@
         gtag('js', new Date());
         gtag('config', 'G-W05T401WMG');
     </script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-W05T401WMG');
-    </script>
+
 
 
     <!-- Favicon Settings -->
@@ -284,7 +279,7 @@
             <form class="space-y-4" onsubmit="searchTrains(event)">
 
                 <div class="relative group">
-                    <label
+                    <label for="routeSelect"
                         class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 mb-1 block">Marşrut</label>
                     <div class="relative">
                         <select id="routeSelect"
@@ -300,7 +295,7 @@
 
                 <div class="flex flex-col sm:flex-row gap-4 relative">
                     <div class="flex-1">
-                        <label
+                        <label for="departure"
                             class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 mb-1 block">Haradan</label>
                         <div class="relative">
                             <div class="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500">
@@ -321,7 +316,7 @@
                     </button>
 
                     <div class="flex-1">
-                        <label
+                        <label for="arrival"
                             class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 mb-1 block">Haraya</label>
                         <div class="relative">
                             <div class="absolute left-4 top-1/2 -translate-y-1/2 text-red-500">
@@ -337,7 +332,8 @@
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 mb-1 block">Tarix /
+                    <label for="dayType"
+                        class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 mb-1 block">Tarix /
                         Gün</label>
                     <div class="relative">
                         <select id="dayType"
