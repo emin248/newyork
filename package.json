@@ -1,5 +1,5 @@
 {
-  "name": "baki-sumqayit.site-main",
+  "name": "nj-transit-schedules",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -7,16 +7,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/emin248/baki-sumqayit.site.git"
+    "url": "git+https://github.com/emin248/nj-rail-schedule.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/emin248/baki-sumqayit.site/issues"
+    "url": "https://github.com/emin248/nj-rail-schedule/issues"
   },
-  "homepage": "https://github.com/emin248/baki-sumqayit.site#readme",
+  "homepage": "https://github.com/emin248/nj-rail-schedule#readme",
   "description": "",
   "dependencies": {
     "@tailwindcss/cli": "^4.1.18",

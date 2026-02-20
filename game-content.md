@@ -19,8 +19,8 @@ Bu faylda hər oyun üçün ayrıca hazırlanmış məqalə şablonları mövcud
 2.  **Sıra İlə Düzün:** Rəqəmləri böyükdən kiçiyə doğru bir sırada yığmağa çalışın ki, zəncirvari reaksiyalar yarada biləsiniz.
 3.  **Yuxarı Gedişdən Qaçın:** Əgər sağ alt küncü hədəfləmisinizsə, yuxarı düyməsini basmaq nizamı poza bilər. Yalnız məcbur qaldıqda istifadə edin.
 
-**Qatar Gözləyərkən Niyə Oynanmalı?**
-Bakı-Sumqayıt qatarını gözləyərkən 2048 oynamaq beyninizi riyazi hesablamalarla məşğul edərək zamanın necə keçdiyini hiss etdirmir. Bu oyun diqqətinizi cəmləməyə kömək edir və zehni yorğunluğu aradan qaldırır.
+**Why Play While Waiting for the Train?**
+Playing 2048 while waiting for your train makes time fly by as you engage your brain with mathematical calculations. This game helps you focus and relieves mental fatigue.
 
 ---
 
@@ -38,8 +38,8 @@ Bu klassik oyunda 15 ədəd nömrələnmiş kvadrat və bir boş xana var.
 2.  **Künc Daşlarına Diqqət:** Son iki sıranı yerləşdirərkən diqqətli olun, bəzən onları fırladaraq yerinə oturtmaq lazım gəlir.
 3.  **Səbilli Olun:** Tələsmək səhv gedişlərə səbəb ola bilər. Hər bir hərəkəti əvvəlcədən planlaşdırın.
 
-**Qatar Gözləyərkən Niyə Oynanmalı?**
-Sürüşdürmə tapmacaları məntiqi təfəkkürü gücləndirir. Qatar gecikirsə və ya platformada gözləyirsinizsə, 15 Puzzle beyninizi aktiv saxlamaq üçün əla vasitədir.
+**Why Play While Waiting for the Train?**
+Sliding puzzles strengthen logical thinking. If your train is delayed or you're waiting on the platform, 15 Puzzle is a great way to keep your brain active.
 
 ---
 

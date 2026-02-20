@@ -4,21 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NJ Transit Schedule 2026 - Live Timetables</title>
+    <title>Trenton to New York Penn Station Train Schedule 2026 - NJ Transit Times</title>
     <meta name="description"
-        content="Official schedule and timetables for NJ Transit rail lines. Plan your trip with live departure times.">
-    <link rel="canonical" href="https://www.nj-rail-schedule.com/">
+        content="NJ Transit Morris & Essex Line Schedule - NY Penn to Newark Broad St. Offline train times for NJIT and Rutgers students. Train schedule to Prudential Center.">
+    <link rel="canonical" href="https://njrail.info/">
 
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="NJ Transit Schedule 2026">
+    <meta property="og:title" content="Trenton to New York Penn Station Train Schedule 2026">
     <meta property="og:description"
-        content="Official schedule and timetables for NJ Transit rail lines. Plan your trip with live departure times.">
-    <meta property="og:image" content="https://www.nj-rail-schedule.com/android-chrome-512x512.png">
-    <meta property="og:url" content="https://www.nj-rail-schedule.com/">
+        content="Official NJ Transit Northeast Corridor schedules and timetables. Real-time departure information and commute planning.">
+    <meta property="og:image" content="https://njrail.info/android-chrome-512x512.png">
+    <meta property="og:url" content="https://njrail.info/">
     <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_US">
 
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
+    <link rel="manifest" href="site.webmanifest">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,6 +35,42 @@
     <!-- Tailwind CSS -->
     <link rel="stylesheet" href="style.css">
 
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "NJ Rail Schedules",
+          "url": "https://njrail.info/",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://njrail.info/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "NJ Rail Schedules",
+          "url": "https://njrail.info/",
+          "logo": "https://njrail.info/android-chrome-512x512.png"
+        }
+    ]
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://njrail.info/"
+      }]
+    }
+    </script>
+
     <style>
         :root {
             --primary: #2563eb;
@@ -37,7 +79,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #f1f5f9;
+            background: #f8fafc;
             color: #0f172a;
             min-height: 100vh;
             display: flex;
@@ -49,9 +91,8 @@
         }
 
         .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
 
@@ -81,6 +122,301 @@
                 transform: translateY(0);
             }
         }
+
+        /* ===== TRAIN CARD SYSTEM ===== */
+        .train-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+
+        .train-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .train-card--next {
+            border: 2px solid #3b82f6 !important;
+        }
+
+        .train-card--passed {
+            opacity: 0.58;
+        }
+
+        /* Top row: headsign pill + status/duration */
+        .train-card__top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px 4px 14px;
+        }
+
+        .train-headsign {
+            display: inline-flex;
+            align-items: center;
+            background: #eff6ff;
+            color: #3b82f6;
+            border: 1px solid #dbeafe;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 20px;
+            max-width: 55%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .train-express-dot {
+            font-size: 9px;
+        }
+
+        .train-card__status-dur {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .train-badge {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            padding: 2px 8px;
+            border-radius: 6px;
+            line-height: 1.6;
+        }
+
+        .train-badge--next {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .train-badge--departed {
+            background: #f1f5f9;
+            color: #94a3b8;
+        }
+
+        .train-duration {
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+
+        /* Times row */
+        .train-card__times {
+            display: flex;
+            align-items: center;
+            padding: 6px 14px 0 14px;
+            gap: 4px;
+        }
+
+        .train-card__endpoint {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .train-card__endpoint--right {
+            text-align: right;
+        }
+
+        .train-time {
+            font-size: 32px;
+            font-weight: 900;
+            color: #0f172a;
+            line-height: 1;
+            letter-spacing: -0.02em;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .train-station {
+            font-size: 10px;
+            font-weight: 500;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .train-card__arrow {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            padding: 0 4px;
+            margin-top: -6px;
+            color: #cbd5e1;
+            gap: 0;
+        }
+
+        .train-arrow-line {
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        /* Urgency pill */
+        .train-urgency-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #2563eb;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 999px;
+        }
+
+        /* Stops count row */
+        .train-card__stops-row {
+            text-align: center;
+            padding: 4px 14px 0 14px;
+            min-height: 20px;
+        }
+
+        .train-stops-badge {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* Footer row with expand button */
+        .train-card__footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 6px 14px 10px 14px;
+            border-top: 1px solid #f8fafc;
+            margin-top: 6px;
+        }
+
+        .train-expand-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            transition: color 0.15s;
+        }
+
+        .train-expand-btn:hover {
+            color: #3b82f6;
+        }
+
+        /* Detail (stop list) */
+        .train-card__detail {
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .train-card__detail.hidden {
+            display: none;
+        }
+
+        .train-stops-list {
+            padding: 12px 14px 14px 28px;
+            position: relative;
+        }
+
+        .train-stops-list::before {
+            content: '';
+            position: absolute;
+            left: 22px;
+            top: 18px;
+            bottom: 18px;
+            width: 1px;
+            background: #e2e8f0;
+        }
+
+        .train-stop {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            padding: 3px 0;
+            position: relative;
+        }
+
+        .train-stop__dot {
+            position: absolute;
+            left: -14px;
+            top: 5px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            border: 2px solid #fff;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .train-stop__dot--blue {
+            background: #3b82f6;
+        }
+
+        .train-stop__dot--gray {
+            background: #94a3b8;
+        }
+
+        .train-stop__dot--amber {
+            background: #f59e0b;
+        }
+
+        .train-stop__name {
+            font-size: 11px;
+            font-weight: 500;
+            color: #475569;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .train-stop--origin .train-stop__name,
+        .train-stop:last-child .train-stop__name {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .train-stop--transfer {
+            background: #fffbeb;
+            border-radius: 6px;
+            padding: 4px 6px;
+            margin: 2px 0;
+        }
+
+        .train-stop--transfer .train-stop__name {
+            color: #92400e;
+            font-weight: 700;
+            font-size: 10px;
+            white-space: normal;
+        }
+
+        .train-stop__time {
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+
+        .train-stop--origin .train-stop__time {
+            color: #3b82f6;
+        }
     </style>
 </head>
 
@@ -93,80 +429,94 @@
             <div class="inline-flex items-center justify-center mb-4 bg-white p-3 rounded-2xl shadow-sm">
                 <i class="fa-solid fa-train-subway text-4xl text-blue-600"></i>
             </div>
-            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">NJ TRANSIT Portal</h1>
-            <p class="text-slate-500 font-medium">Real-time schedules & trip planning</p>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">NJ Transit Train Schedules</h1>
+            <p class="text-slate-500 font-medium">Offline timetables & trip planning</p>
+            <p class="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Schedule Updated: Feb 20,
+                2026
+            </p>
         </header>
 
         <!-- Search Box -->
-        <section class="glass-panel rounded-3xl p-6 mb-8 relative shadow-lg">
+        <section class="bg-white border border-slate-200 rounded-3xl p-6 mb-8 relative shadow-xl z-50">
             <form class="space-y-5" autocomplete="off">
 
-                <!-- Route Selection -->
-                <div>
-                    <label for="routeSelect"
-                        class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 mb-1.5 block">Select
-                        Route</label>
-                    <div class="relative">
-                        <select id="routeSelect"
-                            class="glass-input w-full p-4 pr-10 rounded-xl appearance-none text-slate-700 font-bold cursor-pointer outline-none text-sm shadow-sm"
-                            required>
-                            <option>Loading routes...</option>
-                        </select>
-                        <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Date Selection -->
-                <div>
-                    <label for="dateInput"
-                        class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 mb-1.5 block">Travel
-                        Date</label>
-                    <div class="relative">
-                        <input type="date" id="dateInput"
-                            class="glass-input w-full p-3.5 pl-10 rounded-xl text-slate-700 font-semibold outline-none text-sm shadow-sm">
-                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                            <i class="fa-regular fa-calendar-days"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-4 relative">
+                <!-- Date & Options -->
+                <div class="flex flex-col sm:flex-row gap-4 relative z-0 date-section">
                     <div class="flex-1">
+                        <label for="dateInput"
+                            class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 mb-1.5 block">Travel
+                            Date</label>
+                        <div class="relative">
+                            <input type="date" id="dateInput"
+                                class="glass-input w-full p-3.5 pl-10 rounded-xl text-slate-700 font-semibold outline-none text-sm shadow-sm">
+                            <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                                <i class="fa-regular fa-calendar-days"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Inputs -->
+                <div class="flex flex-col sm:flex-row gap-4 relative">
+                    <div class="flex-1 relative z-[100]">
                         <label for="departure"
                             class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 mb-1.5 block">Origin</label>
                         <div class="relative">
                             <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-500">
                                 <i class="fa-regular fa-circle-dot"></i>
                             </div>
-                            <select id="departure" disabled
-                                class="glass-input w-full p-3.5 pl-10 pr-8 rounded-xl appearance-none text-slate-700 font-semibold cursor-pointer outline-none disabled:bg-slate-50 disabled:text-slate-400 text-sm shadow-sm">
-                                <option value="">Select Route First...</option>
-                            </select>
+                            <input type="text" id="departureInput" placeholder="Where from?" translate="no"
+                                class="glass-input w-full p-3.5 pl-10 pr-4 rounded-xl text-slate-700 font-semibold outline-none text-sm shadow-sm"
+                                autocomplete="off">
+                        </div>
+                        <!-- Suggestions Dropdown -->
+                        <div id="departureSuggestions"
+                            class="absolute w-full bg-white rounded-xl mt-1 shadow-2xl border-2 border-slate-300 max-h-60 overflow-y-auto hidden"
+                            style="z-index: 99999 !important; background-color: #ffffff !important; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04) !important;">
                         </div>
                     </div>
 
-                    <!-- Swap Button (Mobile Fix: Removed 'hidden') -->
-                    <button type="button" id="swapButton" disabled
-                        class="flex absolute left-1/2 top-[47%] -translate-x-1/2 -translate-y-1/2 z-10 w-9 h-9 items-center justify-center rounded-full bg-slate-100 text-slate-300 border border-slate-200 transition-all font-bold shadow-sm"
+                    <!-- Swap Button -->
+                    <button type="button" id="swapButton"
+                        class="flex absolute left-1/2 top-[47%] -translate-x-1/2 -translate-y-1/2 z-10 w-9 h-9 items-center justify-center rounded-full bg-white text-blue-600 border border-slate-100 transition-all font-bold shadow-md hover:scale-110 active:scale-95"
                         title="Swap Stations">
                         <i class="fa-solid fa-arrow-right-arrow-left text-xs"></i>
                     </button>
 
-                    <div class="flex-1">
+                    <div class="flex-1 relative z-[100]">
                         <label for="arrival"
                             class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 mb-1.5 block">Destination</label>
                         <div class="relative">
                             <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-red-500">
                                 <i class="fa-solid fa-location-dot"></i>
                             </div>
-                            <select id="arrival" disabled
-                                class="glass-input w-full p-3.5 pl-10 pr-8 rounded-xl appearance-none text-slate-700 font-semibold cursor-pointer outline-none disabled:bg-slate-50 disabled:text-slate-400 text-sm shadow-sm">
-                                <option value="">Select Route First...</option>
-                            </select>
+                            <input type="text" id="arrivalInput" placeholder="Where to?" translate="no"
+                                class="glass-input w-full p-3.5 pl-10 pr-4 rounded-xl text-slate-700 font-semibold outline-none text-sm shadow-sm"
+                                autocomplete="off">
+                        </div>
+                        <!-- Suggestions Dropdown -->
+                        <div id="arrivalSuggestions"
+                            class="absolute w-full bg-white rounded-xl mt-1 shadow-2xl border-2 border-slate-300 max-h-60 overflow-y-auto hidden"
+                            style="z-index: 99999 !important; background-color: #ffffff !important; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04) !important;">
                         </div>
                     </div>
+                </div>
+
+                <input type="hidden" id="departure" name="departure">
+                <input type="hidden" id="arrival" name="arrival">
+
+                <!-- Connecting Trips Toggle -->
+                <div class="flex items-center justify-between px-1 py-1">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-shuffle text-slate-400 text-xs"></i>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Connecting Trips</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="connectingToggle" class="sr-only peer">
+                        <div
+                            class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600">
+                        </div>
+                    </label>
                 </div>
 
                 <button type="submit" id="searchButton"
@@ -182,24 +532,26 @@
         <div id="message-area" class="mb-6 empty:hidden"></div>
 
         <!-- Results -->
-        <div id="results-container" class="space-y-4 pb-12"></div>
+        <div id="results-container" class="pb-12"></div>
 
     </main>
 
     <!-- Footer with Disclaimer -->
-    <footer class="mt-auto py-8 text-center text-slate-400 text-xs">
-        <div class="max-w-xl mx-auto px-4">
-            <div class="flex flex-wrap justify-center gap-4 mb-4 font-medium">
-                <a href="about.html" class="hover:text-slate-600 transition-colors">About</a>
-                <a href="privacy.html" class="hover:text-slate-600 transition-colors">Privacy Policy</a>
-                <a href="terms.html" class="hover:text-slate-600 transition-colors">Terms of Use</a>
-                <a href="contact.html" class="hover:text-slate-600 transition-colors">Contact</a>
-            </div>
-            <p class="mb-2">
-                <strong>Disclaimer:</strong> Not affiliated with NJ TRANSIT. This is an unofficial guide provided for
-                informational purposes only.
+    <footer class="text-center py-6 sm:py-8 mt-8 sm:mt-12 border-t border-slate-200">
+        <div class="max-w-4xl mx-auto px-4 space-y-2">
+            <p class="text-xs sm:text-sm font-medium text-slate-700">
+                <em>⚠️ Unofficial - Not affiliated with NJ TRANSIT®</em>
             </p>
-            <p>&copy; 2026 NJ Transit Portal. All rights reserved.</p>
+            <div class="flex flex-wrap justify-center gap-3 sm:gap-4 text-slate-500 text-xs">
+                <a href="index.html" class="hover:text-blue-600 transition-colors py-2 px-1">Home</a>
+                <a href="about.html" class="hover:text-blue-600 transition-colors py-2 px-1">About</a>
+                <a href="privacy.html" class="hover:text-blue-600 transition-colors py-2 px-1">Privacy</a>
+                <a href="terms.html" class="hover:text-blue-600 transition-colors py-2 px-1">Terms</a>
+                <a href="contact.html" class="hover:text-blue-600 transition-colors py-2 px-1">Contact</a>
+            </div>
+            <p class="text-slate-500 text-xs leading-relaxed">Schedule data: NJ TRANSIT GTFS</p>
+            <p class="text-slate-400 text-xs">NJ TRANSIT® is a registered trademark</p>
+            <p class="text-slate-400 text-xs">&copy; 2026 njrail.info</p>
         </div>
     </footer>
 
@@ -207,12 +559,13 @@
     <script src="app.js"></script>
 
     <!-- Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W05T401WMG"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R2M3CRR4KH"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-        gtag('config', 'G-W05T401WMG');
+
+        gtag('config', 'G-R2M3CRR4KH');
     </script>
 
 </body>

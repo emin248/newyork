@@ -6,7 +6,7 @@ from collections import defaultdict
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-RAIL_DATA_DIR = os.path.join(BASE_DIR, '..', 'rail_data')
+RAIL_DATA_DIR = os.path.join(BASE_DIR, '..', 'rail_data new')
 DATA_DIR = os.path.join(BASE_DIR, 'data') # New data directory
 ROUTES_DIR = os.path.join(DATA_DIR, 'routes')
 
@@ -38,7 +38,13 @@ def process_data():
 
     # Process Stops
     print("Processing Stops...")
-    stops = {s['stop_id']: s['stop_name'] for s in stops_data}
+    stops = {
+        s['stop_id']: {
+            'name': s['stop_name'],
+            'lat': float(s['stop_lat']) if s['stop_lat'] else None,
+            'lon': float(s['stop_lon']) if s['stop_lon'] else None
+        } for s in stops_data
+    }
 
     # Process Routes Metadata
     print("Processing Routes...")
@@ -110,8 +116,13 @@ def process_data():
         routes_full[route_id][direction_key]['headsign'] = headsign
         routes_full[route_id][direction_key]['trips'].append({
             'dates': active_dates,
-            'stops': stops_list
+            'stops': stops_list,
+            'h': headsign,
+            'n': trip['block_id'] # Train Number
         })
+
+    # Sort routes by name
+    routes_meta.sort(key=lambda x: x['name'])
 
     # Save routes.js (JSONP)
     with open(os.path.join(DATA_DIR, 'routes.js'), 'w', encoding='utf-8') as f:
@@ -126,11 +137,13 @@ def process_data():
         
         relevant_stop_ids = set()
         for d in ['d0', 'd1']:
+            # Sort trips by departure time of the first stop
+            r_data[d]['trips'].sort(key=lambda x: x['stops'][0]['t'] if x['stops'] else '99:99')
             for t in r_data[d]['trips']:
                 for s in t['stops']:
                     relevant_stop_ids.add(s['s'])
         
-        route_stops = {sid: stops.get(sid, sid) for sid in relevant_stop_ids}
+        route_stops = {sid: stops.get(sid, {'name': sid, 'lat': None, 'lon': None}) for sid in relevant_stop_ids}
         
         final_route_obj = {
             'route': r_data,
@@ -147,7 +160,46 @@ def process_data():
             
         saved_count += 1
 
-    print(f"Done. Generated routes.js and {saved_count} route JS files in {DATA_DIR}")
+    print(f"Generated routes.js and {saved_count} route JS files in {DATA_DIR}")
+
+    # --- Generate all_stops.js logic ---
+    print("Generating all_stops.js...")
+    stops_all = {}
+    station_to_routes = defaultdict(list)
+
+    for r_id, r_data in routes_full.items():
+        if not r_data['d0']['trips'] and not r_data['d1']['trips']:
+            continue
+        
+        relevant_stop_ids = set()
+        for d in ['d0', 'd1']:
+            for t in r_data[d]['trips']:
+                for s in t['stops']:
+                    relevant_stop_ids.add(s['s'])
+        
+        for sid in relevant_stop_ids:
+            if sid not in stops_all:
+                stops_all[sid] = stops.get(sid, {'name': sid, 'lat': None, 'lon': None})
+            if r_id not in station_to_routes[sid]:
+                station_to_routes[sid].append(r_id)
+
+    popular_names_upper = [
+        "NEW YORK PENN STATION", "NEWARK PENN STATION", "SECAUCUS JUNCTION",
+        "TRENTON TRANSIT CENTER", "HOBOKEN TERMINAL", "NEWARK BROAD ST",
+        "ATLANTIC CITY", "METROPARK", "PRINCETON JUNCTION", "HAMILTON", "RAHWAY"
+    ]
+
+    for stop_id, stop_info in stops_all.items():
+        stop_info['id'] = stop_id
+        stop_info['popular'] = stop_info.get('name', '').upper() in popular_names_upper
+        stop_info['routes'] = station_to_routes.get(stop_id, [])
+
+    sorted_stops = dict(sorted(stops_all.items(), key=lambda item: item[1].get('name', '')))
+    
+    with open(os.path.join(DATA_DIR, 'all_stops.js'), 'w', encoding='utf-8') as f:
+        f.write('window.loadAllStops(' + json.dumps(sorted_stops) + ');')
+
+    print(f"Done. Generated all_stops.js with {len(sorted_stops)} stops.")
 
 if __name__ == "__main__":
     process_data()

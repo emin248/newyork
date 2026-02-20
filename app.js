@@ -1,43 +1,114 @@
 const App = {
     elements: {
-        routeSelect: document.getElementById('routeSelect'),
-        departureSelect: document.getElementById('departure'),
-        arrivalSelect: document.getElementById('arrival'),
+        departureInput: document.getElementById('departureInput'),
+        arrivalInput: document.getElementById('arrivalInput'),
+        departureHidden: document.getElementById('departure'),
+        arrivalHidden: document.getElementById('arrival'),
+        departureSuggestions: document.getElementById('departureSuggestions'),
+        arrivalSuggestions: document.getElementById('arrivalSuggestions'),
         dateInput: document.getElementById('dateInput'),
         swapButton: document.getElementById('swapButton'),
         resultsContainer: document.getElementById('results-container'),
         messageArea: document.getElementById('message-area'),
-        searchForm: document.querySelector('form')
+        searchForm: document.querySelector('form'),
+        connectingToggle: document.getElementById('connectingToggle')
     },
 
     state: {
-        routes: [],
-        currentRouteData: null,
-        stops: {}
+        allStops: {},
+        allStopsList: [],
+        currentResults: [],
+        searchParams: {},
+        lastLoadedDate: null,
+        routeData: {},
+        isLoading: false,
+        pendingArrivalFilter: false
     },
 
     init() {
-        // Defines global callbacks for JSONP
-        window.loadRoutesData = (data) => this.onRoutesLoaded(data);
+        window.loadAllStops = (data) => this.onAllStopsLoaded(data);
         window.loadRouteDetails = (data) => this.onRouteDetailsLoaded(data);
+        window.toggleStops = (id) => {
+            const el = document.getElementById(id);
+            const btn = document.querySelector(`button[onclick="toggleStops('${id}')"]`);
+            if (!el || !btn) return;
 
-        // Set default date to today (NY Time)
-        const nyNow = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
-        const nyDate = new Date(nyNow);
-        const y = nyDate.getFullYear();
-        const m = String(nyDate.getMonth() + 1).padStart(2, '0');
-        const d = String(nyDate.getDate()).padStart(2, '0');
-        this.elements.dateInput.value = `${y}-${m}-${d}`;
+            const isHidden = el.classList.contains('hidden');
+            if (isHidden) {
+                el.classList.remove('hidden');
+                btn.innerHTML = `Hide stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(180deg)"><path d="M6 9l6 6 6-6"/></svg>`;
+            } else {
+                el.classList.add('hidden');
+                btn.innerHTML = `Show stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>`;
+            }
+        };
 
-        // Event Listeners
-        this.elements.routeSelect.addEventListener('change', (e) => this.handleRouteChange(e.target.value));
-        this.elements.departureSelect.addEventListener('change', () => this.checkSwapState());
-        this.elements.arrivalSelect.addEventListener('change', () => this.checkSwapState());
+        const now = new Date();
+        const nyTime = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'America/New_York',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).format(now);
+        this.elements.dateInput.value = nyTime; // YYYY-MM-DD
+
+        this.setupInputListeners(this.elements.departureInput, this.elements.departureSuggestions, this.elements.departureHidden, 'departure');
+        this.setupInputListeners(this.elements.arrivalInput, this.elements.arrivalSuggestions, this.elements.arrivalHidden, 'arrival');
+
         this.elements.swapButton.addEventListener('click', () => this.swapStations());
+        this.elements.connectingToggle.checked = true; // Enable by default
         this.elements.searchForm.addEventListener('submit', (e) => this.searchTrains(e));
 
-        // Start loading routes
-        this.injectScript('data/routes.js');
+        document.addEventListener('click', (e) => {
+            if (!this.elements.departureInput.contains(e.target)) this.hideSuggestions(this.elements.departureSuggestions);
+            if (!this.elements.arrivalInput.contains(e.target)) this.hideSuggestions(this.elements.arrivalSuggestions);
+        });
+
+        this.injectScript('data/all_stops.js');
+    },
+
+    setupInputListeners(inputEl, suggestionEl, hiddenEl, type) {
+        const trigger = () => {
+            if (type === 'arrival' && !this.elements.departureHidden.value) {
+                this.showMessage("Please select a departure station first.", "info");
+                return;
+            }
+            this.showSuggestions(inputEl, suggestionEl, inputEl.value, type);
+        };
+        inputEl.addEventListener('focus', trigger);
+        inputEl.addEventListener('click', trigger);
+        inputEl.addEventListener('input', (e) => {
+            hiddenEl.value = '';
+            if (type === 'departure') {
+                this.elements.arrivalInput.value = '';
+                this.elements.arrivalHidden.value = '';
+            }
+            this.showSuggestions(inputEl, suggestionEl, e.target.value, type);
+        });
+
+        inputEl.addEventListener('keydown', (e) => {
+            const items = suggestionEl.querySelectorAll('.suggestion-item');
+            let activeIdx = Array.from(items).findIndex(item => item.classList.contains('bg-slate-50'));
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (activeIdx < items.length - 1) {
+                    if (activeIdx !== -1) items[activeIdx].classList.remove('bg-slate-50');
+                    items[activeIdx + 1].classList.add('bg-slate-50');
+                    items[activeIdx + 1].scrollIntoView({ block: 'nearest' });
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (activeIdx > 0) {
+                    items[activeIdx].classList.remove('bg-slate-50');
+                    items[activeIdx - 1].classList.add('bg-slate-50');
+                    items[activeIdx - 1].scrollIntoView({ block: 'nearest' });
+                }
+            } else if (e.key === 'Enter' && activeIdx !== -1) {
+                e.preventDefault();
+                items[activeIdx].click();
+            }
+        });
     },
 
     injectScript(src) {
@@ -45,339 +116,667 @@ const App = {
         script.src = src;
         script.onerror = () => this.showMessage(`Failed to load data from ${src}`, 'error');
         document.body.appendChild(script);
-        // Script will call window.loadRoutesData or window.loadRouteDetails
     },
 
-    onRoutesLoaded(data) {
-        this.state.routes = data;
-        this.populateRoutes();
+    onAllStopsLoaded(data) {
+        this.state.allStops = data;
+        this.state.allStopsList = Object.values(data);
     },
 
     onRouteDetailsLoaded(data) {
-        this.state.currentRouteData = data.route;
-        this.state.stops = data.stops;
+        const routeId = data.route.id;
+        this.state.routeData[routeId] = data;
+        if (this.state.pendingRoutes) this.state.pendingRoutes.delete(routeId);
 
-        // Remove loading state
-        this.elements.routeSelect.parentElement.classList.remove('opacity-50');
-        document.body.style.cursor = 'default';
-
-        // Update UI
-        this.updateStopsDropdowns();
-
-        // Update Theme Colors
-        if (this.state.currentRouteData.color) {
-            document.documentElement.style.setProperty('--primary', this.state.currentRouteData.color);
-        }
-    },
-
-    populateRoutes() {
-        this.elements.routeSelect.innerHTML = '<option value="" disabled selected>Select Route...</option>';
-        this.state.routes.forEach(route => {
-            const option = document.createElement('option');
-            option.value = route.id;
-            option.textContent = route.name;
-            option.style.borderLeft = `5px solid ${route.color}`;
-            this.elements.routeSelect.appendChild(option);
-        });
-    },
-
-    handleRouteChange(routeId) {
-        if (!routeId) return;
-
-        // Visual feedback
-        this.elements.routeSelect.parentElement.classList.add('opacity-50');
-        document.body.style.cursor = 'wait';
-
-        // Clear previous
-        this.state.currentRouteData = null;
-        this.elements.departureSelect.innerHTML = '<option>Loading...</option>';
-        this.elements.arrivalSelect.innerHTML = '<option>Loading...</option>';
-        this.elements.departureSelect.disabled = true;
-        this.elements.arrivalSelect.disabled = true;
-
-        // Inject script for specific route
-        // routeId might have spaces, filenames used underscores
-        const filename = `data/routes/${routeId.replace(/ /g, '_')}.js`;
-        this.injectScript(filename);
-    },
-
-    updateStopsDropdowns() {
-        if (!this.state.currentRouteData) return;
-
-        const route = this.state.currentRouteData;
-        const stopIds = new Set();
-
-        const addStops = (direction) => {
-            if (direction && direction.trips) {
-                direction.trips.forEach(trip => {
-                    trip.stops.forEach(s => stopIds.add(s.s));
-                });
-            }
-        };
-
-        addStops(route.d0);
-        addStops(route.d1);
-
-        const sortedStops = Array.from(stopIds).map(id => ({
-            id: id,
-            name: this.state.stops[id] || id
-        })).sort((a, b) => a.name.localeCompare(b.name));
-
-        this.populateSelect(this.elements.departureSelect, sortedStops, "Select Origin...");
-        this.populateSelect(this.elements.arrivalSelect, sortedStops, "Select Destination...");
-
-        this.elements.departureSelect.disabled = false;
-        this.elements.arrivalSelect.disabled = false;
-        this.checkSwapState();
-    },
-
-    populateSelect(el, items, placeholder) {
-        el.innerHTML = `<option value="" disabled selected hidden>${placeholder}</option>`;
-        items.forEach(item => {
-            const opt = document.createElement('option');
-            opt.value = item.id;
-            opt.textContent = item.name;
-            el.appendChild(opt);
-        });
-    },
-
-    checkSwapState() {
-        const dep = this.elements.departureSelect.value;
-        const arr = this.elements.arrivalSelect.value;
-        this.elements.swapButton.disabled = !(dep && arr && dep !== arr);
-
-        if (!this.elements.swapButton.disabled) {
-            this.elements.swapButton.classList.add('text-blue-600', 'bg-white', 'shadow-md');
-            this.elements.swapButton.classList.remove('text-gray-300', 'bg-gray-100');
+        if (this.state.pendingArrivalFilter) {
+            this.checkAllRoutesForFilterLoaded();
         } else {
-            this.elements.swapButton.classList.remove('text-blue-600', 'bg-white', 'shadow-md');
-            this.elements.swapButton.classList.add('text-gray-300', 'bg-gray-100');
+            this.checkAllRoutesLoaded();
         }
     },
 
-    swapStations() {
-        const temp = this.elements.departureSelect.value;
-        this.elements.departureSelect.value = this.elements.arrivalSelect.value;
-        this.elements.arrivalSelect.value = temp;
-        this.checkSwapState();
+    checkAllRoutesForFilterLoaded() {
+        if (!this.state.pendingRoutes || this.state.pendingRoutes.size > 0) return;
+        this.state.pendingArrivalFilter = false;
+        this.showSuggestions(this.elements.arrivalInput, this.elements.arrivalSuggestions, this.elements.arrivalInput.value, 'arrival');
     },
 
-    searchTrains(e) {
-        e.preventDefault();
-        this.clearResults();
+    showSuggestions(inputEl, suggestionEl, query, type) {
+        let matches = [];
+        const q = query.toLowerCase().trim();
 
-        const route = this.state.currentRouteData;
-        const depId = this.elements.departureSelect.value;
-        const arrId = this.elements.arrivalSelect.value;
+        const depId = this.elements.departureHidden.value;
         const dateRaw = this.elements.dateInput.value;
+
+        if (type === 'arrival' && depId && dateRaw) {
+            const depStop = this.state.allStops[depId];
+            const routesToLoad = depStop.routes.filter(r => !this.state.routeData[r]);
+
+            if (routesToLoad.length > 0) {
+                this.state.pendingArrivalFilter = true;
+                this.state.pendingRoutes = new Set(routesToLoad);
+                routesToLoad.forEach(routeId => {
+                    this.injectScript(`data/routes/${routeId.replace(/ /g, '_')}.js`);
+                });
+                suggestionEl.innerHTML = '<div class="px-4 py-3 text-sm text-slate-500 italic">Loading schedule data...</div>';
+
+                // Safety timeout
+                setTimeout(() => {
+                    if (this.state.pendingArrivalFilter) {
+                        this.state.pendingArrivalFilter = false;
+                        this.hideSuggestions(suggestionEl);
+                    }
+                }, 5000);
+
+                suggestionEl.classList.remove('hidden');
+                return;
+            }
+
+            const reachableIds = this.getReachableStops(depId, dateRaw);
+            if (reachableIds.size === 0) {
+                suggestionEl.innerHTML = '<div class="px-4 py-3 text-sm text-red-500 italic">No trains available from this station on the selected date.</div>';
+                suggestionEl.classList.remove('hidden');
+                return;
+            }
+
+            const currentStops = this.state.allStopsList.filter(s => reachableIds.has(s.id) && s.id !== depId);
+
+            if (q.length === 0) {
+                matches = currentStops.filter(s => s.popular || reachableIds.size < 10);
+                if (matches.length === 0) matches = currentStops.slice(0, 10);
+                this.renderSuggestions(suggestionEl, matches, inputEl, "Available Destinations", type);
+                return;
+            }
+
+            matches = currentStops.map(s => {
+                const name = s.name.toLowerCase();
+                let score = 0;
+                if (name === q) score = 100;
+                else if (name.startsWith(q)) score = 80;
+                else if (name.includes(q)) score = 50;
+                if (s.popular && score > 0) score += 15;
+                return { ...s, score };
+            }).filter(s => s.score > 0)
+                .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+                .slice(0, 10);
+
+            if (matches.length > 0) this.renderSuggestions(suggestionEl, matches, inputEl, "", type);
+            else this.hideSuggestions(suggestionEl);
+            return;
+        }
+
+        if (q.length === 0) {
+            const importance = ["NEW YORK PENN STATION", "NEWARK PENN STATION", "SECAUCUS JUNCTION", "TRENTON TRANSIT CENTER", "HOBOKEN TERMINAL", "NEWARK BROAD ST", "ATLANTIC CITY", "METROPARK", "PRINCETON JUNCTION", "HAMILTON", "RAHWAY"];
+            matches = this.state.allStopsList
+                .filter(s => s.popular)
+                .sort((a, b) => {
+                    const idxA = importance.indexOf(a.name);
+                    const idxB = importance.indexOf(b.name);
+                    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                    if (idxA !== -1) return -1;
+                    if (idxB !== -1) return 1;
+                    return a.name.localeCompare(b.name);
+                });
+
+            if (matches.length > 0) this.renderSuggestions(suggestionEl, matches, inputEl, "Popular Stations", type);
+            else this.hideSuggestions(suggestionEl);
+            return;
+        }
+
+        matches = this.state.allStopsList.map(s => {
+            const name = s.name.toLowerCase();
+            let score = 0;
+            if (name === q) score = 100;
+            else if (name.startsWith(q)) score = 80;
+            else if (name.includes(q)) score = 50;
+            else {
+                let j = 0;
+                for (let i = 0; i < name.length && j < q.length; i++) {
+                    if (name[i] === q[j]) j++;
+                }
+                if (j === q.length) score = 20;
+            }
+            if (s.popular && score > 0) score += 15;
+            return { ...s, score };
+        })
+            .filter(s => s.score > 0)
+            .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+            .slice(0, 10);
+
+        if (matches.length > 0) this.renderSuggestions(suggestionEl, matches, inputEl, "", type);
+        else this.hideSuggestions(suggestionEl);
+    },
+
+    getReachableStops(depId, dateRaw) {
         const dateStr = dateRaw.replace(/-/g, '');
+        const reachableIds = new Set();
+        const depStop = this.state.allStops[depId];
 
-        if (!route || !depId || !arrId || !dateStr) {
-            this.showMessage("Please fill in all fields.");
-            return;
-        }
+        depStop.routes.forEach(routeId => {
+            const data = this.state.routeData[routeId];
+            if (!data) return;
+            const route = data.route;
 
-        if (depId === arrId) {
-            this.showMessage("Origin and Destination must be different.");
-            return;
-        }
+            [route.d0, route.d1].forEach(dir => {
+                if (!dir) return;
+                dir.trips.forEach(trip => {
+                    const depIdx = trip.stops.findIndex(s => s.s === depId);
+                    if (depIdx !== -1) {
+                        const tDepRaw = trip.stops[depIdx].t;
+                        const offset = Math.floor(this.timeToMin(tDepRaw) / 1440);
+                        const serviceDateStr = this.shiftDate(dateStr, -offset);
 
-        // Find applicable trips
-        let applicableTrips = [];
+                        if (trip.dates.includes(serviceDateStr)) {
+                            for (let i = depIdx + 1; i < trip.stops.length; i++) {
+                                reachableIds.add(trip.stops[i].s);
+                            }
+                        }
+                    }
+                });
+            });
+        });
+        return reachableIds;
+    },
 
-        [route.d0, route.d1].forEach(dir => {
-            if (!dir) return;
-            dir.trips.forEach(trip => {
-                if (!trip.dates.includes(dateStr)) return;
+    renderSuggestions(suggestionEl, items, inputEl, title = "", type) {
+        let html = title ? `<div class="px-4 pt-3 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">${title}</div>` : '';
+        items.forEach(item => {
+            const isPopular = item.popular ? '<i class="fa-solid fa-star text-amber-400 text-[10px] ml-1.5"></i>' : '';
+            html += `
+                <div class="suggestion-item px-4 py-3 cursor-pointer hover:bg-slate-50 transition-colors flex items-center justify-between" 
+                     data-id="${item.id}" data-name="${item.name}">
+                    <div class="flex items-center min-w-0">
+                        <i class="fa-solid fa-train-subway text-slate-300 mr-3 text-xs flex-shrink-0"></i>
+                        <span class="text-sm font-semibold text-slate-700 uppercase break-words">${item.name}</span>
+                        ${isPopular}
+                    </div>
+                </div>`;
+        });
+        suggestionEl.innerHTML = html;
+        suggestionEl.classList.remove('hidden');
 
-                const depIdx = trip.stops.findIndex(s => s.s === depId);
-                const arrIdx = trip.stops.findIndex(s => s.s === arrId);
+        suggestionEl.querySelectorAll('.suggestion-item').forEach(el => {
+            el.addEventListener('click', () => {
+                inputEl.value = el.dataset.name;
+                const isDeparture = inputEl.id === 'departureInput';
+                const hiddenEl = isDeparture ? this.elements.departureHidden : this.elements.arrivalHidden;
+                hiddenEl.value = el.dataset.id;
+                this.hideSuggestions(suggestionEl);
 
-                if (depIdx !== -1 && arrIdx !== -1 && depIdx < arrIdx) {
-                    applicableTrips.push({
-                        trip: trip,
-                        depIdx: depIdx,
-                        arrIdx: arrIdx,
-                        headsign: dir.headsign
+                if (isDeparture) {
+                    this.elements.arrivalInput.value = '';
+                    this.elements.arrivalHidden.value = '';
+                    // Pre-load routes for departure
+                    const depStop = this.state.allStops[el.dataset.id];
+                    depStop.routes.forEach(routeId => {
+                        if (!this.state.routeData[routeId]) {
+                            this.injectScript(`data/routes/${routeId.replace(/ /g, '_')}.js`);
+                        }
                     });
                 }
             });
         });
+    },
 
-        if (applicableTrips.length === 0) {
-            this.showMessage("No trains found for this date and route.", "info");
+    hideSuggestions: (el) => {
+        el.classList.add('hidden');
+    },
+
+    swapStations() {
+        const depName = this.elements.departureInput.value;
+        const depId = this.elements.departureHidden.value;
+        this.elements.departureInput.value = this.elements.arrivalInput.value;
+        this.elements.departureHidden.value = this.elements.arrivalHidden.value;
+        this.elements.arrivalInput.value = depName;
+        this.elements.arrivalHidden.value = depId;
+
+        if (this.state.currentResults.length > 0 || this.elements.messageArea.innerHTML.includes('found')) {
+            this.searchTrains(new Event('submit'));
+        }
+    },
+
+    searchTrains(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        const depId = this.elements.departureHidden.value;
+        const arrId = this.elements.arrivalHidden.value;
+        const dateRaw = this.elements.dateInput.value;
+
+        if (!depId || !arrId || !dateRaw) {
+            this.showMessage("Please select valid stations from the list.");
             return;
         }
 
-        // Process results
-        const displayedTrips = applicableTrips.map(item => {
-            const tDep = item.trip.stops[item.depIdx].t;
-            const tArr = item.trip.stops[item.arrIdx].t;
+        this.clearResults();
+        const depStop = this.state.allStops[depId];
+        const arrStop = this.state.allStops[arrId];
+        const commonRoutes = depStop.routes.filter(r => arrStop.routes.includes(r));
 
-            const minDep = this.timeToMin(tDep);
-            const minArr = this.timeToMin(tArr);
-            let duration = minArr - minDep;
-            if (duration < 0) duration += 1440;
+        if (commonRoutes.length === 0) {
+            this.showMessage("No direct train found.", "error");
+            return;
+        }
 
-            const stops = item.trip.stops.slice(item.depIdx + 1, item.arrIdx).map(s => ({
-                name: this.state.stops[s.s],
-                time: s.t
-            }));
+        this.state.pendingRoutes = new Set(commonRoutes);
+        this.state.searchParams = { depId, arrId, dateRaw };
 
-            // Countdown (NY Time)
-            const now = new Date();
-            const nyTimeStr = now.toLocaleString("en-US", { timeZone: "America/New_York", hour12: false });
-            const nyDateObj = new Date(nyTimeStr);
+        commonRoutes.forEach(routeId => {
+            if (this.state.routeData[routeId]) this.state.pendingRoutes.delete(routeId);
+            else this.injectScript(`data/routes/${routeId.replace(/ /g, '_')}.js`);
+        });
 
-            const nyYear = nyDateObj.getFullYear();
-            const nyMonth = String(nyDateObj.getMonth() + 1).padStart(2, '0');
-            const nyDay = String(nyDateObj.getDate()).padStart(2, '0');
-            const nyTodayStr = `${nyYear}-${nyMonth}-${nyDay}`;
-            const nyCurrentMin = nyDateObj.getHours() * 60 + nyDateObj.getMinutes();
-
-            const isToday = dateRaw === nyTodayStr;
-            let countdown = null;
-            let passed = false;
-
-            if (isToday) {
-                if (minDep < nyCurrentMin) {
-                    passed = true;
-                } else {
-                    let diff = minDep - nyCurrentMin;
-                    const h = Math.floor(diff / 60);
-                    const m = diff % 60;
-                    countdown = `${h > 0 ? h + 'h ' : ''}${m}m`;
-                }
-            } else if (dateRaw < nyTodayStr) {
-                passed = true;
-            }
-
-            return {
-                depTime: tDep,
-                arrTime: tArr,
-                from: this.state.stops[depId],
-                to: this.state.stops[arrId],
-                duration: duration,
-                stops: stops,
-                passed: passed,
-                countdown: countdown,
-                minDep: minDep,
-                headsign: item.headsign
-            };
-        }).sort((a, b) => a.minDep - b.minDep);
-
-        this.renderResults(displayedTrips);
+        this.checkAllRoutesLoaded();
     },
 
-    renderResults(trips) {
+    checkAllRoutesLoaded() {
+        if (!this.state.pendingRoutes || this.state.pendingRoutes.size > 0) return;
+        this.processSearch();
+    },
+
+    processSearch(isAppend = false) {
+        const { depId, arrId, dateRaw } = this.state.searchParams;
+        const dateStr = dateRaw.replace(/-/g, '');
+        this.state.lastLoadedDate = dateRaw;
+
+        let directTrips = [];
+        const depStop = this.state.allStops[depId];
+        const arrStop = this.state.allStops[arrId];
+        const commonRoutes = depStop.routes.filter(r => arrStop.routes.includes(r));
+
+        commonRoutes.forEach(routeId => {
+            directTrips = directTrips.concat(this.findTrips(routeId, depId, arrId, dateStr));
+        });
+
+        let connectingTrips = [];
+        if (this.elements.connectingToggle.checked) {
+            connectingTrips = this.findConnectingTrips(depId, arrId, dateStr);
+        }
+
+        let allTrips = [...directTrips, ...connectingTrips];
+
+        // --- Dominance Filter (UX Optimization) ---
+        // A trip A is BETTER than trip B if:
+        // A.dep >= B.dep AND A.arr < B.arr
+        // OR
+        // A.dep > B.dep AND A.arr <= B.arr
+        const filtered = allTrips.filter((tripB, idxB) => {
+            return !allTrips.some((tripA, idxA) => {
+                if (idxA === idxB) return false;
+
+                const depA = tripA.absMinDep;
+                const arrA = tripA.absMinArr;
+                const depB = tripB.absMinDep;
+                const arrB = tripB.absMinArr;
+
+                // Better if starts at same time or later, but arrives earlier
+                const arrivesEarlier = arrA < arrB;
+                const startsLaterOrSame = depA >= depB;
+
+                // Better if starts later, but arrives same time or earlier
+                const arrivesEarlierOrSame = arrA <= arrB;
+                const startsLater = depA > depB;
+
+                if ((startsLaterOrSame && arrivesEarlier) || (startsLater && arrivesEarlierOrSame)) {
+                    return true; // tripB is dominated by tripA
+                }
+
+                // If identical times, prefer Direct over Transfer
+                if (depA === depB && arrA === arrB) {
+                    if (tripA.isTransfer && !tripB.isTransfer) return false;
+                    if (!tripA.isTransfer && tripB.isTransfer) return true;
+                    return idxA < idxB; // Keep first occurrence
+                }
+
+                return false;
+            });
+        });
+
+        // Filter out extreme durations relative to direct trips
+        const minDuration = directTrips.length > 0 ? Math.min(...directTrips.map(t => t.duration)) : 0;
+        const semiFiltered = filtered.filter(t => {
+            if (minDuration > 0 && t.duration > minDuration * 2.5 && t.isTransfer) return false;
+            return true;
+        });
+
+        const sorted = semiFiltered.sort((a, b) => {
+            if (a.passed !== b.passed) return a.passed ? 1 : -1;
+            return a.absMinDep - b.absMinDep || a.absMinArr - b.absMinArr;
+        });
+
+        if (!isAppend) this.state.currentResults = sorted;
+        else this.state.currentResults = this.state.currentResults.concat(sorted);
+
+        if (this.state.currentResults.length === 0) {
+            this.showMessage("No trips found for this date.", "info");
+        } else {
+            this.renderResults(isAppend);
+        }
+    },
+
+    findTrips(routeId, fromId, toId, dateStr) {
+        const data = this.state.routeData[routeId];
+        if (!data) return [];
+        const route = data.route;
+        const results = [];
+
+        [route.d0, route.d1].forEach(dir => {
+            if (!dir) return;
+            dir.trips.forEach(trip => {
+                const depIdx = trip.stops.findIndex(s => s.s === fromId);
+                const arrIdx = trip.stops.findIndex(s => s.s === toId);
+
+                if (depIdx !== -1 && arrIdx !== -1 && depIdx < arrIdx) {
+                    const tDepRaw = trip.stops[depIdx].t;
+                    const tArrRaw = trip.stops[arrIdx].t;
+                    const offset = Math.floor(this.timeToMin(tDepRaw) / 1440);
+                    const serviceDateStr = this.shiftDate(dateStr, -offset);
+
+                    if (trip.dates.includes(serviceDateStr)) {
+                        const now = new Date();
+                        const searchDateRaw = this.state.searchParams.dateRaw;
+                        const nyCurrentDate = new Intl.DateTimeFormat('en-CA', {
+                            timeZone: 'America/New_York',
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                        }).format(now);
+                        const isToday = searchDateRaw === nyCurrentDate;
+
+                        const nyDateLocal = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+                        const nyCurrentMin = nyDateLocal.getHours() * 60 + nyDateLocal.getMinutes();
+
+                        results.push({
+                            depTime: this.normalizeTime(tDepRaw),
+                            arrTime: this.normalizeTime(tArrRaw),
+                            absMinDep: this.timeToMin(tDepRaw),
+                            absMinArr: this.timeToMin(tArrRaw),
+                            from: data.stops[fromId]?.name || fromId,
+                            to: data.stops[toId]?.name || toId,
+                            headsign: trip.h || dir.headsign, // Use trip-specific headsign if available
+                            routeColor: route.color || '#2563eb',
+                            duration: this.timeToMin(tArrRaw) - this.timeToMin(tDepRaw),
+                            trainNumber: trip.n || '', // Added train number
+                            passed: isToday && this.timeToMin(tDepRaw) < nyCurrentMin,
+                            stops: trip.stops.slice(depIdx + 1, arrIdx).map(s => ({
+                                id: s.s,
+                                name: data.stops[s.s]?.name || s.s,
+                                time: this.normalizeTime(s.t)
+                            })),
+                            fullStopIds: trip.stops.map(s => s.s) // For backtracking check
+                        });
+                    }
+                }
+            });
+        });
+        return results;
+    },
+
+    findConnectingTrips(fromId, toId, dateStr) {
+        const depStop = this.state.allStops[fromId];
+        const arrStop = this.state.allStops[toId];
+        const results = [];
+
+        depStop.routes.forEach(r1Id => {
+            const r1Data = this.state.routeData[r1Id];
+            if (!r1Data) return;
+
+            arrStop.routes.forEach(r2Id => {
+                const r2Data = this.state.routeData[r2Id];
+                if (!r2Data) return;
+
+                // Find intersection stops
+                const r1Stops = Object.keys(r1Data.stops);
+                const r2Stops = Object.keys(r2Data.stops);
+                const intersection = r1Stops.filter(sId => r2Stops.includes(sId));
+
+                intersection.forEach(xId => {
+                    if (xId === fromId || xId === toId) return; // Intersection can't be start or end
+
+                    const leg1 = this.findTrips(r1Id, fromId, xId, dateStr);
+                    const leg2 = this.findTrips(r2Id, xId, toId, dateStr);
+
+                    leg1.forEach(t1 => {
+                        leg2.forEach(t2 => {
+                            const waitTime = t2.absMinDep - t1.absMinArr;
+                            if (waitTime >= 4 && waitTime <= 45) { // Max 45 mins wait for better UX
+
+                                // --- Backtracking Prevention ---
+                                // If Leg 1 already contains the final destination, it's a backtrack.
+                                // If Leg 2 contains the origin, it's a backtrack.
+                                if (t1.fullStopIds.includes(toId)) return;
+                                if (t2.fullStopIds.includes(fromId)) return;
+
+                                results.push({
+                                    isTransfer: true,
+                                    transferStation: r1Data.stops[xId]?.name || xId,
+                                    waitTime,
+                                    leg1: t1,
+                                    leg2: t2,
+                                    depTime: t1.depTime,
+                                    arrTime: t2.arrTime,
+                                    absMinDep: t1.absMinDep,
+                                    absMinArr: t2.absMinArr,
+                                    duration: t2.absMinArr - t1.absMinDep,
+                                    passed: t1.passed,
+                                    from: t1.from,
+                                    to: t2.to
+                                });
+                            }
+                        });
+                    });
+                });
+            });
+        });
+
+        // Deduplicate and filter best options
+        const bestOnly = [];
+        const seen = new Set();
+        results.sort((a, b) => a.duration - b.duration).forEach(r => {
+            const key = `${r.depTime}-${r.arrTime}`;
+            if (!seen.has(key)) {
+                bestOnly.push(r);
+                seen.add(key);
+            }
+        });
+
+        return bestOnly;
+    },
+
+    renderResults(isAppend = false) {
         let html = '';
         let nextFound = false;
 
-        trips.forEach((t, idx) => {
+        // Compute NY current time once
+        const _now = new Date();
+        const _nyLocal = new Date(_now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+        const _nyMin = _nyLocal.getHours() * 60 + _nyLocal.getMinutes();
+        const _nyDate = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit'
+        }).format(_now);
+        const _isToday = this.state.searchParams.dateRaw === _nyDate;
+
+        // Express band
+        const avgDur = this.state.currentResults.reduce((s, r) => s + r.duration, 0) / (this.state.currentResults.length || 1);
+
+        this.state.currentResults.forEach((t, idx) => {
             const isNext = !t.passed && !nextFound;
             if (isNext) nextFound = true;
 
-            const opacity = t.passed ? 'opacity-50 grayscale' : 'opacity-100';
-            const ring = isNext ? 'ring-2 ring-blue-500 ring-offset-2' : '';
+            const cardId = `stops-${idx}`;
+            const isExpress = t.duration < avgDur * 0.9;
 
-            let badge = '';
-            if (isNext) badge = `<span class="absolute top-0 right-0 bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-sm">NEXT</span>`;
-            else if (t.passed) badge = `<span class="absolute top-0 right-0 bg-gray-200 text-gray-500 text-[10px] font-bold px-3 py-1 rounded-bl-lg">DEPARTED</span>`;
+            // Duration label: "42m" if <60min, else "1h 12m"
+            const dur = t.duration;
+            const durLabel = dur < 60 ? `${dur}m` : `${Math.floor(dur / 60)}h ${dur % 60}m`;
 
-            const stopsHtml = t.stops.length ? `
-                <div class="mt-4 pt-3 border-t border-dashed border-gray-100 hidden group-focus-within:block transition-all">
-                    <p class="text-[10px] uppercase text-gray-400 font-bold mb-2 tracking-wider">Intermediate Stops</p>
-                    <div class="pl-3 border-l-2 border-gray-200 space-y-2">
-                        ${t.stops.map(s => `
-                            <div class="flex justify-between text-xs">
-                                <span class="text-gray-600">${s.name}</span>
-                                <span class="font-mono font-medium text-gray-900">${s.time}</span>
+            // Minutes until departure (for today only)
+            let minsUntil = null;
+            if (_isToday && !t.passed) {
+                minsUntil = t.absMinDep - _nyMin;
+                if (minsUntil < 0 || minsUntil > 180) minsUntil = null;
+            }
+
+            // Urgency pill: ≤20 min away
+            const urgencyPill = (minsUntil !== null && minsUntil <= 20)
+                ? `<div class="flex justify-center mt-3 mb-1">
+                    <span class="train-urgency-pill">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline-block" style="vertical-align:-1px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        ${minsUntil}m left
+                    </span>
+                   </div>` : '';
+
+            if (t.isTransfer) {
+                const totalStops = (t.leg1.stops?.length || 0) + (t.leg2.stops?.length || 0);
+                const leg1Html = this.renderStopsList(t.leg1.stops);
+                const leg2Html = this.renderStopsList(t.leg2.stops);
+
+                const xfDur = t.duration;
+                const xfDurLabel = xfDur < 60 ? `${xfDur}m` : `${Math.floor(xfDur / 60)}h ${xfDur % 60}m`;
+
+                html += `
+                <div class="train-card ${isNext ? 'train-card--next' : ''} ${t.passed ? 'train-card--passed' : ''}"
+                     ${isNext ? 'id="next-train"' : ''} tabindex="0">
+                    <!-- Top row -->
+                    <div class="train-card__top">
+                        <span class="train-headsign">
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg>Via ${t.transferStation}
+                        </span>
+                        <div class="train-card__status-dur">
+                            ${t.passed ? '<span class="train-badge train-badge--departed">DEPARTED</span>' : isNext ? '<span class="train-badge train-badge--next">NEXT</span>' : ''}
+                            <span class="train-duration"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-1px;margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${xfDurLabel}</span>
+                        </div>
+                    </div>
+                    <!-- Times -->
+                    <div class="train-card__times">
+                        <div class="train-card__endpoint">
+                            <div class="train-time">${t.depTime}</div>
+                            <div class="train-station" translate="no">${t.from}</div>
+                        </div>
+                        <div class="train-card__arrow">
+                            <div class="train-arrow-line"></div>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </div>
+                        <div class="train-card__endpoint train-card__endpoint--right">
+                            <div class="train-time">${t.arrTime}</div>
+                            <div class="train-station" translate="no">${t.to}</div>
+                        </div>
+                    </div>
+                    ${urgencyPill}
+                    <!-- Stops count -->
+                    <div class="train-card__stops-row">
+                        <span class="train-stops-badge">+${totalStops} stops · ${t.waitTime}m transfer wait</span>
+                    </div>
+                    <!-- Expand -->
+                    <div class="train-card__footer">
+                        <button onclick="toggleStops('${cardId}')" class="train-expand-btn">
+                            Show stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                    </div>
+                    <!-- Detail -->
+                    <div id="${cardId}" class="train-card__detail hidden">
+                        <div class="train-stops-list">
+                            <div class="train-stop train-stop--origin"><span class="train-stop__dot train-stop__dot--blue"></span><span class="train-stop__name" translate="no">${t.from}</span><span class="train-stop__time">${t.depTime}</span></div>
+                            ${leg1Html}
+                            <div class="train-stop train-stop--transfer"><span class="train-stop__dot train-stop__dot--amber"></span><span class="train-stop__name" translate="no">Transfer at ${t.transferStation} (arr ${t.leg1.arrTime} → dep ${t.leg2.depTime})</span><span class="train-stop__time">${t.waitTime}m wait</span></div>
+                            ${leg2Html}
+                            <div class="train-stop"><span class="train-stop__dot train-stop__dot--gray"></span><span class="train-stop__name" translate="no">${t.to}</span><span class="train-stop__time">${t.arrTime}</span></div>
+                        </div>
+                    </div>
+                </div>`;
+            } else {
+                const stopsCount = t.stops.length;
+                const stopsHtml = this.renderStopsList(t.stops);
+
+                html += `
+                <div class="train-card ${isNext ? 'train-card--next' : ''} ${t.passed ? 'train-card--passed' : ''}"
+                     ${isNext ? 'id="next-train"' : ''} tabindex="0">
+                    <!-- Top row: headsign + status/duration -->
+                    <div class="train-card__top">
+                        <span class="train-headsign">
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg>${t.headsign}${isExpress ? ' <span class="train-express-dot">⚡</span>' : ''}
+                        </span>
+                        <div class="train-card__status-dur">
+                            ${t.passed ? '<span class="train-badge train-badge--departed">DEPARTED</span>' : isNext ? '<span class="train-badge train-badge--next">NEXT</span>' : ''}
+                            <span class="train-duration"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-1px;margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${durLabel}</span>
+                        </div>
+                    </div>
+                    <!-- Times row -->
+                    <div class="train-card__times">
+                        <div class="train-card__endpoint">
+                            <div class="train-time">${t.depTime}</div>
+                            <div class="train-station" translate="no">${t.from}</div>
+                        </div>
+                        <div class="train-card__arrow">
+                            <div class="train-arrow-line"></div>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </div>
+                        <div class="train-card__endpoint train-card__endpoint--right">
+                            <div class="train-time">${t.arrTime}</div>
+                            <div class="train-station" translate="no">${t.to}</div>
+                        </div>
+                    </div>
+                    ${urgencyPill}
+                    <!-- Stops count -->
+                    ${stopsCount > 0 ? `<div class="train-card__stops-row"><span class="train-stops-badge">+${stopsCount} stops</span></div>` : '<div class="train-card__stops-row"></div>'}
+                    <!-- Expand button -->
+                    <div class="train-card__footer">
+                        <button onclick="toggleStops('${cardId}')" class="train-expand-btn">
+                            Show stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                    </div>
+                    <!-- Stop list (hidden) -->
+                    <div id="${cardId}" class="train-card__detail hidden">
+                        <div class="train-stops-list">
+                            <div class="train-stop train-stop--origin">
+                                <span class="train-stop__dot train-stop__dot--blue"></span>
+                                <span class="train-stop__name" translate="no">${t.from}</span>
+                                <span class="train-stop__time">${t.depTime}</span>
                             </div>
-                        `).join('')}
-                    </div>
-                </div>
-            ` : '';
-
-            const durH = Math.floor(t.duration / 60);
-            const durM = t.duration % 60;
-            const durText = `${durH > 0 ? durH + 'h ' : ''}${durM}m`;
-
-            html += `
-            <div class="ticket-card bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 relative group mb-4 ${opacity} ${ring}" tabindex="0">
-                ${badge}
-                <div class="p-5">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
-                            ${t.headsign || 'Train'}
-                        </span>
-                        <div class="flex items-center text-xs text-gray-400 font-medium">
-                            <i class="fa-regular fa-clock mr-1"></i> ${durText}
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="text-left w-1/3">
-                            <div class="text-2xl font-black text-gray-800 leading-none">${t.depTime}</div>
-                            <div class="text-[10px] font-bold text-gray-400 mt-1 truncate" title="${t.from}">${t.from}</div>
-                        </div>
-
-                        <div class="flex-1 flex flex-col items-center justify-center">
-                            <div class="w-full h-0.5 bg-gray-200 relative">
-                                <div class="absolute w-1.5 h-1.5 bg-gray-300 rounded-full left-0 -top-0.5"></div>
-                                <div class="absolute w-1.5 h-1.5 bg-gray-300 rounded-full right-0 -top-0.5"></div>
-                                <div class="absolute left-1/2 -top-2 bg-white px-1">
-                                    <i class="fa-solid fa-angle-right text-gray-300 text-xs"></i>
-                                </div>
+                            ${stopsHtml}
+                            <div class="train-stop">
+                                <span class="train-stop__dot train-stop__dot--gray"></span>
+                                <span class="train-stop__name" translate="no">${t.to}</span>
+                                <span class="train-stop__time">${t.arrTime}</span>
                             </div>
                         </div>
-
-                        <div class="text-right w-1/3">
-                            <div class="text-2xl font-black text-gray-800 leading-none">${t.arrTime}</div>
-                            <div class="text-[10px] font-bold text-gray-400 mt-1 truncate" title="${t.to}">${t.to}</div>
-                        </div>
                     </div>
-
-                    ${t.countdown ? `
-                    <div class="mt-4 flex justify-center">
-                        <span class="inline-flex items-center bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 rounded-full text-xs font-bold">
-                            <i class="fa-solid fa-hourglass-start mr-1.5 ${isNext ? 'animate-pulse' : ''}"></i> ${t.countdown} left
-                        </span>
-                    </div>` : ''}
-
-                    ${stopsHtml}
-                    ${t.stops.length ? `
-                    <div class="mt-3 text-center group-focus-within:hidden">
-                        <span class="text-[10px] text-gray-400 font-semibold border-b border-dashed border-gray-300">
-                             +${t.stops.length} stops
-                        </span>
-                    </div>
-                    ` : ''}
-                </div>
-            </div>
-            `;
+                </div>`;
+            }
         });
 
         this.elements.resultsContainer.innerHTML = html;
-        this.elements.resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        const nextTrainEl = document.getElementById('next-train');
+        if (nextTrainEl) {
+            nextTrainEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (!isAppend) {
+            this.elements.resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     },
 
-    clearResults() {
-        this.elements.resultsContainer.innerHTML = '';
-        this.elements.messageArea.innerHTML = '';
-    },
-
-    showMessage(msg, type = 'error') {
-        const bg = type === 'error' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600';
-        this.elements.messageArea.innerHTML = `
-            <div class="p-4 rounded-xl ${bg} font-medium text-sm text-center animate-fade-in">
-                ${msg}
+    renderStopsList(stops) {
+        if (!stops || stops.length === 0) return '';
+        return stops.map(s => `
+            <div class="train-stop">
+                <span class="train-stop__dot"></span>
+                <span class="train-stop__name" translate="no">${s.name}</span>
+                <span class="train-stop__time">${s.time}</span>
             </div>
-        `;
+        `).join('');
     },
 
-    timeToMin(t) {
-        const [h, m] = t.split(':').map(Number);
-        return h * 60 + m;
+
+
+    clearResults: function () { this.elements.resultsContainer.innerHTML = ''; this.elements.messageArea.innerHTML = ''; },
+    showMessage: function (msg, type = 'error') {
+        const bg = type === 'error' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600';
+        this.elements.messageArea.innerHTML = `<div class="p-4 rounded-xl ${bg} font-medium text-sm text-center animate-fade-in">${msg}</div>`;
+    },
+    timeToMin: (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; },
+    normalizeTime: (t) => { const [h, m] = t.split(':').map(Number); return `${String(h % 24).padStart(2, '0')}:${String(m).padStart(2, '0')}`; },
+    shiftDate: (dateStr, offset) => {
+        const dt = new Date(parseInt(dateStr.substring(0, 4)), parseInt(dateStr.substring(4, 6)) - 1, parseInt(dateStr.substring(6, 8)));
+        dt.setDate(dt.getDate() + offset);
+        return `${dt.getFullYear()}${String(dt.getMonth() + 1).padStart(2, '0')}${String(dt.getDate()).padStart(2, '0')}`;
     }
 };
 
