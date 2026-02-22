@@ -610,19 +610,33 @@ const App = {
 
             // Minutes until departure (for today only)
             let minsUntil = null;
+            let countdownLabel = '';
             if (_isToday && !t.passed) {
                 minsUntil = t.absMinDep - _nyMin;
-                if (minsUntil < 0 || minsUntil > 180) minsUntil = null;
+                if (minsUntil >= 0) {
+                    if (minsUntil < 60) {
+                        countdownLabel = `${minsUntil}m left`;
+                    } else {
+                        const h = Math.floor(minsUntil / 60);
+                        const m = minsUntil % 60;
+                        countdownLabel = `${h}h ${m}m left`;
+                    }
+                }
             }
 
-            // Urgency pill: ≤20 min away
-            const urgencyPill = (minsUntil !== null && minsUntil <= 20)
-                ? `<div class="flex justify-center mt-3 mb-1">
-                    <span class="train-urgency-pill">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline-block" style="vertical-align:-1px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        ${minsUntil}m left
-                    </span>
-                   </div>` : '';
+            // Urgency pill: Conditional styling based on time remaining
+            let urgencyPill = '';
+            if (countdownLabel) {
+                const isUrgent = minsUntil <= 20;
+                const pillClass = isUrgent ? 'train-urgency-pill' : 'train-urgency-pill !bg-slate-100 !border-slate-200 !text-slate-600';
+                urgencyPill = `
+                    <div class="flex justify-center mt-3 mb-1">
+                        <span class="${pillClass}">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline-block" style="vertical-align:-1px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            ${countdownLabel}
+                        </span>
+                    </div>`;
+            }
 
             if (t.isTransfer) {
                 const totalStops = (t.leg1.stops?.length || 0) + (t.leg2.stops?.length || 0);
