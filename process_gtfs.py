@@ -6,7 +6,7 @@ from collections import defaultdict
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-RAIL_DATA_DIR = os.path.join(BASE_DIR, '..', 'rail_data new')
+RAIL_DATA_DIR = os.path.join(BASE_DIR, '..', 'rail_data')
 DATA_DIR = os.path.join(BASE_DIR, 'data') # New data directory
 ROUTES_DIR = os.path.join(DATA_DIR, 'routes')
 
