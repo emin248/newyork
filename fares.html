@@ -81,41 +81,151 @@
     </div>
 
     <main class="max-w-4xl mx-auto px-4 py-8 relative -mt-16">
-        <div class="glass-panel p-8 rounded-3xl text-center space-y-6 animate-fade-in">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full text-blue-600 mb-2">
-                <i class="fa-solid fa-clock-rotate-left text-4xl"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-slate-800">Fare Information Coming Soon</h2>
-            <p class="text-slate-600 leading-relaxed text-lg">
-                We are currently updating our database with the latest NJ Transit fare information and ticket prices.
-                Please check back soon for detailed distance and pricing tables.
+        <!-- Main Info -->
+        <div class="glass-panel p-8 rounded-3xl text-center mb-8 animate-fade-in">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4">How Much Does a Ticket Cost?</h2>
+            <p class="text-slate-600 leading-relaxed max-w-2xl mx-auto">
+                NJ TRANSIT® fares are based on the distance between your origin and destination stations. Prices vary for adult, child, senior/disabled, and student tickets.
             </p>
-            <div class="pt-6">
-                <a href="index.html"
-                    class="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg active:scale-95">
-                    Back to Schedules
-                </a>
+        </div>
+
+        <!-- Fare Comparison Table -->
+        <section class="grid md:grid-cols-2 gap-8 mb-12">
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-blue-500 text-sm"></i> Savings Calculator
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">One-Way Fare Estimate ($)</label>
+                        <input type="number" id="baseFare" value="10.00" step="0.25"
+                               class="w-full p-3 rounded-xl border border-slate-200 font-bold text-slate-700 outline-none focus:border-blue-500 transition-all">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Monthly (20 days)</span>
+                            <span id="monthlyEstimate" class="text-xl font-extrabold text-slate-900">$---</span>
+                            <span class="text-[10px] text-green-600 font-bold block mt-1">~35% Savings</span>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Weekly (5 days)</span>
+                            <span id="weeklyEstimate" class="text-xl font-extrabold text-slate-900">$---</span>
+                            <span class="text-[10px] text-green-600 font-bold block mt-1">~20% Savings</span>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 italic mt-4">
+                        *Estimates based on standard NJ TRANSIT discount patterns. Monthly passes are usually cost-effective if you commute more than 14 days/month.
+                    </p>
+                </div>
             </div>
+
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-plane text-sky-500 text-sm"></i> Airport Surcharge
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-sky-50 rounded-xl border border-sky-100">
+                        <span class="text-sm font-semibold text-slate-700">Newark Airport (EWR)</span>
+                        <span class="text-sm font-bold text-sky-700">+$8.25</span>
+                    </div>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        A "Gate Fee" is automatically added to all tickets ending or starting at Newark Liberty International Airport Station. This fee covers the AirTrain connection.
+                    </p>
+                    <div class="mt-4 p-4 border-l-4 border-amber-400 bg-amber-50 rounded-r-xl">
+                        <span class="text-xs font-bold text-amber-800 uppercase block mb-1">Transfer Note</span>
+                        <p class="text-xs text-amber-700">
+                            If transferring at Secaucus Junction, ensure your ticket states "Via Secaucus" to avoid fare disputes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ticket Types -->
+        <section class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-12">
+            <div class="p-6 border-b border-slate-100">
+                <h3 class="text-lg font-bold text-slate-900">Popular Ticket Types</h3>
+            </div>
+            <div class="divide-y divide-slate-50">
+                <div class="p-4 flex gap-4">
+                    <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-ticket text-slate-500 text-sm"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800">One-Way</h4>
+                        <p class="text-xs text-slate-500">Valid for a single continuous trip between specified stations. Non-refundable.</p>
+                    </div>
+                </div>
+                <div class="p-4 flex gap-4">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-calendar-days text-blue-500 text-sm"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800">Monthly Pass</h4>
+                        <p class="text-xs text-slate-500">Unlimited travel for a calendar month. Best for daily commuters.</p>
+                    </div>
+                </div>
+                <div class="p-4 flex gap-4">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-users text-green-500 text-sm"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800">Senior/Reduced</h4>
+                        <p class="text-xs text-slate-500">Available for ages 62+, disabled riders, and military personnel. Usually 50% off.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="text-center">
+            <p class="text-[11px] text-slate-400 max-w-md mx-auto mb-6">
+                Official fares may change. Always verify prices on the NJ TRANSIT® website or mobile app before purchase.
+            </p>
+            <a href="https://www.njtransit.com/train-to" target="_blank" rel="noopener"
+                class="inline-flex items-center text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                Verify on Official Site <i class="fa-solid fa-up-right-from-square ml-2 text-xs"></i>
+            </a>
         </div>
     </main>
 
     <footer class="text-center py-6 sm:py-8 mt-8 sm:mt-12 border-t border-slate-200">
         <div class="max-w-4xl mx-auto px-4 space-y-2">
             <p class="text-xs sm:text-sm font-medium text-slate-700">
-                <em>⚠️ Unofficial - Not affiliated with NJ TRANSIT®</em>
+                <em>Independent commuter tool · Powered by NJ TRANSIT® GTFS data</em>
             </p>
             <div class="flex flex-wrap justify-center gap-3 sm:gap-4 text-slate-500 text-xs">
                 <a href="index.html" class="hover:text-blue-600 transition-colors py-2 px-1">Home</a>
+                <a href="fares.html" class="hover:text-blue-600 transition-colors py-2 px-1 text-blue-600 font-bold">Fares</a>
                 <a href="about.html" class="hover:text-blue-600 transition-colors py-2 px-1">About</a>
                 <a href="privacy.html" class="hover:text-blue-600 transition-colors py-2 px-1">Privacy</a>
                 <a href="terms.html" class="hover:text-blue-600 transition-colors py-2 px-1">Terms</a>
                 <a href="contact.html" class="hover:text-blue-600 transition-colors py-2 px-1">Contact</a>
             </div>
-            <p class="text-slate-500 text-xs leading-relaxed">Schedule data: NJ TRANSIT GTFS</p>
-            <p class="text-slate-400 text-xs">NJ TRANSIT® is a registered trademark</p>
+            <p class="text-slate-500 text-xs leading-relaxed">Schedule data: Updated daily from public GTFS</p>
+            <p class="text-slate-400 text-xs">NJ TRANSIT® is a registered trademark of New Jersey Transit Corporation.</p>
             <p class="text-slate-400 text-xs">&copy; 2026 njrail.info</p>
         </div>
     </footer>
+
+    <script>
+        const baseFareInput = document.getElementById('baseFare');
+        const monthlyEst = document.getElementById('monthlyEstimate');
+        const weeklyEst = document.getElementById('weeklyEstimate');
+
+        function updateEstimates() {
+            const fare = parseFloat(baseFareInput.value) || 0;
+            // Monthly pass is typically ~13-14 days worth of round trips (20% to 35% savings)
+            // Estimation formula: RoundTrip * 20 * 0.65
+            const monthly = (fare * 2 * 20) * 0.65;
+            const weekly = (fare * 2 * 5) * 0.82;
+            
+            monthlyEst.innerText = `$${monthly.toFixed(2)}`;
+            weeklyEst.innerText = `$${weekly.toFixed(2)}`;
+        }
+
+        baseFareInput.addEventListener('input', updateEstimates);
+        updateEstimates();
+    </script>
 
 
     <!-- Analytics -->

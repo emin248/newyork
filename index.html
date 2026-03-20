@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NJ Transit Train Schedules & Real-Time Alerts | NJ Rail</title>
+    <title>NJ Rail — Fastest NJ TRANSIT Train Schedules</title>
     <meta name="description"
-        content="Real-time NJ Transit train schedules, arrival times, and platform alerts. Plan your commute across New Jersey with accuracy. Get offline timetables and more.">
+        content="The fastest, simplest way to check NJ TRANSIT train schedules. Offline-friendly, real-time alerts, and commuter-focused trip planning.">
     <link rel="canonical" href="https://njrail.info/">
     <meta name="google-site-verification" content="NCfkgtwzmUmbnPrYZr_k2SZzNTT5fxIeBuiUbHgaFMQ" />
 
@@ -432,14 +432,22 @@
             <div class="inline-flex items-center justify-center mb-4 bg-white p-3 rounded-2xl shadow-sm">
                 <i class="fa-solid fa-train-subway text-4xl text-blue-600"></i>
             </div>
-            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Welcome to NJ Rail Information</h1>
-            <p class="text-slate-500 font-medium">Offline timetables & trip planning</p>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">NJ Rail</h1>
+            <p class="text-slate-500 font-medium">Fastest way to check NJ TRANSIT times</p>
             <p class="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Schedule Updated: Mar 10,
                 2026</p>
         </header>
 
+        <!-- Saved Routes -->
+        <div id="saved-routes-container" class="mb-6 hidden">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 mb-3">Your Saved Commutes</h2>
+            <div id="saved-routes-list" class="flex flex-wrap gap-2">
+                <!-- Saved items will appear here -->
+            </div>
+        </div>
+
         <!-- Search Box -->
-        <section class="bg-white border border-slate-200 rounded-3xl p-6 mb-8 relative shadow-xl z-50">
+        <section class="bg-white border border-slate-200 rounded-3xl p-6 mb-4 relative shadow-xl z-50">
             <form class="space-y-5" autocomplete="off">
 
                 <!-- Date & Options -->
@@ -528,6 +536,16 @@
             </form>
         </section>
 
+        <!-- Quick Actions -->
+        <div class="flex justify-center gap-3 mb-8">
+            <button id="quick-last-train" class="text-[11px] font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full hover:bg-slate-200 transition-colors uppercase tracking-wider">
+                <i class="fa-solid fa-moon mr-1"></i> Last train tonight
+            </button>
+            <button id="save-current-route" class="hidden text-[11px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors uppercase tracking-wider">
+                <i class="fa-solid fa-bookmark mr-1"></i> Save this route
+            </button>
+        </div>
+
 
 
         <!-- Message Area -->
@@ -542,17 +560,18 @@
     <footer class="text-center py-6 sm:py-8 mt-8 sm:mt-12 border-t border-slate-200">
         <div class="max-w-4xl mx-auto px-4 space-y-2">
             <p class="text-xs sm:text-sm font-medium text-slate-700">
-                <em>⚠️ Unofficial - Not affiliated with NJ TRANSIT®</em>
+                <em>Independent commuter tool · Powered by NJ TRANSIT® GTFS data</em>
             </p>
             <div class="flex flex-wrap justify-center gap-3 sm:gap-4 text-slate-500 text-xs">
                 <a href="index.html" class="hover:text-blue-600 transition-colors py-2 px-1">Home</a>
+                <a href="fares.html" class="hover:text-blue-600 transition-colors py-2 px-1">Fares</a>
                 <a href="about.html" class="hover:text-blue-600 transition-colors py-2 px-1">About</a>
                 <a href="privacy.html" class="hover:text-blue-600 transition-colors py-2 px-1">Privacy</a>
                 <a href="terms.html" class="hover:text-blue-600 transition-colors py-2 px-1">Terms</a>
                 <a href="contact.html" class="hover:text-blue-600 transition-colors py-2 px-1">Contact</a>
             </div>
-            <p class="text-slate-500 text-xs leading-relaxed">Schedule data: NJ TRANSIT GTFS</p>
-            <p class="text-slate-400 text-xs">NJ TRANSIT® is a registered trademark</p>
+            <p class="text-slate-500 text-xs leading-relaxed">Schedule data: Updated daily from public GTFS</p>
+            <p class="text-slate-400 text-xs">NJ TRANSIT® is a registered trademark of New Jersey Transit Corporation. This site is NOT affiliated with or endorsed by NJ TRANSIT.</p>
             <p class="text-slate-400 text-xs">&copy; 2026 njrail.info</p>
         </div>
     </footer>

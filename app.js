@@ -11,7 +11,11 @@ const App = {
         resultsContainer: document.getElementById('results-container'),
         messageArea: document.getElementById('message-area'),
         searchForm: document.querySelector('form'),
-        connectingToggle: document.getElementById('connectingToggle')
+        connectingToggle: document.getElementById('connectingToggle'),
+        savedRoutesContainer: document.getElementById('saved-routes-container'),
+        savedRoutesList: document.getElementById('saved-routes-list'),
+        quickLastTrain: document.getElementById('quick-last-train'),
+        saveRouteBtn: document.getElementById('save-current-route')
     },
 
     state: {
@@ -59,12 +63,89 @@ const App = {
         this.elements.connectingToggle.checked = true; // Enable by default
         this.elements.searchForm.addEventListener('submit', (e) => this.searchTrains(e));
 
+        this.elements.quickLastTrain.addEventListener('click', () => this.searchLastTrain());
+        this.elements.saveRouteBtn.addEventListener('click', () => this.saveCurrentRoute());
+
         document.addEventListener('click', (e) => {
             if (!this.elements.departureInput.contains(e.target)) this.hideSuggestions(this.elements.departureSuggestions);
             if (!this.elements.arrivalInput.contains(e.target)) this.hideSuggestions(this.elements.arrivalSuggestions);
         });
 
+        this.loadSavedRoutes();
         this.injectScript('data/all_stops.js');
+    },
+
+    loadSavedRoutes() {
+        const saved = JSON.parse(localStorage.getItem('saved_routes') || '[]');
+        if (saved.length === 0) {
+            this.elements.savedRoutesContainer.classList.add('hidden');
+            return;
+        }
+
+        this.elements.savedRoutesContainer.classList.remove('hidden');
+        this.elements.savedRoutesList.innerHTML = saved.map((r, idx) => `
+            <button class="bg-white border border-slate-200 px-3 py-2 rounded-xl text-[10px] font-bold text-slate-700 flex items-center gap-2 hover:border-blue-300 hover:bg-blue-50 transition-all shadow-sm group"
+                    onclick="App.loadSavedRoute(${idx})">
+                <span class="truncate max-w-[80px]">${r.depName}</span>
+                <i class="fa-solid fa-arrow-right text-[8px] text-slate-300 group-hover:text-blue-400"></i>
+                <span class="truncate max-w-[80px]">${r.arrName}</span>
+                <i class="fa-solid fa-xmark ml-1 text-slate-300 hover:text-red-500" onclick="event.stopPropagation(); App.deleteSavedRoute(${idx})"></i>
+            </button>
+        `).join('');
+
+        window.App = this; // Ensure global access for onclick
+    },
+
+    loadSavedRoute(idx) {
+        const saved = JSON.parse(localStorage.getItem('saved_routes') || '[]');
+        const r = saved[idx];
+        if (!r) return;
+
+        this.elements.departureInput.value = r.depName;
+        this.elements.departureHidden.value = r.depId;
+        this.elements.arrivalInput.value = r.arrName;
+        this.elements.arrivalHidden.value = r.arrId;
+
+        this.searchTrains(new Event('submit'));
+    },
+
+    deleteSavedRoute(idx) {
+        let saved = JSON.parse(localStorage.getItem('saved_routes') || '[]');
+        saved.splice(idx, 1);
+        localStorage.setItem('saved_routes', JSON.stringify(saved));
+        this.loadSavedRoutes();
+    },
+
+    saveCurrentRoute() {
+        const depId = this.elements.departureHidden.value;
+        const arrId = this.elements.arrivalHidden.value;
+        const depName = this.elements.departureInput.value;
+        const arrName = this.elements.arrivalInput.value;
+
+        if (!depId || !arrId) return;
+
+        let saved = JSON.parse(localStorage.getItem('saved_routes') || '[]');
+        // Avoid duplicates
+        if (saved.some(r => r.depId === depId && r.arrId === arrId)) {
+            this.showMessage("Route already saved!", "info");
+            return;
+        }
+
+        saved.push({ depId, arrId, depName, arrName });
+        localStorage.setItem('saved_routes', JSON.stringify(saved));
+        this.loadSavedRoutes();
+        this.showMessage("Route saved to your commutes!", "info");
+    },
+
+    searchLastTrain() {
+        const depId = this.elements.departureHidden.value;
+        const arrId = this.elements.arrivalHidden.value;
+        if (!depId || !arrId) {
+            this.showMessage("Please select stations first.");
+            return;
+        }
+        this.state.searchLastOnly = true;
+        this.searchTrains(new Event('submit'));
     },
 
     setupInputListeners(inputEl, suggestionEl, hiddenEl, type) {
@@ -447,8 +528,27 @@ const App = {
 
         if (this.state.currentResults.length === 0) {
             this.showMessage("No trips found for this date.", "info");
+            this.elements.saveRouteBtn.classList.add('hidden');
+            document.title = "NJ Rail — Fastest NJ TRANSIT Train Schedules";
         } else {
             this.renderResults(isAppend);
+            this.elements.saveRouteBtn.classList.remove('hidden');
+
+            // Update Page Title for SEO
+            const depName = this.elements.departureInput.value;
+            const arrName = this.elements.arrivalInput.value;
+            document.title = `${depName} to ${arrName} Train Schedule | NJ Rail`;
+
+            if (this.state.searchLastOnly) {
+                this.state.searchLastOnly = false;
+                setTimeout(() => {
+                    const cards = this.elements.resultsContainer.querySelectorAll('.train-card');
+                    if (cards.length > 0) {
+                        cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        cards[cards.length - 1].classList.add('ring-4', 'ring-amber-400', 'ring-opacity-50');
+                    }
+                }, 500);
+            }
         }
     },
 
