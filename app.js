@@ -73,6 +73,14 @@ const App = {
 
         this.loadSavedRoutes();
         this.injectScript('data/all_stops.js');
+
+        // Check for URL parameters (?from=Station+Name&to=Station+Name)
+        const params = new URLSearchParams(window.location.search);
+        const fromParam = params.get('from');
+        const toParam = params.get('to');
+        if (fromParam && toParam) {
+            this.state.pendingUrlSearch = { from: fromParam, to: toParam };
+        }
     },
 
     loadSavedRoutes() {
@@ -202,6 +210,31 @@ const App = {
     onAllStopsLoaded(data) {
         this.state.allStops = data;
         this.state.allStopsList = Object.values(data);
+
+        // Handle deep link if exists
+        if (this.state.pendingUrlSearch) {
+            const { from, to } = this.state.pendingUrlSearch;
+            const dep = this.state.allStopsList.find(s => s.name.toLowerCase() === from.toLowerCase());
+            const arr = this.state.allStopsList.find(s => s.name.toLowerCase() === to.toLowerCase());
+
+            if (dep && arr) {
+                this.elements.departureInput.value = dep.name;
+                this.elements.departureHidden.value = dep.id;
+                this.elements.arrivalInput.value = arr.name;
+                this.elements.arrivalHidden.value = arr.id;
+
+                // Pre-load necessary scripts
+                dep.routes.forEach(routeId => {
+                    if (!this.state.routeData[routeId]) {
+                        this.injectScript(`data/routes/${routeId.replace(/ /g, '_')}.js`);
+                    }
+                });
+
+                // Small delay to ensure scripts start loading
+                setTimeout(() => this.searchTrains(new Event('submit')), 300);
+            }
+            this.state.pendingUrlSearch = null;
+        }
     },
 
     onRouteDetailsLoaded(data) {
@@ -697,6 +730,22 @@ const App = {
         // Express band
         const avgDur = this.state.currentResults.reduce((s, r) => s + r.duration, 0) / (this.state.currentResults.length || 1);
 
+        if (!isAppend) {
+            const { depId, arrId } = this.state.searchParams;
+            const depName = this.state.allStops[depId]?.name || '';
+            const arrName = this.state.allStops[arrId]?.name || '';
+            html += `
+                <div class="flex items-center justify-between mb-4 px-1 animate-fade-in shadow-sm bg-white p-3 rounded-2xl border border-slate-100">
+                    <div class="flex flex-col">
+                        <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Schedule View</h2>
+                        <div class="text-sm font-bold text-slate-700 truncate max-w-[200px] sm:max-w-none">${depName} <i class="fa-solid fa-arrow-right text-[10px] mx-1 text-slate-300"></i> ${arrName}</div>
+                    </div>
+                    <button onclick="App.shareRoute()" class="flex items-center gap-1.5 text-[11px] font-extrabold text-blue-600 bg-blue-50/80 px-4 py-2 rounded-xl hover:bg-blue-100 transition-all active:scale-95 border border-blue-100">
+                        <i class="fa-solid fa-share-nodes"></i> SHARE
+                    </button>
+                </div>`;
+        }
+
         this.state.currentResults.forEach((t, idx) => {
             const isNext = !t.passed && !nextFound;
             if (isNext) nextFound = true;
@@ -881,6 +930,35 @@ const App = {
 
 
     clearResults: function () { this.elements.resultsContainer.innerHTML = ''; this.elements.messageArea.innerHTML = ''; },
+
+    shareRoute() {
+        const { depId, arrId } = this.state.searchParams;
+        if (!depId || !arrId) return;
+        const depName = this.state.allStops[depId].name;
+        const arrName = this.state.allStops[arrId].name;
+        const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}`;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: `NJ Rail: ${depName} to ${arrName}`,
+                text: `NJ Transit train schedule: ${depName} to ${arrName}`,
+                url: url
+            }).catch(() => {
+                this.copyToClipboard(url);
+            });
+        } else {
+            this.copyToClipboard(url);
+        }
+    },
+
+    copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            this.showMessage("Route link copied! Share it with others.", "info");
+        }).catch(() => {
+            this.showMessage("Failed to copy link.", "error");
+        });
+    },
+
     showMessage: function (msg, type = 'error') {
         const bg = type === 'error' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600';
         this.elements.messageArea.innerHTML = `<div class="p-4 rounded-xl ${bg} font-medium text-sm text-center animate-fade-in">${msg}</div>`;

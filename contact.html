@@ -80,20 +80,41 @@
 
         <div class="glass-panel p-8 rounded-3xl space-y-6">
             <p class="text-slate-600 leading-relaxed">
-                Have a suggestion, found a bug, or just want to say hello? We'd love to hear from you.
+                Have a suggestion, found a bug, or just want to say hello? We'd love to hear from you. We build this for the NJ commuter community.
             </p>
 
-            <div class="bg-blue-50 p-6 rounded-xl border border-blue-100 text-center">
-                <p class="text-blue-900 font-medium mb-2">General Inquiries</p>
-                <a href="mailto:info@njrail.info"
-                    class="text-2xl font-bold text-blue-600 hover:underline">info@njrail.info</a>
-                <p class="text-xs text-blue-400 mt-2">(Example Email)</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="p-5 border border-slate-100 bg-slate-50/50 rounded-2xl">
+                    <div class="w-8 h-8 bg-white shadow-sm rounded-lg flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-bug text-red-400 text-xs"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-sm mb-1">Report a Bug</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Schedule mismatch or UI issue? Let us know.</p>
+                </div>
+                <div class="p-5 border border-slate-100 bg-slate-50/50 rounded-2xl">
+                    <div class="w-8 h-8 bg-white shadow-sm rounded-lg flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-lightbulb text-amber-400 text-xs"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-sm mb-1">Feature Request</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Want a specific station widget or alert?</p>
+                </div>
             </div>
 
-            <p class="text-slate-500 text-sm">
-                Please note: For official ticket issues, lost and found, or service complaints, please contact NJ
-                TRANSIT directly via their official website.
-            </p>
+            <div class="bg-blue-600 p-8 rounded-3xl shadow-lg shadow-blue-500/20 text-center text-white relative overflow-hidden group">
+                <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-envelope text-8xl"></i>
+                </div>
+                <p class="text-blue-100 font-bold uppercase tracking-widest text-[10px] mb-2">Get in touch</p>
+                <a href="mailto:info@njrail.info" class="text-2xl sm:text-3xl font-black hover:text-blue-200 transition-colors">info@njrail.info</a>
+                <p class="text-[10px] text-blue-200 mt-4 opacity-80">We typically respond to commuters within 24-48 hours.</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <p class="text-slate-500 text-xs leading-relaxed">
+                    <i class="fa-solid fa-circle-info mr-1 text-slate-400"></i>
+                    <strong>Note:</strong> We are an independent tool. For official ticket issues, lost items, or service complaints, please contact NJ TRANSIT® directly.
+                </p>
+            </div>
         </div>
     </main>
 
