@@ -765,17 +765,6 @@ const App = {
             const holidayHtml = holidayNotice ? `<div class="holiday-notice"><i class="fa-solid fa-calendar-check mt-0.5"></i> <span>${holidayNotice}</span></div>` : '';
 
             html += `
-                <div class="live-alerts-banner">
-                    <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-[11px] font-extrabold text-amber-900 uppercase tracking-wider leading-none mb-1">Live Rail Alerts</h4>
-                        <p class="text-[10px] text-amber-700 font-medium leading-tight">Check NJ TRANSIT's official site for any late-breaking disruptions or weather delays.</p>
-                    </div>
-                    <a href="https://www.njtransit.com/service-advisory" target="_blank" class="bg-white/80 hover:bg-white text-[10px] font-bold text-amber-700 px-3 py-2 rounded-lg border border-amber-200 transition-colors whitespace-nowrap">CHECK LIVE</a>
-                </div>
-
                 ${holidayHtml}
 
                 <div class="flex items-center justify-between mb-4 px-1 animate-fade-in shadow-sm bg-white p-3 rounded-2xl border border-slate-100">
