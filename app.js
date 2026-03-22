@@ -78,9 +78,10 @@ const App = {
         const params = new URLSearchParams(window.location.search);
         const fromParam = params.get('from');
         const toParam = params.get('to');
+        const dateParam = params.get('date');
         const tripParam = params.get('trip');
         if (fromParam && toParam) {
-            this.state.pendingUrlSearch = { from: fromParam, to: toParam, trip: tripParam };
+            this.state.pendingUrlSearch = { from: fromParam, to: toParam, date: dateParam, trip: tripParam };
         }
     },
 
@@ -214,7 +215,7 @@ const App = {
 
         // Handle deep link if exists
         if (this.state.pendingUrlSearch) {
-            const { from, to } = this.state.pendingUrlSearch;
+            const { from, to, date, trip } = this.state.pendingUrlSearch;
             const dep = this.state.allStopsList.find(s => s.name.toLowerCase() === from.toLowerCase());
             const arr = this.state.allStopsList.find(s => s.name.toLowerCase() === to.toLowerCase());
 
@@ -223,6 +224,10 @@ const App = {
                 this.elements.departureHidden.value = dep.id;
                 this.elements.arrivalInput.value = arr.name;
                 this.elements.arrivalHidden.value = arr.id;
+
+                if (date) {
+                    this.elements.dateInput.value = date;
+                }
 
                 // Pre-load necessary scripts
                 dep.routes.forEach(routeId => {
@@ -980,9 +985,10 @@ const App = {
         if (!depId || !arrId) return;
         const depName = this.state.allStops[depId].name;
         const arrName = this.state.allStops[arrId].name;
-        const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}`;
+        const date = this.elements.dateInput.value;
+        const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}&date=${encodeURIComponent(date)}`;
         
-        this.performShare(url, `NJ Rail: ${depName} to ${arrName}`, `NJ Transit train schedule: ${depName} to ${arrName}`);
+        this.performShare(url, `NJ Rail: ${depName} to ${arrName}`, `NJ Transit train schedule for ${date}: ${depName} to ${arrName}`);
     },
 
     shareTrip(idx) {
@@ -991,9 +997,10 @@ const App = {
         const { depId, arrId } = this.state.searchParams;
         const depName = this.state.allStops[depId].name;
         const arrName = this.state.allStops[arrId].name;
-        const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}&trip=${encodeURIComponent(t.tripId)}`;
+        const date = this.elements.dateInput.value;
+        const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}&date=${encodeURIComponent(date)}&trip=${encodeURIComponent(t.tripId)}`;
         
-        this.performShare(url, `Train at ${t.depTime} (${depName} → ${arrName})`, `Check this NJ Transit train schedule: ${t.depTime} to ${t.arrTime}`);
+        this.performShare(url, `Train at ${t.depTime} (${depName} → ${arrName})`, `Check this NJ Transit train schedule for ${date}: ${t.depTime} to ${t.arrTime}`);
     },
 
     performShare(url, title, text) {
