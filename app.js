@@ -78,8 +78,9 @@ const App = {
         const params = new URLSearchParams(window.location.search);
         const fromParam = params.get('from');
         const toParam = params.get('to');
+        const tripParam = params.get('trip');
         if (fromParam && toParam) {
-            this.state.pendingUrlSearch = { from: fromParam, to: toParam };
+            this.state.pendingUrlSearch = { from: fromParam, to: toParam, trip: tripParam };
         }
     },
 
@@ -229,6 +230,10 @@ const App = {
                         this.injectScript(`data/routes/${routeId.replace(/ /g, '_')}.js`);
                     }
                 });
+
+                if (trip) {
+                    this.state.pendingTripId = trip;
+                }
 
                 // Small delay to ensure scripts start loading
                 setTimeout(() => this.searchTrains(new Event('submit')), 300);
@@ -560,7 +565,7 @@ const App = {
         else this.state.currentResults = this.state.currentResults.concat(sorted);
 
         if (this.state.currentResults.length === 0) {
-            this.showMessage("No trips found for this date.", "info");
+            this.renderEmptyState();
             this.elements.saveRouteBtn.classList.add('hidden');
             document.title = "NJ Rail — Fastest NJ TRANSIT Train Schedules";
         } else {
@@ -578,9 +583,24 @@ const App = {
                     const cards = this.elements.resultsContainer.querySelectorAll('.train-card');
                     if (cards.length > 0) {
                         cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        cards[cards.length - 1].classList.add('ring-4', 'ring-amber-400', 'ring-opacity-50');
+                        cards[cards.length - 1].classList.add('trip-highlight');
+                        setTimeout(() => cards[cards.length - 1].classList.remove('trip-highlight'), 4000);
                     }
                 }, 500);
+            }
+
+            if (this.state.pendingTripId) {
+                const tripId = this.state.pendingTripId;
+                this.state.pendingTripId = null;
+                setTimeout(() => {
+                    const el = document.querySelector(`[data-trip-id="${tripId}"]`);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.classList.add('trip-highlight');
+                        // Remove highlight after a few seconds
+                        setTimeout(() => el.classList.remove('trip-highlight'), 4000);
+                    }
+                }, 800);
             }
         }
     },
@@ -628,6 +648,7 @@ const App = {
                             routeColor: route.color || '#2563eb',
                             duration: this.timeToMin(tArrRaw) - this.timeToMin(tDepRaw),
                             trainNumber: trip.n || '', // Added train number
+                            tripId: `${trip.n || 'trip'}-${tDepRaw.replace(/:/g, '')}`,
                             passed: isToday && this.timeToMin(tDepRaw) < nyCurrentMin,
                             stops: trip.stops.slice(depIdx + 1, arrIdx).map(s => ({
                                 id: s.s,
@@ -689,6 +710,7 @@ const App = {
                                     absMinDep: t1.absMinDep,
                                     absMinArr: t2.absMinArr,
                                     duration: t2.absMinArr - t1.absMinDep,
+                                    tripId: `${t1.trainNumber || 'T1'}-X-${t2.trainNumber || 'T2'}-${t1.depTime.replace(/:/g, '')}`,
                                     passed: t1.passed,
                                     from: t1.from,
                                     to: t2.to
@@ -734,7 +756,23 @@ const App = {
             const { depId, arrId } = this.state.searchParams;
             const depName = this.state.allStops[depId]?.name || '';
             const arrName = this.state.allStops[arrId]?.name || '';
+            const holidayNotice = this.getSpecialDateNotice(this.state.searchParams.dateRaw);
+            const holidayHtml = holidayNotice ? `<div class="holiday-notice"><i class="fa-solid fa-calendar-check mt-0.5"></i> <span>${holidayNotice}</span></div>` : '';
+
             html += `
+                <div class="live-alerts-banner">
+                    <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-[11px] font-extrabold text-amber-900 uppercase tracking-wider leading-none mb-1">Live Rail Alerts</h4>
+                        <p class="text-[10px] text-amber-700 font-medium leading-tight">Check NJ TRANSIT's official site for any late-breaking disruptions or weather delays.</p>
+                    </div>
+                    <a href="https://www.njtransit.com/service-advisory" target="_blank" class="bg-white/80 hover:bg-white text-[10px] font-bold text-amber-700 px-3 py-2 rounded-lg border border-amber-200 transition-colors whitespace-nowrap">CHECK LIVE</a>
+                </div>
+
+                ${holidayHtml}
+
                 <div class="flex items-center justify-between mb-4 px-1 animate-fade-in shadow-sm bg-white p-3 rounded-2xl border border-slate-100">
                     <div class="flex flex-col">
                         <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Schedule View</h2>
@@ -797,11 +835,11 @@ const App = {
 
                 html += `
                 <div class="train-card ${isNext ? 'train-card--next' : ''} ${t.passed ? 'train-card--passed' : ''}"
-                     ${isNext ? 'id="next-train"' : ''} tabindex="0">
+                     data-trip-id="${t.tripId}" ${isNext ? 'id="next-train"' : ''} tabindex="0">
                     <!-- Top row -->
                     <div class="train-card__top">
                         <span class="train-headsign">
-                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg>Via ${t.transferStation}
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg><span class="opacity-70 mr-1">TOWARDS</span> ${t.transferStation}
                         </span>
                         <div class="train-card__status-dur">
                             ${t.passed ? '<span class="train-badge train-badge--departed">DEPARTED</span>' : isNext ? '<span class="train-badge train-badge--next">NEXT</span>' : ''}
@@ -811,7 +849,7 @@ const App = {
                     <!-- Times -->
                     <div class="train-card__times">
                         <div class="train-card__endpoint">
-                            <div class="train-time">${t.depTime}</div>
+                            <div class="train-time"><span class="scheduled-badge">SCHED</span>${t.depTime}</div>
                             <div class="train-station" translate="no">${t.from}</div>
                         </div>
                         <div class="train-card__arrow">
@@ -833,6 +871,9 @@ const App = {
                         <button onclick="toggleStops('${cardId}')" class="train-expand-btn">
                             Show stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
                         </button>
+                        <button onclick="App.shareTrip(${idx})" class="share-trip-btn">
+                            <i class="fa-solid fa-share-nodes"></i> Share trip
+                        </button>
                     </div>
                     <!-- Detail -->
                     <div id="${cardId}" class="train-card__detail hidden">
@@ -851,11 +892,11 @@ const App = {
 
                 html += `
                 <div class="train-card ${isNext ? 'train-card--next' : ''} ${t.passed ? 'train-card--passed' : ''}"
-                     ${isNext ? 'id="next-train"' : ''} tabindex="0">
+                     data-trip-id="${t.tripId}" ${isNext ? 'id="next-train"' : ''} tabindex="0">
                     <!-- Top row: headsign + status/duration -->
                     <div class="train-card__top">
                         <span class="train-headsign">
-                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg>${t.headsign}${isExpress ? ' <span class="train-express-dot">⚡</span>' : ''}
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg><span class="opacity-70 mr-1">TOWARDS</span> ${t.headsign}${isExpress ? ' <span class="train-express-dot">⚡</span>' : ''}
                         </span>
                         <div class="train-card__status-dur">
                             ${t.passed ? '<span class="train-badge train-badge--departed">DEPARTED</span>' : isNext ? '<span class="train-badge train-badge--next">NEXT</span>' : ''}
@@ -865,7 +906,7 @@ const App = {
                     <!-- Times row -->
                     <div class="train-card__times">
                         <div class="train-card__endpoint">
-                            <div class="train-time">${t.depTime}</div>
+                            <div class="train-time"><span class="scheduled-badge">SCHED</span>${t.depTime}</div>
                             <div class="train-station" translate="no">${t.from}</div>
                         </div>
                         <div class="train-card__arrow">
@@ -884,6 +925,9 @@ const App = {
                     <div class="train-card__footer">
                         <button onclick="toggleStops('${cardId}')" class="train-expand-btn">
                             Show stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                        <button onclick="App.shareTrip(${idx})" class="share-trip-btn">
+                            <i class="fa-solid fa-share-nodes"></i> Share trip
                         </button>
                     </div>
                     <!-- Stop list (hidden) -->
@@ -938,14 +982,23 @@ const App = {
         const arrName = this.state.allStops[arrId].name;
         const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}`;
         
+        this.performShare(url, `NJ Rail: ${depName} to ${arrName}`, `NJ Transit train schedule: ${depName} to ${arrName}`);
+    },
+
+    shareTrip(idx) {
+        const t = this.state.currentResults[idx];
+        if (!t) return;
+        const { depId, arrId } = this.state.searchParams;
+        const depName = this.state.allStops[depId].name;
+        const arrName = this.state.allStops[arrId].name;
+        const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}&trip=${encodeURIComponent(t.tripId)}`;
+        
+        this.performShare(url, `Train at ${t.depTime} (${depName} → ${arrName})`, `Check this NJ Transit train schedule: ${t.depTime} to ${t.arrTime}`);
+    },
+
+    performShare(url, title, text) {
         if (navigator.share) {
-            navigator.share({
-                title: `NJ Rail: ${depName} to ${arrName}`,
-                text: `NJ Transit train schedule: ${depName} to ${arrName}`,
-                url: url
-            }).catch(() => {
-                this.copyToClipboard(url);
-            });
+            navigator.share({ title, text, url }).catch(() => this.copyToClipboard(url));
         } else {
             this.copyToClipboard(url);
         }
@@ -969,6 +1022,75 @@ const App = {
         const dt = new Date(parseInt(dateStr.substring(0, 4)), parseInt(dateStr.substring(4, 6)) - 1, parseInt(dateStr.substring(6, 8)));
         dt.setDate(dt.getDate() + offset);
         return `${dt.getFullYear()}${String(dt.getMonth() + 1).padStart(2, '0')}${String(dt.getDate()).padStart(2, '0')}`;
+    },
+
+    getSpecialDateNotice(dateRaw) {
+        const date = new Date(dateRaw + 'T12:00:00'); // Use noon to avoid TZ issues
+        const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+        const month = date.getMonth() + 1;
+        const d = date.getDate();
+        
+        // Basic US Holiday detection (static dates)
+        if (month === 1 && d === 1) return "New Year's Day (Holiday Schedule)";
+        if (month === 7 && d === 4) return "Independence Day (Holiday Schedule)";
+        if (month === 11 && d === 11) return "Veterans Day (Potential Holiday Schedule)";
+        if (month === 12 && d === 25) return "Christmas Day (Holiday Schedule)";
+        
+        if (day === 0) return "Sunday Schedule in effect";
+        if (day === 6) return "Saturday Schedule in effect";
+        
+        return null;
+    },
+
+    renderEmptyState() {
+        const { dateRaw, depId, arrId } = this.state.searchParams;
+        const now = new Date();
+        const nyDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(now);
+        
+        let reason = "No trains found for this route on the selected date.";
+        let suggestions = [];
+        let icon = "fa-calendar-xmark";
+
+        if (dateRaw < nyDateStr) {
+            reason = "This date is in the past.";
+            suggestions.push("Please select today's date or a future date to see current schedules.");
+            icon = "fa-clock-rotate-left";
+        } else {
+            const nyLocal = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+            const currentMin = nyLocal.getHours() * 60 + nyLocal.getMinutes();
+            
+            if (dateRaw === nyDateStr && currentMin > 120 && currentMin < 300) {
+                reason = "It's late night / early morning (2-5 AM).";
+                suggestions.push("Most NJ TRANSIT service pauses during these hours. Check for the first morning trains starting around 5:00 AM.");
+                icon = "fa-moon";
+            } else {
+                const depStop = this.state.allStops[depId];
+                const arrStop = this.state.allStops[arrId];
+                const commonRoutes = depStop.routes.filter(r => arrStop.routes.includes(r));
+                
+                if (commonRoutes.length === 0) {
+                    reason = "No direct route found between these stations.";
+                    suggestions.push("Try enabling 'Connecting Trips' to find multi-leg journeys.");
+                    icon = "fa-route";
+                } else {
+                    suggestions.push("Try checking a different date or verify if there is a known service disruption.");
+                }
+            }
+        }
+
+        this.elements.resultsContainer.innerHTML = `
+            <div class="empty-state-details animate-fade-in">
+                <div class="empty-state-icon"><i class="fa-solid ${icon}"></i></div>
+                <h3 class="text-lg font-bold text-slate-800 mb-2">${reason}</h3>
+                <p class="text-sm text-slate-500">We couldn't find any scheduled trips matching your search.</p>
+                <div class="empty-state-suggestion">
+                    <p class="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-2">Recommendation</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        ${suggestions.map(s => `<li>${s}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
     }
 };
 
