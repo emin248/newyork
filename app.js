@@ -767,12 +767,12 @@ const App = {
             html += `
                 ${holidayHtml}
 
-                <div class="flex items-center justify-between mb-4 px-1 animate-fade-in shadow-sm bg-white p-3 rounded-2xl border border-slate-100">
-                    <div class="flex flex-col">
-                        <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Schedule View</h2>
-                        <div class="text-sm font-bold text-slate-700 truncate max-w-[200px] sm:max-w-none">${depName} <i class="fa-solid fa-arrow-right text-[10px] mx-1 text-slate-300"></i> ${arrName}</div>
+                <div class="flex items-center justify-between mb-4 animate-fade-in shadow-sm bg-white p-3 rounded-2xl border border-slate-100 gap-2">
+                    <div class="flex flex-col flex-1 min-w-0">
+                        <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1 truncate">Schedule View</h2>
+                        <div class="text-[13px] sm:text-sm font-bold text-slate-700 leading-tight break-words pr-1">${depName} <i class="fa-solid fa-arrow-right text-[10px] mx-1 text-slate-300"></i> ${arrName}</div>
                     </div>
-                    <button onclick="App.shareRoute()" class="flex items-center gap-1.5 text-[11px] font-extrabold text-blue-600 bg-blue-50/80 px-4 py-2 rounded-xl hover:bg-blue-100 transition-all active:scale-95 border border-blue-100">
+                    <button onclick="App.shareRoute()" class="flex-shrink-0 flex items-center gap-1.5 text-[11px] font-extrabold text-blue-600 bg-blue-50/80 px-3 py-2 rounded-xl hover:bg-blue-100 transition-all active:scale-95 border border-blue-100">
                         <i class="fa-solid fa-share-nodes"></i> SHARE
                     </button>
                 </div>`;
