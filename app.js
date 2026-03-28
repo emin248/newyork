@@ -476,7 +476,11 @@ const App = {
         const commonRoutes = depStop.routes.filter(r => arrStop.routes.includes(r));
 
         if (commonRoutes.length === 0) {
-            this.showMessage("No direct train found.", "error");
+            if (!this.elements.connectingToggle.checked) {
+                this.elements.connectingToggle.checked = true;
+                return this.searchTrains(e); // Retry with connecting trips enabled
+            }
+            this.showMessage("No trains found (even with transfers).", "error");
             return;
         }
 
@@ -696,7 +700,7 @@ const App = {
                     leg1.forEach(t1 => {
                         leg2.forEach(t2 => {
                             const waitTime = t2.absMinDep - t1.absMinArr;
-                            if (waitTime >= 4 && waitTime <= 45) { // Max 45 mins wait for better UX
+                            if (waitTime >= 10 && waitTime <= 45) { // Min 10 mins for safe transfer, Max 45 mins wait
 
                                 // --- Backtracking Prevention ---
                                 // If Leg 1 already contains the final destination, it's a backtrack.
@@ -1010,7 +1014,8 @@ const App = {
 
     showMessage: function (msg, type = 'error') {
         const bg = type === 'error' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600';
-        this.elements.messageArea.innerHTML = `<div class="p-4 rounded-xl ${bg} font-medium text-sm text-center animate-fade-in">${msg}</div>`;
+        const notice = `<div class="mt-2 pt-2 border-t border-current opacity-60 text-[10px] uppercase tracking-widest">Note: Data is static (GTFS). Real-time delays not included.</div>`;
+        this.elements.messageArea.innerHTML = `<div class="p-4 rounded-xl ${bg} font-medium text-sm text-center animate-fade-in">${msg}${type === 'error' ? '' : notice}</div>`;
     },
     timeToMin: (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; },
     normalizeTime: (t) => { const [h, m] = t.split(':').map(Number); return `${String(h % 24).padStart(2, '0')}:${String(m).padStart(2, '0')}`; },
