@@ -860,15 +860,6 @@ const App = {
                     <div class="train-card__stops-row">
                         <span class="train-stops-badge">+${totalStops} stops · ${t.waitTime}m transfer wait</span>
                     </div>
-                    <!-- Expand -->
-                    <div class="train-card__footer">
-                        <button onclick="toggleStops('${cardId}')" class="train-expand-btn">
-                            Show stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-                        </button>
-                        <button onclick="App.shareTrip(${idx})" class="share-trip-btn">
-                            <i class="fa-solid fa-share-nodes"></i> Share trip
-                        </button>
-                    </div>
                     <!-- Detail -->
                     <div id="${cardId}" class="train-card__detail hidden">
                         <div class="train-stops-list">
@@ -878,6 +869,15 @@ const App = {
                             ${leg2Html}
                             <div class="train-stop"><span class="train-stop__dot train-stop__dot--gray"></span><span class="train-stop__name" translate="no">${t.to}</span><span class="train-stop__time">${t.arrTime}</span></div>
                         </div>
+                    </div>
+                    <!-- Footer -->
+                    <div class="train-card__footer">
+                        <button onclick="toggleStops('${cardId}')" class="train-expand-btn">
+                            Show stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                        <button onclick="App.shareTrip(${idx})" class="share-trip-btn">
+                            <i class="fa-solid fa-share-nodes"></i> Share trip
+                        </button>
                     </div>
                 </div>`;
             } else {
@@ -915,15 +915,6 @@ const App = {
                     ${urgencyPill}
                     <!-- Stops count -->
                     ${stopsCount > 0 ? `<div class="train-card__stops-row"><span class="train-stops-badge">+${stopsCount} stops</span></div>` : '<div class="train-card__stops-row"></div>'}
-                    <!-- Expand button -->
-                    <div class="train-card__footer">
-                        <button onclick="toggleStops('${cardId}')" class="train-expand-btn">
-                            Show stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-                        </button>
-                        <button onclick="App.shareTrip(${idx})" class="share-trip-btn">
-                            <i class="fa-solid fa-share-nodes"></i> Share trip
-                        </button>
-                    </div>
                     <!-- Stop list (hidden) -->
                     <div id="${cardId}" class="train-card__detail hidden">
                         <div class="train-stops-list">
@@ -939,6 +930,15 @@ const App = {
                                 <span class="train-stop__time">${t.arrTime}</span>
                             </div>
                         </div>
+                    </div>
+                    <!-- Footer button -->
+                    <div class="train-card__footer">
+                        <button onclick="toggleStops('${cardId}')" class="train-expand-btn">
+                            Show stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                        <button onclick="App.shareTrip(${idx})" class="share-trip-btn">
+                            <i class="fa-solid fa-share-nodes"></i> Share trip
+                        </button>
                     </div>
                 </div>`;
             }
