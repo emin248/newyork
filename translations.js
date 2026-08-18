@@ -96,7 +96,7 @@ const I18N = {
             recommendation: "Recommendation",
 
             // Footer
-            independent_tool: "Independent commuter tool · Powered by NJ TRANSIT® GTFS data",
+            independent_tool: "Independent commuter tool · Schedule data from NJ TRANSIT's public GTFS feed",
             home: "Home",
             fares: "Fares",
             about: "About",
@@ -218,7 +218,7 @@ const I18N = {
             couldnt_find: "No pudimos encontrar viajes programados que coincidan con su búsqueda.",
             recommendation: "Recomendación",
 
-            independent_tool: "Herramienta independiente para viajeros · Impulsada por datos GTFS de NJ TRANSIT®",
+            independent_tool: "Herramienta independiente para viajeros · Datos de horarios del feed público GTFS de NJ TRANSIT",
             home: "Inicio",
             fares: "Tarifas",
             about: "Acerca de",
@@ -337,7 +337,7 @@ const I18N = {
             couldnt_find: "我们无法找到与您搜索匹配的计划班次。",
             recommendation: "建议",
 
-            independent_tool: "独立通勤工具 · 由 NJ TRANSIT® GTFS 数据驱动",
+            independent_tool: "独立通勤工具 · 时刻表数据来自 NJ TRANSIT 公共 GTFS 数据源",
             home: "首页",
             fares: "票价",
             about: "关于",
@@ -456,7 +456,7 @@ const I18N = {
             couldnt_find: "Мы не смогли найти запланированные поезда по вашему запросу.",
             recommendation: "Рекомендация",
 
-            independent_tool: "Независимый инструмент для путешественников · На основе данных GTFS NJ TRANSIT®",
+            independent_tool: "Независимый инструмент для путешественников · Данные расписания из открытого GTFS-потока NJ TRANSIT",
             home: "Главная",
             fares: "Тарифы",
             about: "О нас",
@@ -575,7 +575,7 @@ const I18N = {
             couldnt_find: "আমরা আপনার অনুসন্ধানের সাথে মেলে এমন কোনো নির্ধারিত ট্রিপ খুঁজে পাইনি।",
             recommendation: "সুপারিশ",
 
-            independent_tool: "স্বাধীন যাত্রী সরঞ্জাম · NJ TRANSIT® GTFS ডেটা দ্বারা চালিত",
+            independent_tool: "স্বাধীন যাত্রী সরঞ্জাম · NJ TRANSIT-এর পাবলিক GTFS ফিড থেকে সময়সূচীর ডেটা",
             home: "হোম",
             fares: "ভাড়া",
             about: "সম্পর্কে",
