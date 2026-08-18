@@ -24,6 +24,7 @@ const App = {
         currentResults: [],
         searchParams: {},
         lastLoadedDate: null,
+        lastSearched: false,
         routeData: {},
         isLoading: false,
         pendingArrivalFilter: false
@@ -129,8 +130,10 @@ const App = {
     saveCurrentRoute() {
         const depId = this.elements.departureHidden.value;
         const arrId = this.elements.arrivalHidden.value;
-        const depName = this.elements.departureInput.value;
-        const arrName = this.elements.arrivalInput.value;
+        const depStop = this.state.allStops[depId];
+        const arrStop = this.state.allStops[arrId];
+        const depName = depStop ? depStop.name : this.elements.departureInput.value;
+        const arrName = arrStop ? arrStop.name : this.elements.arrivalInput.value;
 
         if (!depId || !arrId) return;
 
@@ -216,8 +219,19 @@ const App = {
         // Handle deep link if exists
         if (this.state.pendingUrlSearch) {
             const { from, to, date, trip } = this.state.pendingUrlSearch;
-            const dep = this.state.allStopsList.find(s => s.name.toLowerCase() === from.toLowerCase());
-            const arr = this.state.allStopsList.find(s => s.name.toLowerCase() === to.toLowerCase());
+            const findStop = (query) => {
+                if (!query) return null;
+                const q = query.toLowerCase();
+                const direct = this.state.allStopsList.find(s => s.name.toLowerCase() === q);
+                if (direct) return direct;
+                // Match against translated station names in ANY supported language
+                return this.state.allStopsList.find(s => {
+                    const entry = (typeof STATION_NAMES !== 'undefined' && STATION_NAMES[s.name]) || {};
+                    return Object.values(entry).some(v => v && v.toLowerCase() === q);
+                });
+            };
+            const dep = findStop(from);
+            const arr = findStop(to);
 
             if (dep && arr) {
                 this.elements.departureInput.value = I18N.station(dep.name);
@@ -276,10 +290,19 @@ const App = {
             const depStop = this.state.allStops[depId];
             const routesToLoad = depStop.routes.filter(r => !this.state.routeData[r]);
 
-            if (routesToLoad.length > 0) {
+            // Also load routes serving stops reachable on dep's routes — needed to
+            // discover transfer (connecting) destinations on other lines.
+            const directReach = this.getDirectReachableStops(depId, dateRaw);
+            directReach.forEach(sid => {
+                const s = this.state.allStops[sid];
+                if (s) s.routes.forEach(r => { if (!this.state.routeData[r]) routesToLoad.push(r); });
+            });
+            const uniqueRoutesToLoad = [...new Set(routesToLoad)];
+
+            if (uniqueRoutesToLoad.length > 0) {
                 this.state.pendingArrivalFilter = true;
-                this.state.pendingRoutes = new Set(routesToLoad);
-                routesToLoad.forEach(routeId => {
+                this.state.pendingRoutes = new Set(uniqueRoutesToLoad);
+                uniqueRoutesToLoad.forEach(routeId => {
                     this.injectScript(`data/routes/${routeId.replace(/ /g, '_')}.js`);
                 });
                 suggestionEl.innerHTML = `<div class="px-4 py-3 text-sm text-slate-500 italic">${I18N.t('loading_schedule')}</div>`;
@@ -330,7 +353,7 @@ const App = {
         }
 
         if (q.length === 0) {
-            const importance = ["NEW YORK PENN STATION", "NEWARK PENN STATION", "SECAUCUS JUNCTION", "TRENTON TRANSIT CENTER", "HOBOKEN TERMINAL", "NEWARK BROAD ST", "ATLANTIC CITY", "METROPARK", "PRINCETON JUNCTION", "HAMILTON", "RAHWAY"];
+            const importance = ["NEW YORK PENN STATION", "NEWARK PENN STATION", "SECAUCUS LOWER LEVEL", "TRENTON TRANSIT CENTER", "HOBOKEN", "NEWARK BROAD ST", "ATLANTIC CITY", "METROPARK", "PRINCETON JCT.", "HAMILTON", "RAHWAY"];
             matches = this.state.allStopsList
                 .filter(s => s.popular)
                 .sort((a, b) => {
@@ -371,7 +394,7 @@ const App = {
         else this.hideSuggestions(suggestionEl);
     },
 
-    getReachableStops(depId, dateRaw) {
+    getDirectReachableStops(depId, dateRaw) {
         const dateStr = dateRaw.replace(/-/g, '');
         const reachableIds = new Set();
         const depStop = this.state.allStops[depId];
@@ -399,6 +422,50 @@ const App = {
                 });
             });
         });
+        return reachableIds;
+    },
+
+    getReachableStops(depId, dateRaw) {
+        // Directly reachable stops plus one-transfer reachable stops (connecting trips).
+        const dateStr = dateRaw.replace(/-/g, '');
+        const reachableIds = new Set();
+        const depStop = this.state.allStops[depId];
+
+        const addDownstream = (routeId, fromId) => {
+            const data = this.state.routeData[routeId];
+            if (!data) return;
+            const route = data.route;
+            [route.d0, route.d1].forEach(dir => {
+                if (!dir) return;
+                dir.trips.forEach(trip => {
+                    const depIdx = trip.stops.findIndex(s => s.s === fromId);
+                    if (depIdx !== -1) {
+                        const tDepRaw = trip.stops[depIdx].t;
+                        const offset = Math.floor(this.timeToMin(tDepRaw) / 1440);
+                        const serviceDateStr = this.shiftDate(dateStr, -offset);
+                        if (trip.dates.includes(serviceDateStr)) {
+                            for (let i = depIdx + 1; i < trip.stops.length; i++) {
+                                reachableIds.add(trip.stops[i].s);
+                            }
+                        }
+                    }
+                });
+            });
+        };
+
+        // Leg 1: all stops downstream on dep's routes
+        depStop.routes.forEach(routeId => addDownstream(routeId, depId));
+
+        // Leg 2: from each directly-reachable stop, add stops downstream on its routes.
+        // This makes transfer destinations selectable in the arrival filter.
+        const leg1 = new Set(reachableIds);
+        leg1.forEach(sid => {
+            const stop = this.state.allStops[sid];
+            if (!stop) return;
+            stop.routes.forEach(routeId => addDownstream(routeId, sid));
+        });
+
+        reachableIds.delete(depId);
         return reachableIds;
     },
 
@@ -454,7 +521,7 @@ const App = {
         this.elements.arrivalInput.value = depName;
         this.elements.arrivalHidden.value = depId;
 
-        if (this.state.currentResults.length > 0 || this.elements.messageArea.innerHTML.includes('found')) {
+        if (this.state.currentResults.length > 0 || this.state.lastSearched) {
             this.searchTrains(new Event('submit'));
         }
     },
@@ -470,6 +537,7 @@ const App = {
             return;
         }
 
+        this.state.lastSearched = true;
         this.clearResults();
         const depStop = this.state.allStops[depId];
         const arrStop = this.state.allStops[arrId];
@@ -480,7 +548,18 @@ const App = {
                 this.elements.connectingToggle.checked = true;
                 return this.searchTrains(e); // Retry with connecting trips enabled
             }
-            this.showMessage(I18N.t("no_trains_found"), "error");
+            // No direct route — look for connecting trips between different lines.
+            // Load every route serving either station so findConnectingTrips can build leg1/leg2.
+            const neededRoutes = [...new Set([...depStop.routes, ...arrStop.routes])];
+            this.state.pendingRoutes = new Set(neededRoutes);
+            this.state.searchParams = { depId, arrId, dateRaw };
+
+            neededRoutes.forEach(routeId => {
+                if (this.state.routeData[routeId]) this.state.pendingRoutes.delete(routeId);
+                else this.injectScript(`data/routes/${routeId.replace(/ /g, '_')}.js`);
+            });
+
+            this.checkAllRoutesLoaded();
             return;
         }
 
@@ -699,7 +778,8 @@ const App = {
 
                     leg1.forEach(t1 => {
                         leg2.forEach(t2 => {
-                            const waitTime = t2.absMinDep - t1.absMinArr;
+                            let waitTime = t2.absMinDep - t1.absMinArr;
+                            if (waitTime < 0) waitTime += 1440; // Leg 2 departs after midnight on the next service day
                             if (waitTime >= 10 && waitTime <= 45) { // Min 10 mins for safe transfer, Max 45 mins wait
 
                                 // --- Backtracking Prevention ---
@@ -707,6 +787,9 @@ const App = {
                                 // If Leg 2 contains the origin, it's a backtrack.
                                 if (t1.fullStopIds.includes(toId)) return;
                                 if (t2.fullStopIds.includes(fromId)) return;
+
+                                const depAbsMin = t1.absMinDep;
+                                const arrAbsMin = t2.absMinArr < depAbsMin ? t2.absMinArr + 1440 : t2.absMinArr;
 
                                 results.push({
                                     isTransfer: true,
@@ -716,9 +799,9 @@ const App = {
                                     leg2: t2,
                                     depTime: t1.depTime,
                                     arrTime: t2.arrTime,
-                                    absMinDep: t1.absMinDep,
-                                    absMinArr: t2.absMinArr,
-                                    duration: t2.absMinArr - t1.absMinDep,
+                                    absMinDep: depAbsMin,
+                                    absMinArr: arrAbsMin,
+                                    duration: arrAbsMin - depAbsMin,
                                     tripId: `${t1.trainNumber || 'T1'}-X-${t2.trainNumber || 'T2'}-${t1.depTime.replace(/:/g, '')}`,
                                     passed: t1.passed,
                                     from: t1.from,
@@ -894,7 +977,7 @@ const App = {
                     <!-- Top row: headsign + status/duration -->
                     <div class="train-card__top">
                         <span class="train-headsign">
-                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg><span class="opacity-70 mr-1">${I18N.t('towards')}</span> ${t.headsign}${isExpress ? ' <span class="train-express-dot">⚡</span>' : ''}
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg><span class="opacity-70 mr-1">${I18N.t('towards')}</span> ${I18N.station(t.headsign)}${isExpress ? ' <span class="train-express-dot">⚡</span>' : ''}
                         </span>
                         <div class="train-card__status-dur">
                             ${t.passed ? `<span class="train-badge train-badge--departed">${I18N.t('departed')}</span>` : isNext ? `<span class="train-badge train-badge--next">${I18N.t('next')}</span>` : ''}
@@ -976,24 +1059,28 @@ const App = {
     shareRoute() {
         const { depId, arrId } = this.state.searchParams;
         if (!depId || !arrId) return;
-        const depName = I18N.station(this.state.allStops[depId].name);
-        const arrName = I18N.station(this.state.allStops[arrId].name);
+        const depName = this.state.allStops[depId].name; // canonical English for URL
+        const arrName = this.state.allStops[arrId].name;
         const date = this.elements.dateInput.value;
-        const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}&date=${encodeURIComponent(date)}`;
-        
-        this.performShare(url, I18N.t('share_title_route').replace('{dep}', depName).replace('{arr}', arrName), I18N.t('share_text_route').replace('{date}', date).replace('{dep}', depName).replace('{arr}', arrName));
+        const langParam = I18N.currentLang !== 'en' ? `&lang=${I18N.currentLang}` : '';
+        const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}&date=${encodeURIComponent(date)}${langParam}`;
+        const depDisp = I18N.station(depName);
+        const arrDisp = I18N.station(arrName);
+        this.performShare(url, I18N.t('share_title_route').replace('{dep}', depDisp).replace('{arr}', arrDisp), I18N.t('share_text_route').replace('{date}', date).replace('{dep}', depDisp).replace('{arr}', arrDisp));
     },
 
     shareTrip(idx) {
         const t = this.state.currentResults[idx];
         if (!t) return;
         const { depId, arrId } = this.state.searchParams;
-        const depName = I18N.station(this.state.allStops[depId].name);
-        const arrName = I18N.station(this.state.allStops[arrId].name);
+        const depName = this.state.allStops[depId].name; // canonical English for URL
+        const arrName = this.state.allStops[arrId].name;
         const date = this.elements.dateInput.value;
-        const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}&date=${encodeURIComponent(date)}&trip=${encodeURIComponent(t.tripId)}`;
-        
-        this.performShare(url, I18N.t('share_title_trip').replace('{time}', t.depTime).replace('{dep}', depName).replace('{arr}', arrName), I18N.t('share_text_trip').replace('{date}', date).replace('{dep_time}', t.depTime).replace('{arr_time}', t.arrTime));
+        const langParam = I18N.currentLang !== 'en' ? `&lang=${I18N.currentLang}` : '';
+        const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}&date=${encodeURIComponent(date)}&trip=${encodeURIComponent(t.tripId)}${langParam}`;
+        const depDisp = I18N.station(depName);
+        const arrDisp = I18N.station(arrName);
+        this.performShare(url, I18N.t('share_title_trip').replace('{time}', t.depTime).replace('{dep}', depDisp).replace('{arr}', arrDisp), I18N.t('share_text_trip').replace('{date}', date).replace('{dep_time}', t.depTime).replace('{arr_time}', t.arrTime));
     },
 
     performShare(url, title, text) {
@@ -1030,16 +1117,47 @@ const App = {
         const day = date.getDay(); // 0 = Sunday, 6 = Saturday
         const month = date.getMonth() + 1;
         const d = date.getDate();
-        
-        // Basic US Holiday detection (static dates)
+        const year = date.getFullYear();
+
+        // Nth weekday-of-month helper (e.g. 3rd Monday)
+        const nthWeekday = (y, m, weekday, n) => {
+            const first = new Date(y, m - 1, 1);
+            const offset = (weekday - first.getDay() + 7) % 7;
+            const dayNum = 1 + offset + (n - 1) * 7;
+            return dayNum <= new Date(y, m, 0).getDate() ? dayNum : -1;
+        };
+
+        // Last weekday-of-month helper (e.g. last Monday of May = Memorial Day)
+        const lastWeekday = (y, m, weekday) => {
+            const last = new Date(y, m, 0);
+            const offset = (last.getDay() - weekday + 7) % 7;
+            return last.getDate() - offset;
+        };
+
+        // Calculated (floating-date) US federal holidays
+        const mlkDay = nthWeekday(year, 1, 1, 3);            // MLK Day: 3rd Monday of January
+        const presidents = nthWeekday(year, 2, 1, 3);        // Presidents' Day: 3rd Monday of February
+        const memorial = lastWeekday(year, 5, 1);            // Memorial Day: last Monday of May
+        const labor = nthWeekday(year, 9, 1, 1);             // Labor Day: 1st Monday of September
+        const columbus = nthWeekday(year, 10, 1, 2);         // Columbus Day: 2nd Monday of October
+        const thanksgiving = nthWeekday(year, 11, 4, 4);     // Thanksgiving: 4th Thursday of November
+
+        // Static-date US federal holidays
         if (month === 1 && d === 1) return I18N.t("new_years");
+        if (month === 1 && d === mlkDay) return I18N.t("mlk_day");
+        if (month === 2 && d === presidents) return I18N.t("presidents_day");
+        if (month === 5 && d === memorial) return I18N.t("memorial_day");
+        if (month === 6 && d === 19) return I18N.t("juneteenth");
         if (month === 7 && d === 4) return I18N.t("independence");
+        if (month === 9 && d === labor) return I18N.t("labor_day");
+        if (month === 10 && d === columbus) return I18N.t("columbus_day");
         if (month === 11 && d === 11) return I18N.t("veterans");
+        if (month === 11 && d === thanksgiving) return I18N.t("thanksgiving");
         if (month === 12 && d === 25) return I18N.t("christmas");
-        
+
         if (day === 0) return I18N.t("sunday_schedule");
         if (day === 6) return I18N.t("saturday_schedule");
-        
+
         return null;
     },
 

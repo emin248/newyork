@@ -110,7 +110,7 @@
                         <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                             <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Weekly (5 days)</span>
                             <span id="weeklyEstimate" class="text-xl font-extrabold text-slate-900">$---</span>
-                            <span class="text-[10px] text-green-600 font-bold block mt-1">~20% Savings</span>
+                            <span class="text-[10px] text-green-600 font-bold block mt-1">~18% Savings</span>
                         </div>
                     </div>
                     <p class="text-[10px] text-slate-400 italic mt-4">
@@ -185,7 +185,7 @@
                 </table>
             </div>
             <div class="px-6 py-4 bg-slate-50 border-t border-slate-100">
-                <p class="text-[10px] text-slate-400 italic">Values are estimates based on 2024-2025 standard rates. Fares may vary depending on ticket source (vending machine vs inside train) and passenger status. </p>
+                <p class="text-[10px] text-slate-400 italic">Values are estimates based on standard NJ TRANSIT rates. Fares may vary depending on ticket source (vending machine vs inside train) and passenger status. </p>
             </div>
         </section>
 
@@ -262,9 +262,10 @@
 
         function updateEstimates() {
             const fare = parseFloat(baseFareInput.value) || 0;
-            // Monthly pass is typically ~13-14 days worth of round trips (20% to 35% savings)
+            // Monthly pass is typically ~13-14 days worth of round trips (35% savings)
             // Estimation formula: RoundTrip * 20 * 0.65
             const monthly = (fare * 2 * 20) * 0.65;
+            // Weekly pass discount ~18%
             const weekly = (fare * 2 * 5) * 0.82;
             
             monthlyEst.innerText = `$${monthly.toFixed(2)}`;

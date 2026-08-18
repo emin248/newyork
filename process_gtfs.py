@@ -124,11 +124,6 @@ def process_data():
     # Sort routes by name
     routes_meta.sort(key=lambda x: x['name'])
 
-    # Save routes.js (JSONP)
-    with open(os.path.join(DATA_DIR, 'routes.js'), 'w', encoding='utf-8') as f:
-        json_str = json.dumps(routes_meta, separators=(',', ':'))
-        f.write(f"window.loadRoutesData({json_str});")
-
     # Save individual route files as .js
     saved_count = 0
     for r_id, r_data in routes_full.items():
@@ -160,7 +155,7 @@ def process_data():
             
         saved_count += 1
 
-    print(f"Generated routes.js and {saved_count} route JS files in {DATA_DIR}")
+    print(f"Generated {saved_count} route JS files in {DATA_DIR}")
 
     # --- Generate all_stops.js logic ---
     print("Generating all_stops.js...")
@@ -184,9 +179,9 @@ def process_data():
                 station_to_routes[sid].append(r_id)
 
     popular_names_upper = [
-        "NEW YORK PENN STATION", "NEWARK PENN STATION", "SECAUCUS JUNCTION",
-        "TRENTON TRANSIT CENTER", "HOBOKEN TERMINAL", "NEWARK BROAD ST",
-        "ATLANTIC CITY", "METROPARK", "PRINCETON JUNCTION", "HAMILTON", "RAHWAY"
+        "NEW YORK PENN STATION", "NEWARK PENN STATION", "SECAUCUS LOWER LEVEL",
+        "TRENTON TRANSIT CENTER", "HOBOKEN", "NEWARK BROAD ST",
+        "ATLANTIC CITY", "METROPARK", "PRINCETON JCT.", "HAMILTON", "RAHWAY"
     ]
 
     for stop_id, stop_info in stops_all.items():
