@@ -96,9 +96,9 @@ const App = {
         this.elements.savedRoutesList.innerHTML = saved.map((r, idx) => `
             <button class="bg-white border border-slate-200 px-3 py-2 rounded-xl text-[10px] font-bold text-slate-700 flex items-center gap-2 hover:border-blue-300 hover:bg-blue-50 transition-all shadow-sm group"
                     onclick="App.loadSavedRoute(${idx})">
-                <span class="truncate max-w-[80px]">${r.depName}</span>
+                <span class="truncate max-w-[80px]">${I18N.station(r.depName)}</span>
                 <i class="fa-solid fa-arrow-right text-[8px] text-slate-300 group-hover:text-blue-400"></i>
-                <span class="truncate max-w-[80px]">${r.arrName}</span>
+                <span class="truncate max-w-[80px]">${I18N.station(r.arrName)}</span>
                 <i class="fa-solid fa-xmark ml-1 text-slate-300 hover:text-red-500" onclick="event.stopPropagation(); App.deleteSavedRoute(${idx})"></i>
             </button>
         `).join('');
@@ -111,9 +111,9 @@ const App = {
         const r = saved[idx];
         if (!r) return;
 
-        this.elements.departureInput.value = r.depName;
+        this.elements.departureInput.value = I18N.station(r.depName);
         this.elements.departureHidden.value = r.depId;
-        this.elements.arrivalInput.value = r.arrName;
+        this.elements.arrivalInput.value = I18N.station(r.arrName);
         this.elements.arrivalHidden.value = r.arrId;
 
         this.searchTrains(new Event('submit'));
@@ -220,9 +220,9 @@ const App = {
             const arr = this.state.allStopsList.find(s => s.name.toLowerCase() === to.toLowerCase());
 
             if (dep && arr) {
-                this.elements.departureInput.value = dep.name;
+                this.elements.departureInput.value = I18N.station(dep.name);
                 this.elements.departureHidden.value = dep.id;
-                this.elements.arrivalInput.value = arr.name;
+                this.elements.arrivalInput.value = I18N.station(arr.name);
                 this.elements.arrivalHidden.value = arr.id;
 
                 if (date) {
@@ -411,7 +411,7 @@ const App = {
                      data-id="${item.id}" data-name="${item.name}">
                     <div class="flex items-center min-w-0">
                         <i class="fa-solid fa-train-subway text-slate-300 mr-3 text-xs flex-shrink-0"></i>
-                        <span class="text-sm font-semibold text-slate-700 uppercase break-words">${item.name}</span>
+                        <span class="text-sm font-semibold text-slate-700 uppercase break-words">${I18N.station(item.name)}</span>
                         ${isPopular}
                     </div>
                 </div>`;
@@ -421,7 +421,7 @@ const App = {
 
         suggestionEl.querySelectorAll('.suggestion-item').forEach(el => {
             el.addEventListener('click', () => {
-                inputEl.value = el.dataset.name;
+                inputEl.value = I18N.station(el.dataset.name);
                 const isDeparture = inputEl.id === 'departureInput';
                 const hiddenEl = isDeparture ? this.elements.departureHidden : this.elements.arrivalHidden;
                 hiddenEl.value = el.dataset.id;
@@ -763,8 +763,8 @@ const App = {
 
         if (!isAppend) {
             const { depId, arrId } = this.state.searchParams;
-            const depName = this.state.allStops[depId]?.name || '';
-            const arrName = this.state.allStops[arrId]?.name || '';
+            const depName = I18N.station(this.state.allStops[depId]?.name || '');
+            const arrName = I18N.station(this.state.allStops[arrId]?.name || '');
             const holidayNotice = this.getSpecialDateNotice(this.state.searchParams.dateRaw);
             const holidayHtml = holidayNotice ? `<div class="holiday-notice"><i class="fa-solid fa-calendar-check mt-0.5"></i> <span>${holidayNotice}</span></div>` : '';
 
@@ -837,7 +837,7 @@ const App = {
                     <!-- Top row -->
                     <div class="train-card__top">
                         <span class="train-headsign">
-                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg><span class="opacity-70 mr-1">${I18N.t('towards')}</span> ${t.transferStation}
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg><span class="opacity-70 mr-1">${I18N.t('towards')}</span> ${I18N.station(t.transferStation)}
                         </span>
                         <div class="train-card__status-dur">
                             ${t.passed ? `<span class="train-badge train-badge--departed">${I18N.t('departed')}</span>` : isNext ? `<span class="train-badge train-badge--next">${I18N.t('next')}</span>` : ''}
@@ -848,7 +848,7 @@ const App = {
                     <div class="train-card__times">
                         <div class="train-card__endpoint">
                             <div class="train-time"><span class="scheduled-badge">${I18N.t('sched')}</span>${t.depTime}</div>
-                            <div class="train-station" translate="no">${t.from}</div>
+                            <div class="train-station" translate="no">${I18N.station(t.from)}</div>
                         </div>
                         <div class="train-card__arrow">
                             <div class="train-arrow-line"></div>
@@ -856,7 +856,7 @@ const App = {
                         </div>
                         <div class="train-card__endpoint train-card__endpoint--right">
                             <div class="train-time">${t.arrTime}</div>
-                            <div class="train-station" translate="no">${t.to}</div>
+                            <div class="train-station" translate="no">${I18N.station(t.to)}</div>
                         </div>
                     </div>
                     ${urgencyPill}
@@ -867,11 +867,11 @@ const App = {
                     <!-- Detail -->
                     <div id="${cardId}" class="train-card__detail hidden">
                         <div class="train-stops-list">
-                            <div class="train-stop train-stop--origin"><span class="train-stop__dot train-stop__dot--blue"></span><span class="train-stop__name" translate="no">${t.from}</span><span class="train-stop__time">${t.depTime}</span></div>
+                            <div class="train-stop train-stop--origin"><span class="train-stop__dot train-stop__dot--blue"></span><span class="train-stop__name" translate="no">${I18N.station(t.from)}</span><span class="train-stop__time">${t.depTime}</span></div>
                             ${leg1Html}
-                            <div class="train-stop train-stop--transfer"><span class="train-stop__dot train-stop__dot--amber"></span><span class="train-stop__name" translate="no">${I18N.t('transfer_at')} ${t.transferStation} (${I18N.t('arr')} ${t.leg1.arrTime} → ${I18N.t('dep')} ${t.leg2.depTime})</span><span class="train-stop__time">${t.waitTime}m ${I18N.t('wait')}</span></div>
+                            <div class="train-stop train-stop--transfer"><span class="train-stop__dot train-stop__dot--amber"></span><span class="train-stop__name" translate="no">${I18N.t('transfer_at')} ${I18N.station(t.transferStation)} (${I18N.t('arr')} ${t.leg1.arrTime} → ${I18N.t('dep')} ${t.leg2.depTime})</span><span class="train-stop__time">${t.waitTime}m ${I18N.t('wait')}</span></div>
                             ${leg2Html}
-                            <div class="train-stop"><span class="train-stop__dot train-stop__dot--gray"></span><span class="train-stop__name" translate="no">${t.to}</span><span class="train-stop__time">${t.arrTime}</span></div>
+                            <div class="train-stop"><span class="train-stop__dot train-stop__dot--gray"></span><span class="train-stop__name" translate="no">${I18N.station(t.to)}</span><span class="train-stop__time">${t.arrTime}</span></div>
                         </div>
                     </div>
                     <!-- Footer -->
@@ -905,7 +905,7 @@ const App = {
                     <div class="train-card__times">
                         <div class="train-card__endpoint">
                             <div class="train-time"><span class="scheduled-badge">${I18N.t('sched')}</span>${t.depTime}</div>
-                            <div class="train-station" translate="no">${t.from}</div>
+                            <div class="train-station" translate="no">${I18N.station(t.from)}</div>
                         </div>
                         <div class="train-card__arrow">
                             <div class="train-arrow-line"></div>
@@ -913,7 +913,7 @@ const App = {
                         </div>
                         <div class="train-card__endpoint train-card__endpoint--right">
                             <div class="train-time">${t.arrTime}</div>
-                            <div class="train-station" translate="no">${t.to}</div>
+                            <div class="train-station" translate="no">${I18N.station(t.to)}</div>
                         </div>
                     </div>
                     ${urgencyPill}
@@ -924,13 +924,13 @@ const App = {
                         <div class="train-stops-list">
                             <div class="train-stop train-stop--origin">
                                 <span class="train-stop__dot train-stop__dot--blue"></span>
-                                <span class="train-stop__name" translate="no">${t.from}</span>
+                                <span class="train-stop__name" translate="no">${I18N.station(t.from)}</span>
                                 <span class="train-stop__time">${t.depTime}</span>
                             </div>
                             ${stopsHtml}
                             <div class="train-stop">
                                 <span class="train-stop__dot train-stop__dot--gray"></span>
-                                <span class="train-stop__name" translate="no">${t.to}</span>
+                                <span class="train-stop__name" translate="no">${I18N.station(t.to)}</span>
                                 <span class="train-stop__time">${t.arrTime}</span>
                             </div>
                         </div>
@@ -963,7 +963,7 @@ const App = {
         return stops.map(s => `
             <div class="train-stop">
                 <span class="train-stop__dot"></span>
-                <span class="train-stop__name" translate="no">${s.name}</span>
+                <span class="train-stop__name" translate="no">${I18N.station(s.name)}</span>
                 <span class="train-stop__time">${s.time}</span>
             </div>
         `).join('');
@@ -976,8 +976,8 @@ const App = {
     shareRoute() {
         const { depId, arrId } = this.state.searchParams;
         if (!depId || !arrId) return;
-        const depName = this.state.allStops[depId].name;
-        const arrName = this.state.allStops[arrId].name;
+        const depName = I18N.station(this.state.allStops[depId].name);
+        const arrName = I18N.station(this.state.allStops[arrId].name);
         const date = this.elements.dateInput.value;
         const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}&date=${encodeURIComponent(date)}`;
         
@@ -988,8 +988,8 @@ const App = {
         const t = this.state.currentResults[idx];
         if (!t) return;
         const { depId, arrId } = this.state.searchParams;
-        const depName = this.state.allStops[depId].name;
-        const arrName = this.state.allStops[arrId].name;
+        const depName = I18N.station(this.state.allStops[depId].name);
+        const arrName = I18N.station(this.state.allStops[arrId].name);
         const date = this.elements.dateInput.value;
         const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}&date=${encodeURIComponent(date)}&trip=${encodeURIComponent(t.tripId)}`;
         

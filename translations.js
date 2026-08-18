@@ -100,6 +100,12 @@ const I18N = {
             saved_routes: "Saved Routes",
             saved_routes_desc: "Save your daily commute with one tap. Get instant access to your next 3 trains home.",
             popular_routes: "Popular NJ Transit Routes",
+            pop_newark_penn: "Newark Penn → NY Penn",
+            pop_trenton: "Trenton → NY Penn",
+            pop_metropark: "Metropark → NY Penn",
+            pop_secaucus: "Secaucus → NY Penn",
+            pop_hamilton: "Hamilton → NY Penn",
+            pop_princeton: "Princeton Jct → NY Penn",
 
             // Share
             share_title_route: "NJ Rail: {dep} to {arr}",
@@ -201,6 +207,12 @@ const I18N = {
             saved_routes: "Rutas Guardadas",
             saved_routes_desc: "Guarde su viaje diario con un toque. Acceda instantáneamente a sus próximos 3 trenes a casa.",
             popular_routes: "Rutas Populares de NJ Transit",
+            pop_newark_penn: "Newark Penn → NY Penn",
+            pop_trenton: "Trenton → NY Penn",
+            pop_metropark: "Metropark → NY Penn",
+            pop_secaucus: "Secaucus → NY Penn",
+            pop_hamilton: "Hamilton → NY Penn",
+            pop_princeton: "Princeton Jct → NY Penn",
 
             share_title_route: "NJ Rail: {dep} a {arr}",
             share_text_route: "Horario de tren NJ Transit para {date}: {dep} a {arr}",
@@ -300,6 +312,12 @@ const I18N = {
             saved_routes: "保存路线",
             saved_routes_desc: "一键保存日常通勤路线。即时获取接下来3班回家的列车。",
             popular_routes: "NJ Transit 热门路线",
+            pop_newark_penn: "纽瓦克 → 纽约宾夕法尼亚",
+            pop_trenton: "特伦顿 → 纽约宾夕法尼亚",
+            pop_metropark: "都会公园 → 纽约宾夕法尼亚",
+            pop_secaucus: "锡考克斯 → 纽约宾夕法尼亚",
+            pop_hamilton: "汉密尔顿 → 纽约宾夕法尼亚",
+            pop_princeton: "普林斯顿 → 纽约宾夕法尼亚",
 
             share_title_route: "NJ Rail：{dep} 到 {arr}",
             share_text_route: "NJ Transit 列车时刻 {date}：{dep} 到 {arr}",
@@ -399,6 +417,12 @@ const I18N = {
             saved_routes: "Сохранённые маршруты",
             saved_routes_desc: "Сохраните ежедневную поездку одним нажатием. Мгновенный доступ к следующим 3 поездам домой.",
             popular_routes: "Популярные маршруты NJ Transit",
+            pop_newark_penn: "Ньюарк → Нью-Йорк Пенн",
+            pop_trenton: "Трентон → Нью-Йорк Пенн",
+            pop_metropark: "Метропарк → Нью-Йорк Пенн",
+            pop_secaucus: "Секокус → Нью-Йорк Пенн",
+            pop_hamilton: "Гамильтон → Нью-Йорк Пенн",
+            pop_princeton: "Принстон → Нью-Йорк Пенн",
 
             share_title_route: "NJ Rail: {dep} → {arr}",
             share_text_route: "Расписание поезда NJ Transit на {date}: {dep} → {arr}",
@@ -498,6 +522,12 @@ const I18N = {
             saved_routes: "সংরক্ষিত রুট",
             saved_routes_desc: "একটি ট্যাপে আপনার দৈনিক যাতায়াত সংরক্ষণ করুন। বাড়িতে পরবর্তী ৩টি ট্রেনে তাৎক্ষণিক প্রবেশ।",
             popular_routes: "জনপ্রিয় NJ Transit রুট",
+            pop_newark_penn: "নেওয়ার্ক → নিউ ইয়র্ক পেন",
+            pop_trenton: "ট্রেন্টন → নিউ ইয়র্ক পেন",
+            pop_metropark: "মেট্রোপার্ক → নিউ ইয়র্ক পেন",
+            pop_secaucus: "সেকুকাস → নিউ ইয়র্ক পেন",
+            pop_hamilton: "হ্যামিলটন → নিউ ইয়র্ক পেন",
+            pop_princeton: "প্রিন্সটন → নিউ ইয়র্ক পেন",
 
             share_title_route: "NJ Rail: {dep} থেকে {arr}",
             share_text_route: "NJ Transit ট্রেন সময়সূচী {date}: {dep} থেকে {arr}",
@@ -516,11 +546,18 @@ const I18N = {
         return this.translations[lang]?.[key] || this.translations.en[key] || key;
     },
 
+    station(name) {
+        if (this.currentLang === 'en') return name;
+        const entry = STATION_NAMES[name];
+        return entry?.[this.currentLang] || name;
+    },
+
     setLang(lang) {
         this.currentLang = lang;
         localStorage.setItem('njrail_lang', lang);
         document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
         this.applyTranslations();
+        if (typeof this.onChange === 'function') this.onChange();
     },
 
     applyTranslations() {

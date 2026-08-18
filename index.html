@@ -647,12 +647,12 @@
             <section>
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 ml-1" data-i18n="popular_routes">Popular NJ Transit Routes</h2>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    <a href="?from=Newark+Penn+Station&to=New+York+Penn+Station" class="bg-slate-50 border border-slate-200 px-3 py-3 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-blue-400 transition-all">Newark Penn → NY Penn</a>
-                    <a href="?from=Trenton+Transit+Center&to=New+York+Penn+Station" class="bg-slate-50 border border-slate-200 px-3 py-3 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-blue-400 transition-all">Trenton → NY Penn</a>
-                    <a href="?from=Metropark&to=New+York+Penn+Station" class="bg-slate-50 border border-slate-200 px-3 py-3 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-blue-400 transition-all">Metropark → NY Penn</a>
-                    <a href="?from=Secaucus+Junction&to=New+York+Penn+Station" class="bg-slate-50 border border-slate-200 px-3 py-3 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-blue-400 transition-all">Secaucus → NY Penn</a>
-                    <a href="?from=Hamilton&to=New+York+Penn+Station" class="bg-slate-50 border border-slate-200 px-3 py-3 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-blue-400 transition-all">Hamilton → NY Penn</a>
-                    <a href="?from=Princeton+Junction&to=New+York+Penn+Station" class="bg-slate-50 border border-slate-200 px-3 py-3 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-blue-400 transition-all">Princeton Jct → NY Penn</a>
+                    <a href="?from=Newark+Penn+Station&to=New+York+Penn+Station" class="bg-slate-50 border border-slate-200 px-3 py-3 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-blue-400 transition-all" data-i18n="pop_newark_penn">Newark Penn → NY Penn</a>
+                    <a href="?from=Trenton+Transit+Center&to=New+York+Penn+Station" class="bg-slate-50 border border-slate-200 px-3 py-3 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-blue-400 transition-all" data-i18n="pop_trenton">Trenton → NY Penn</a>
+                    <a href="?from=Metropark&to=New+York+Penn+Station" class="bg-slate-50 border border-slate-200 px-3 py-3 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-blue-400 transition-all" data-i18n="pop_metropark">Metropark → NY Penn</a>
+                    <a href="?from=Secaucus+Junction&to=New+York+Penn+Station" class="bg-slate-50 border border-slate-200 px-3 py-3 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-blue-400 transition-all" data-i18n="pop_secaucus">Secaucus → NY Penn</a>
+                    <a href="?from=Hamilton&to=New+York+Penn+Station" class="bg-slate-50 border border-slate-200 px-3 py-3 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-blue-400 transition-all" data-i18n="pop_hamilton">Hamilton → NY Penn</a>
+                    <a href="?from=Princeton+Junction&to=New+York+Penn+Station" class="bg-slate-50 border border-slate-200 px-3 py-3 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-blue-400 transition-all" data-i18n="pop_princeton">Princeton Jct → NY Penn</a>
                 </div>
             </section>
         </div>
@@ -680,6 +680,7 @@
     </footer>
 
     <!-- App Logic -->
+    <script src="station_names.js"></script>
     <script src="translations.js"></script>
     <script src="app.js"></script>
 
@@ -693,6 +694,14 @@
                     I18N.setLang(this.value);
                 });
             }
+            I18N.onChange = function() {
+                if (typeof App !== 'undefined' && App) {
+                    App.loadSavedRoutes();
+                    if (App.state && App.state.currentResults && App.state.currentResults.length > 0) {
+                        App.renderResults();
+                    }
+                }
+            };
             I18N.applyTranslations();
         })();
         // Clear button visibility & action for Origin/Destination inputs
