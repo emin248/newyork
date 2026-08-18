@@ -40,10 +40,10 @@ const App = {
             const isHidden = el.classList.contains('hidden');
             if (isHidden) {
                 el.classList.remove('hidden');
-                btn.innerHTML = `Hide stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(180deg)"><path d="M6 9l6 6 6-6"/></svg>`;
+                btn.innerHTML = `${I18N.t('hide_stops')} <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(180deg)"><path d="M6 9l6 6 6-6"/></svg>`;
             } else {
                 el.classList.add('hidden');
-                btn.innerHTML = `Show stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>`;
+                btn.innerHTML = `${I18N.t('show_stops')} <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>`;
             }
         };
 
@@ -137,21 +137,21 @@ const App = {
         let saved = JSON.parse(localStorage.getItem('saved_routes') || '[]');
         // Avoid duplicates
         if (saved.some(r => r.depId === depId && r.arrId === arrId)) {
-            this.showMessage("Route already saved!", "info");
+            this.showMessage(I18N.t("route_already_saved"), "info");
             return;
         }
 
         saved.push({ depId, arrId, depName, arrName });
         localStorage.setItem('saved_routes', JSON.stringify(saved));
         this.loadSavedRoutes();
-        this.showMessage("Route saved to your commutes!", "info");
+        this.showMessage(I18N.t("route_saved"), "info");
     },
 
     searchLastTrain() {
         const depId = this.elements.departureHidden.value;
         const arrId = this.elements.arrivalHidden.value;
         if (!depId || !arrId) {
-            this.showMessage("Please select stations first.");
+            this.showMessage(I18N.t("select_stations_first"));
             return;
         }
         this.state.searchLastOnly = true;
@@ -161,7 +161,7 @@ const App = {
     setupInputListeners(inputEl, suggestionEl, hiddenEl, type) {
         const trigger = () => {
             if (type === 'arrival' && !this.elements.departureHidden.value) {
-                this.showMessage("Please select a departure station first.", "info");
+                this.showMessage(I18N.t("select_departure_first"), "info");
                 return;
             }
             this.showSuggestions(inputEl, suggestionEl, inputEl.value, type);
@@ -282,7 +282,7 @@ const App = {
                 routesToLoad.forEach(routeId => {
                     this.injectScript(`data/routes/${routeId.replace(/ /g, '_')}.js`);
                 });
-                suggestionEl.innerHTML = '<div class="px-4 py-3 text-sm text-slate-500 italic">Loading schedule data...</div>';
+                suggestionEl.innerHTML = `<div class="px-4 py-3 text-sm text-slate-500 italic">${I18N.t('loading_schedule')}</div>`;
 
                 // Safety timeout
                 setTimeout(() => {
@@ -298,7 +298,7 @@ const App = {
 
             const reachableIds = this.getReachableStops(depId, dateRaw);
             if (reachableIds.size === 0) {
-                suggestionEl.innerHTML = '<div class="px-4 py-3 text-sm text-red-500 italic">No trains available from this station on the selected date.</div>';
+                suggestionEl.innerHTML = `<div class="px-4 py-3 text-sm text-red-500 italic">${I18N.t('no_trains_station_date')}</div>`;
                 suggestionEl.classList.remove('hidden');
                 return;
             }
@@ -308,7 +308,7 @@ const App = {
             if (q.length === 0) {
                 matches = currentStops.filter(s => s.popular || reachableIds.size < 10);
                 if (matches.length === 0) matches = currentStops.slice(0, 10);
-                this.renderSuggestions(suggestionEl, matches, inputEl, "Available Destinations", type);
+                this.renderSuggestions(suggestionEl, matches, inputEl, I18N.t("available_destinations"), type);
                 return;
             }
 
@@ -342,7 +342,7 @@ const App = {
                     return a.name.localeCompare(b.name);
                 });
 
-            if (matches.length > 0) this.renderSuggestions(suggestionEl, matches, inputEl, "Popular Stations", type);
+            if (matches.length > 0) this.renderSuggestions(suggestionEl, matches, inputEl, I18N.t("popular_stations"), type);
             else this.hideSuggestions(suggestionEl);
             return;
         }
@@ -466,7 +466,7 @@ const App = {
         const dateRaw = this.elements.dateInput.value;
 
         if (!depId || !arrId || !dateRaw) {
-            this.showMessage("Please select valid stations from the list.");
+            this.showMessage(I18N.t("select_valid_stations"));
             return;
         }
 
@@ -480,7 +480,7 @@ const App = {
                 this.elements.connectingToggle.checked = true;
                 return this.searchTrains(e); // Retry with connecting trips enabled
             }
-            this.showMessage("No trains found (even with transfers).", "error");
+            this.showMessage(I18N.t("no_trains_found"), "error");
             return;
         }
 
@@ -576,7 +576,7 @@ const App = {
         if (this.state.currentResults.length === 0) {
             this.renderEmptyState();
             this.elements.saveRouteBtn.classList.add('hidden');
-            document.title = "NJ Rail — Fastest NJ TRANSIT Train Schedules";
+            document.title = `${I18N.t('site_title')} — ${I18N.t('site_subtitle')}`;
         } else {
             this.renderResults(isAppend);
             this.elements.saveRouteBtn.classList.remove('hidden');
@@ -584,7 +584,7 @@ const App = {
             // Update Page Title for SEO
             const depName = this.elements.departureInput.value;
             const arrName = this.elements.arrivalInput.value;
-            document.title = `${depName} to ${arrName} Train Schedule | NJ Rail`;
+            document.title = `${depName} ${I18N.t('to_word')} ${arrName} ${I18N.t('train_schedule_title')} | ${I18N.t('site_title')}`;
 
             if (this.state.searchLastOnly) {
                 this.state.searchLastOnly = false;
@@ -773,11 +773,11 @@ const App = {
 
                 <div class="flex items-center justify-between mb-4 animate-fade-in shadow-sm bg-white p-3 rounded-2xl border border-slate-100 gap-2">
                     <div class="flex flex-col flex-1 min-w-0">
-                        <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1 truncate">Schedule View</h2>
+                        <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1 truncate">${I18N.t('schedule_view')}</h2>
                         <div class="text-[13px] sm:text-sm font-bold text-slate-700 leading-tight break-words pr-1">${depName} <i class="fa-solid fa-arrow-right text-[10px] mx-1 text-slate-300"></i> ${arrName}</div>
                     </div>
                     <button onclick="App.shareRoute()" class="flex-shrink-0 flex items-center gap-1.5 text-[11px] font-extrabold text-blue-600 bg-blue-50/80 px-3 py-2 rounded-xl hover:bg-blue-100 transition-all active:scale-95 border border-blue-100">
-                        <i class="fa-solid fa-share-nodes"></i> SHARE
+                        <i class="fa-solid fa-share-nodes"></i> ${I18N.t('share')}
                     </button>
                 </div>`;
         }
@@ -800,11 +800,11 @@ const App = {
                 minsUntil = t.absMinDep - _nyMin;
                 if (minsUntil >= 0) {
                     if (minsUntil < 60) {
-                        countdownLabel = `${minsUntil}m left`;
+                        countdownLabel = `${minsUntil}${I18N.t('m_left')}`;
                     } else {
                         const h = Math.floor(minsUntil / 60);
                         const m = minsUntil % 60;
-                        countdownLabel = `${h}h ${m}m left`;
+                        countdownLabel = `${h}${I18N.t('h_left')} ${m}${I18N.t('m_left')}`;
                     }
                 }
             }
@@ -837,17 +837,17 @@ const App = {
                     <!-- Top row -->
                     <div class="train-card__top">
                         <span class="train-headsign">
-                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg><span class="opacity-70 mr-1">TOWARDS</span> ${t.transferStation}
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg><span class="opacity-70 mr-1">${I18N.t('towards')}</span> ${t.transferStation}
                         </span>
                         <div class="train-card__status-dur">
-                            ${t.passed ? '<span class="train-badge train-badge--departed">DEPARTED</span>' : isNext ? '<span class="train-badge train-badge--next">NEXT</span>' : ''}
+                            ${t.passed ? `<span class="train-badge train-badge--departed">${I18N.t('departed')}</span>` : isNext ? `<span class="train-badge train-badge--next">${I18N.t('next')}</span>` : ''}
                             <span class="train-duration"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-1px;margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${xfDurLabel}</span>
                         </div>
                     </div>
                     <!-- Times -->
                     <div class="train-card__times">
                         <div class="train-card__endpoint">
-                            <div class="train-time"><span class="scheduled-badge">SCHED</span>${t.depTime}</div>
+                            <div class="train-time"><span class="scheduled-badge">${I18N.t('sched')}</span>${t.depTime}</div>
                             <div class="train-station" translate="no">${t.from}</div>
                         </div>
                         <div class="train-card__arrow">
@@ -862,14 +862,14 @@ const App = {
                     ${urgencyPill}
                     <!-- Stops count -->
                     <div class="train-card__stops-row">
-                        <span class="train-stops-badge">+${totalStops} stops · ${t.waitTime}m transfer wait</span>
+                        <span class="train-stops-badge">+${totalStops} ${I18N.t('stops')} · ${t.waitTime}m ${I18N.t('transfer_wait')}</span>
                     </div>
                     <!-- Detail -->
                     <div id="${cardId}" class="train-card__detail hidden">
                         <div class="train-stops-list">
                             <div class="train-stop train-stop--origin"><span class="train-stop__dot train-stop__dot--blue"></span><span class="train-stop__name" translate="no">${t.from}</span><span class="train-stop__time">${t.depTime}</span></div>
                             ${leg1Html}
-                            <div class="train-stop train-stop--transfer"><span class="train-stop__dot train-stop__dot--amber"></span><span class="train-stop__name" translate="no">Transfer at ${t.transferStation} (arr ${t.leg1.arrTime} → dep ${t.leg2.depTime})</span><span class="train-stop__time">${t.waitTime}m wait</span></div>
+                            <div class="train-stop train-stop--transfer"><span class="train-stop__dot train-stop__dot--amber"></span><span class="train-stop__name" translate="no">${I18N.t('transfer_at')} ${t.transferStation} (${I18N.t('arr')} ${t.leg1.arrTime} → ${I18N.t('dep')} ${t.leg2.depTime})</span><span class="train-stop__time">${t.waitTime}m ${I18N.t('wait')}</span></div>
                             ${leg2Html}
                             <div class="train-stop"><span class="train-stop__dot train-stop__dot--gray"></span><span class="train-stop__name" translate="no">${t.to}</span><span class="train-stop__time">${t.arrTime}</span></div>
                         </div>
@@ -877,10 +877,10 @@ const App = {
                     <!-- Footer -->
                     <div class="train-card__footer">
                         <button onclick="toggleStops('${cardId}')" class="train-expand-btn">
-                            Show stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                            ${I18N.t('show_stops')} <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
                         </button>
                         <button onclick="App.shareTrip(${idx})" class="share-trip-btn">
-                            <i class="fa-solid fa-share-nodes"></i> Share trip
+                            <i class="fa-solid fa-share-nodes"></i> ${I18N.t('share_trip')}
                         </button>
                     </div>
                 </div>`;
@@ -894,17 +894,17 @@ const App = {
                     <!-- Top row: headsign + status/duration -->
                     <div class="train-card__top">
                         <span class="train-headsign">
-                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg><span class="opacity-70 mr-1">TOWARDS</span> ${t.headsign}${isExpress ? ' <span class="train-express-dot">⚡</span>' : ''}
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:1px;margin-right:3px"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg><span class="opacity-70 mr-1">${I18N.t('towards')}</span> ${t.headsign}${isExpress ? ' <span class="train-express-dot">⚡</span>' : ''}
                         </span>
                         <div class="train-card__status-dur">
-                            ${t.passed ? '<span class="train-badge train-badge--departed">DEPARTED</span>' : isNext ? '<span class="train-badge train-badge--next">NEXT</span>' : ''}
+                            ${t.passed ? `<span class="train-badge train-badge--departed">${I18N.t('departed')}</span>` : isNext ? `<span class="train-badge train-badge--next">${I18N.t('next')}</span>` : ''}
                             <span class="train-duration"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-1px;margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${durLabel}</span>
                         </div>
                     </div>
                     <!-- Times row -->
                     <div class="train-card__times">
                         <div class="train-card__endpoint">
-                            <div class="train-time"><span class="scheduled-badge">SCHED</span>${t.depTime}</div>
+                            <div class="train-time"><span class="scheduled-badge">${I18N.t('sched')}</span>${t.depTime}</div>
                             <div class="train-station" translate="no">${t.from}</div>
                         </div>
                         <div class="train-card__arrow">
@@ -918,7 +918,7 @@ const App = {
                     </div>
                     ${urgencyPill}
                     <!-- Stops count -->
-                    ${stopsCount > 0 ? `<div class="train-card__stops-row"><span class="train-stops-badge">+${stopsCount} stops</span></div>` : '<div class="train-card__stops-row"></div>'}
+                    ${stopsCount > 0 ? `<div class="train-card__stops-row"><span class="train-stops-badge">+${stopsCount} ${I18N.t('stops')}</span></div>` : '<div class="train-card__stops-row"></div>'}
                     <!-- Stop list (hidden) -->
                     <div id="${cardId}" class="train-card__detail hidden">
                         <div class="train-stops-list">
@@ -938,10 +938,10 @@ const App = {
                     <!-- Footer button -->
                     <div class="train-card__footer">
                         <button onclick="toggleStops('${cardId}')" class="train-expand-btn">
-                            Show stops <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                            ${I18N.t('show_stops')} <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
                         </button>
                         <button onclick="App.shareTrip(${idx})" class="share-trip-btn">
-                            <i class="fa-solid fa-share-nodes"></i> Share trip
+                            <i class="fa-solid fa-share-nodes"></i> ${I18N.t('share_trip')}
                         </button>
                     </div>
                 </div>`;
@@ -981,7 +981,7 @@ const App = {
         const date = this.elements.dateInput.value;
         const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}&date=${encodeURIComponent(date)}`;
         
-        this.performShare(url, `NJ Rail: ${depName} to ${arrName}`, `NJ Transit train schedule for ${date}: ${depName} to ${arrName}`);
+        this.performShare(url, I18N.t('share_title_route').replace('{dep}', depName).replace('{arr}', arrName), I18N.t('share_text_route').replace('{date}', date).replace('{dep}', depName).replace('{arr}', arrName));
     },
 
     shareTrip(idx) {
@@ -993,7 +993,7 @@ const App = {
         const date = this.elements.dateInput.value;
         const url = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(depName)}&to=${encodeURIComponent(arrName)}&date=${encodeURIComponent(date)}&trip=${encodeURIComponent(t.tripId)}`;
         
-        this.performShare(url, `Train at ${t.depTime} (${depName} → ${arrName})`, `Check this NJ Transit train schedule for ${date}: ${t.depTime} to ${t.arrTime}`);
+        this.performShare(url, I18N.t('share_title_trip').replace('{time}', t.depTime).replace('{dep}', depName).replace('{arr}', arrName), I18N.t('share_text_trip').replace('{date}', date).replace('{dep_time}', t.depTime).replace('{arr_time}', t.arrTime));
     },
 
     performShare(url, title, text) {
@@ -1006,15 +1006,15 @@ const App = {
 
     copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => {
-            this.showMessage("Route link copied! Share it with others.", "info");
+            this.showMessage(I18N.t("link_copied"), "info");
         }).catch(() => {
-            this.showMessage("Failed to copy link.", "error");
+            this.showMessage(I18N.t("link_copy_failed"), "error");
         });
     },
 
     showMessage: function (msg, type = 'error') {
         const bg = type === 'error' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600';
-        const notice = `<div class="mt-2 pt-2 border-t border-current opacity-60 text-[10px] uppercase tracking-widest">Note: Data is static (GTFS). Real-time delays not included.</div>`;
+        const notice = `<div class="mt-2 pt-2 border-t border-current opacity-60 text-[10px] uppercase tracking-widest">${I18N.t('note_static')}</div>`;
         this.elements.messageArea.innerHTML = `<div class="p-4 rounded-xl ${bg} font-medium text-sm text-center animate-fade-in">${msg}${type === 'error' ? '' : notice}</div>`;
     },
     timeToMin: (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; },
@@ -1032,13 +1032,13 @@ const App = {
         const d = date.getDate();
         
         // Basic US Holiday detection (static dates)
-        if (month === 1 && d === 1) return "New Year's Day (Holiday Schedule)";
-        if (month === 7 && d === 4) return "Independence Day (Holiday Schedule)";
-        if (month === 11 && d === 11) return "Veterans Day (Potential Holiday Schedule)";
-        if (month === 12 && d === 25) return "Christmas Day (Holiday Schedule)";
+        if (month === 1 && d === 1) return I18N.t("new_years");
+        if (month === 7 && d === 4) return I18N.t("independence");
+        if (month === 11 && d === 11) return I18N.t("veterans");
+        if (month === 12 && d === 25) return I18N.t("christmas");
         
-        if (day === 0) return "Sunday Schedule in effect";
-        if (day === 6) return "Saturday Schedule in effect";
+        if (day === 0) return I18N.t("sunday_schedule");
+        if (day === 6) return I18N.t("saturday_schedule");
         
         return null;
     },
@@ -1048,21 +1048,21 @@ const App = {
         const now = new Date();
         const nyDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(now);
         
-        let reason = "No trains found for this route on the selected date.";
+        let reason = I18N.t("no_trains_route");
         let suggestions = [];
         let icon = "fa-calendar-xmark";
 
         if (dateRaw < nyDateStr) {
-            reason = "This date is in the past.";
-            suggestions.push("Please select today's date or a future date to see current schedules.");
+            reason = I18N.t("date_in_past");
+            suggestions.push(I18N.t("select_future_date"));
             icon = "fa-clock-rotate-left";
         } else {
             const nyLocal = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
             const currentMin = nyLocal.getHours() * 60 + nyLocal.getMinutes();
             
             if (dateRaw === nyDateStr && currentMin > 120 && currentMin < 300) {
-                reason = "It's late night / early morning (2-5 AM).";
-                suggestions.push("Most NJ TRANSIT service pauses during these hours. Check for the first morning trains starting around 5:00 AM.");
+                reason = I18N.t("late_night");
+                suggestions.push(I18N.t("service_pauses"));
                 icon = "fa-moon";
             } else {
                 const depStop = this.state.allStops[depId];
@@ -1070,11 +1070,11 @@ const App = {
                 const commonRoutes = depStop.routes.filter(r => arrStop.routes.includes(r));
                 
                 if (commonRoutes.length === 0) {
-                    reason = "No direct route found between these stations.";
-                    suggestions.push("Try enabling 'Connecting Trips' to find multi-leg journeys.");
+                    reason = I18N.t("no_direct_route");
+                    suggestions.push(I18N.t("try_connecting"));
                     icon = "fa-route";
                 } else {
-                    suggestions.push("Try checking a different date or verify if there is a known service disruption.");
+                    suggestions.push(I18N.t("try_different_date"));
                 }
             }
         }
@@ -1083,9 +1083,9 @@ const App = {
             <div class="empty-state-details animate-fade-in">
                 <div class="empty-state-icon"><i class="fa-solid ${icon}"></i></div>
                 <h3 class="text-lg font-bold text-slate-800 mb-2">${reason}</h3>
-                <p class="text-sm text-slate-500">We couldn't find any scheduled trips matching your search.</p>
+                <p class="text-sm text-slate-500">${I18N.t('couldnt_find')}</p>
                 <div class="empty-state-suggestion">
-                    <p class="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-2">Recommendation</p>
+                    <p class="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-2">${I18N.t('recommendation')}</p>
                     <ul class="list-disc list-inside space-y-1">
                         ${suggestions.map(s => `<li>${s}</li>`).join('')}
                     </ul>
