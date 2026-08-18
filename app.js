@@ -576,7 +576,7 @@ const App = {
         if (this.state.currentResults.length === 0) {
             this.renderEmptyState();
             this.elements.saveRouteBtn.classList.add('hidden');
-            document.title = `${I18N.t('site_title')} — ${I18N.t('site_subtitle')}`;
+            document.title = I18N.t('seo_title');
         } else {
             this.renderResults(isAppend);
             this.elements.saveRouteBtn.classList.remove('hidden');

@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://njrail.info/index.html</loc>
-    <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://njrail.info/index.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://njrail.info/index.html?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://njrail.info/index.html?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://njrail.info/index.html?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://njrail.info/index.html?lang=bn"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://njrail.info/index.html"/>
+    <lastmod>2026-08-18</lastmod>
     <priority>1.0</priority>
   </url>
   <url>

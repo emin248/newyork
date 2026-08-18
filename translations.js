@@ -1,8 +1,15 @@
 const I18N = {
-    currentLang: localStorage.getItem('njrail_lang') || 'en',
+    currentLang: (new URLSearchParams(window.location.search).get('lang') || localStorage.getItem('njrail_lang') || 'en'),
 
     translations: {
         en: {
+            // SEO
+            seo_title: "NJ Rail — Fastest NJ TRANSIT Train Schedules",
+            seo_description: "The fastest, simplest way to check NJ TRANSIT train schedules. Offline-friendly, real-time alerts, and commuter-focused trip planning.",
+            og_locale: "en_US",
+            og_title: "NJ Rail — Fastest NJ TRANSIT Train Schedules",
+            og_description: "The fastest way to check NJ TRANSIT schedules. Offline-friendly, real-time alerts, and commuter-focused trip planning.",
+
             // Header
             site_title: "NJ Rail",
             site_subtitle: "Fastest way to check NJ TRANSIT times",
@@ -121,6 +128,12 @@ const I18N = {
         },
 
         es: {
+            seo_title: "NJ Rail — La forma más rápida de consultar horarios de tren NJ TRANSIT",
+            seo_description: "La forma más rápida y sencilla de consultar horarios de tren NJ TRANSIT. Funciona sin conexión, alertas en tiempo real y planificación de viajes para viajeros frecuentes.",
+            og_locale: "es_ES",
+            og_title: "NJ Rail — La forma más rápida de consultar horarios de tren NJ TRANSIT",
+            og_description: "La forma más rápida de consultar horarios de NJ TRANSIT. Funciona sin conexión, alertas en tiempo real y planificación de viajes para viajeros frecuentes.",
+
             site_title: "NJ Rail",
             site_subtitle: "La forma más rápida de consultar horarios de NJ TRANSIT",
             schedule_updated: "Horario Actualizado: 8 ago 2026",
@@ -226,6 +239,12 @@ const I18N = {
         },
 
         zh: {
+            seo_title: "NJ Rail — 查询 NJ TRANSIT 列车时刻表的最快方式",
+            seo_description: "查询 NJ TRANSIT 列车时刻表最快、最简单的方式。支持离线使用、实时提醒，专为通勤者设计。",
+            og_locale: "zh_CN",
+            og_title: "NJ Rail — 查询 NJ TRANSIT 列车时刻表的最快方式",
+            og_description: "查询 NJ TRANSIT 列车时刻表的最快方式。支持离线使用、实时提醒，专为通勤者设计。",
+
             site_title: "NJ Rail",
             site_subtitle: "查询 NJ TRANSIT 列车时刻的最快方式",
             schedule_updated: "时刻表更新：2026年8月8日",
@@ -331,6 +350,12 @@ const I18N = {
         },
 
         ru: {
+            seo_title: "NJ Rail — Быстрый способ узнать расписание поездов NJ TRANSIT",
+            seo_description: "Самый быстрый и простой способ узнать расписание поездов NJ TRANSIT. Работает офлайн, включает оповещения в реальном времени и планирование поездок.",
+            og_locale: "ru_RU",
+            og_title: "NJ Rail — Быстрый способ узнать расписание поездов NJ TRANSIT",
+            og_description: "Самый быстрый способ узнать расписание NJ TRANSIT. Работает офлайн, включает оповещения в реальном времени и планирование поездок.",
+
             site_title: "NJ Rail",
             site_subtitle: "Быстрый способ узнать расписание NJ TRANSIT",
             schedule_updated: "Расписание обновлено: 8 авг 2026",
@@ -436,6 +461,12 @@ const I18N = {
         },
 
         bn: {
+            seo_title: "NJ Rail — NJ TRANSIT ট্রেনের সময়সূচী দেখার দ্রুততম উপায়",
+            seo_description: "NJ TRANSIT ট্রেনের সময়সূচী দেখার সবচেয়ে দ্রুত ও সহজ উপায়। অফলাইন-বান্ধব, রিয়েল-টাইম সতর্কতা এবং যাত্রীদের জন্য ভ্রমণ পরিকল্পনা।",
+            og_locale: "bn_BD",
+            og_title: "NJ Rail — NJ TRANSIT ট্রেনের সময়সূচী দেখার দ্রুততম উপায়",
+            og_description: "NJ TRANSIT সময়সূচী দেখার দ্রুততম উপায়। অফলাইন-বান্ধব, রিয়েল-টাইম সতর্কতা এবং যাত্রীদের জন্য ভ্রমণ পরিকল্পনা।",
+
             site_title: "NJ Rail",
             site_subtitle: "NJ TRANSIT সময়সূচী দেখার দ্রুততম উপায়",
             schedule_updated: "সময়সূচী আপডেট: ৮ আগস্ট, ২০২৬",
@@ -557,7 +588,40 @@ const I18N = {
         localStorage.setItem('njrail_lang', lang);
         document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
         this.applyTranslations();
+        this.updateSEO();
         if (typeof this.onChange === 'function') this.onChange();
+    },
+
+    updateSEO() {
+        const title = this.t('seo_title');
+        const description = this.t('seo_description');
+        document.title = title;
+
+        let metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) metaDesc.setAttribute('content', description);
+
+        let ogTitle = document.querySelector('meta[property="og:title"]');
+        if (ogTitle) ogTitle.setAttribute('content', this.t('og_title'));
+
+        let ogDesc = document.querySelector('meta[property="og:description"]');
+        if (ogDesc) ogDesc.setAttribute('content', this.t('og_description'));
+
+        let ogLocale = document.querySelector('meta[property="og:locale"]');
+        if (ogLocale) ogLocale.setAttribute('content', this.t('og_locale'));
+
+        // Update canonical for the current language
+        let canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) {
+            const base = 'https://njrail.info/';
+            canonical.setAttribute('href', this.currentLang === 'en' ? base : `${base}?lang=${this.currentLang}`);
+        }
+
+        // Update og:url for the current language
+        let ogUrl = document.querySelector('meta[property="og:url"]');
+        if (ogUrl) {
+            const base = 'https://njrail.info/';
+            ogUrl.setAttribute('content', this.currentLang === 'en' ? base : `${base}?lang=${this.currentLang}`);
+        }
     },
 
     applyTranslations() {

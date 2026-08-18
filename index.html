@@ -8,6 +8,12 @@
     <meta name="description"
         content="The fastest, simplest way to check NJ TRANSIT train schedules. Offline-friendly, real-time alerts, and commuter-focused trip planning.">
     <link rel="canonical" href="https://njrail.info/">
+    <link rel="alternate" hreflang="en" href="https://njrail.info/">
+    <link rel="alternate" hreflang="es" href="https://njrail.info/?lang=es">
+    <link rel="alternate" hreflang="zh" href="https://njrail.info/?lang=zh">
+    <link rel="alternate" hreflang="ru" href="https://njrail.info/?lang=ru">
+    <link rel="alternate" hreflang="bn" href="https://njrail.info/?lang=bn">
+    <link rel="alternate" hreflang="x-default" href="https://njrail.info/">
     <meta name="google-site-verification" content="NCfkgtwzmUmbnPrYZr_k2SZzNTT5fxIeBuiUbHgaFMQ" />
 
     <!-- Open Graph Meta Tags -->
@@ -703,6 +709,7 @@
                 }
             };
             I18N.applyTranslations();
+            I18N.updateSEO();
         })();
         // Clear button visibility & action for Origin/Destination inputs
         (function () {
