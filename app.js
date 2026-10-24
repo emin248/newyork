@@ -542,31 +542,22 @@ const App = {
         const depStop = this.state.allStops[depId];
         const arrStop = this.state.allStops[arrId];
         const commonRoutes = depStop.routes.filter(r => arrStop.routes.includes(r));
+        const hasConnecting = this.elements.connectingToggle.checked;
 
-        if (commonRoutes.length === 0) {
-            if (!this.elements.connectingToggle.checked) {
-                this.elements.connectingToggle.checked = true;
-                return this.searchTrains(e); // Retry with connecting trips enabled
-            }
-            // No direct route — look for connecting trips between different lines.
-            // Load every route serving either station so findConnectingTrips can build leg1/leg2.
-            const neededRoutes = [...new Set([...depStop.routes, ...arrStop.routes])];
-            this.state.pendingRoutes = new Set(neededRoutes);
-            this.state.searchParams = { depId, arrId, dateRaw };
-
-            neededRoutes.forEach(routeId => {
-                if (this.state.routeData[routeId]) this.state.pendingRoutes.delete(routeId);
-                else this.injectScript(`data/routes/${routeId.replace(/ /g, '_')}.js`);
-            });
-
-            this.checkAllRoutesLoaded();
-            return;
+        if (commonRoutes.length === 0 && !hasConnecting) {
+            this.elements.connectingToggle.checked = true;
         }
 
-        this.state.pendingRoutes = new Set(commonRoutes);
+        // If connecting trips are enabled or there are no direct routes between stops,
+        // load all routes serving either station to enable transfer calculations.
+        const neededRoutes = (hasConnecting || commonRoutes.length === 0)
+            ? [...new Set([...depStop.routes, ...arrStop.routes])]
+            : commonRoutes;
+
+        this.state.pendingRoutes = new Set(neededRoutes);
         this.state.searchParams = { depId, arrId, dateRaw };
 
-        commonRoutes.forEach(routeId => {
+        neededRoutes.forEach(routeId => {
             if (this.state.routeData[routeId]) this.state.pendingRoutes.delete(routeId);
             else this.injectScript(`data/routes/${routeId.replace(/ /g, '_')}.js`);
         });
@@ -653,6 +644,10 @@ const App = {
         else this.state.currentResults = this.state.currentResults.concat(sorted);
 
         if (this.state.currentResults.length === 0) {
+            if (!this.elements.connectingToggle.checked) {
+                this.elements.connectingToggle.checked = true;
+                return this.searchTrains();
+            }
             this.renderEmptyState();
             this.elements.saveRouteBtn.classList.add('hidden');
             document.title = I18N.t('seo_title');
@@ -780,7 +775,7 @@ const App = {
                         leg2.forEach(t2 => {
                             let waitTime = t2.absMinDep - t1.absMinArr;
                             if (waitTime < 0) waitTime += 1440; // Leg 2 departs after midnight on the next service day
-                            if (waitTime >= 10 && waitTime <= 45) { // Min 10 mins for safe transfer, Max 45 mins wait
+                            if (waitTime >= 5 && waitTime <= 65) { // Min 5 mins for transfer, Max 65 mins for hourly schedules
 
                                 // --- Backtracking Prevention ---
                                 // If Leg 1 already contains the final destination, it's a backtrack.

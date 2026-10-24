@@ -13,7 +13,7 @@ const I18N = {
             // Header
             site_title: "NJ Rail",
             site_subtitle: "Fastest way to check NJ TRANSIT times",
-            schedule_updated: "Schedule Updated: Aug 8, 2026",
+            schedule_updated: "Schedule Updated: Oct 24, 2026",
 
             // Saved Routes
             saved_commutes: "Your Saved Commutes",
@@ -144,7 +144,7 @@ const I18N = {
 
             site_title: "NJ Rail",
             site_subtitle: "La forma más rápida de consultar horarios de NJ TRANSIT",
-            schedule_updated: "Horario Actualizado: 8 ago 2026",
+            schedule_updated: "Horario Actualizado: 24 oct 2026",
 
             saved_commutes: "Tus Rutas Guardadas",
 
@@ -263,7 +263,7 @@ const I18N = {
 
             site_title: "NJ Rail",
             site_subtitle: "查询 NJ TRANSIT 列车时刻的最快方式",
-            schedule_updated: "时刻表更新：2026年8月8日",
+            schedule_updated: "时刻表更新：2026年10月24日",
 
             saved_commutes: "已保存的通勤路线",
 
@@ -382,7 +382,7 @@ const I18N = {
 
             site_title: "NJ Rail",
             site_subtitle: "Быстрый способ узнать расписание NJ TRANSIT",
-            schedule_updated: "Расписание обновлено: 8 авг 2026",
+            schedule_updated: "Расписание обновлено: 24 окт 2026",
 
             saved_commutes: "Сохранённые маршруты",
 
@@ -501,7 +501,7 @@ const I18N = {
 
             site_title: "NJ Rail",
             site_subtitle: "NJ TRANSIT সময়সূচী দেখার দ্রুততম উপায়",
-            schedule_updated: "সময়সূচী আপডেট: ৮ আগস্ট, ২০২৬",
+            schedule_updated: "সময়সূচী আপডেট: ২৪ অক্টোবর, ২০২৬",
 
             saved_commutes: "আপনার সংরক্ষিত যাতায়াত",
 
