@@ -1,25 +1,25 @@
 {
-  "name": "nj-transit-schedules",
+  "name": "newyork",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/emin248/nj-rail-schedule.git"
+    "url": "git+https://github.com/emin248/newyork.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/emin248/nj-rail-schedule/issues"
-  },
-  "homepage": "https://github.com/emin248/nj-rail-schedule#readme",
-  "description": "",
   "dependencies": {
     "@tailwindcss/cli": "^4.1.18",
     "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "wrangler": "^3.114.17"
   }
 }
