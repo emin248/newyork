@@ -1,0 +1,13 @@
+node_modules
+node_modules/**
+.git
+.git/**
+.github
+.github/**
+*.py
+package.json
+package-lock.json
+wrangler.jsonc
+.gitignore
+.assetsignore
+game-content.md
